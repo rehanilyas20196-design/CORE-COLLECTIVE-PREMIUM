@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Store, Star, ChevronRight, Users } from 'lucide-react';
+import { ShoppingBag, Store, Star, ChevronRight, Users, Search, ArrowRight } from 'lucide-react';
 import ModelViewer3D from './ModelViewer3D';
 
 const avatars = [
@@ -25,7 +25,30 @@ const itemVariants = {
 export default function HeroSection() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef(null);
+
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
 
   if (!mounted) return null;
 
@@ -67,6 +90,36 @@ export default function HeroSection() {
             >
               Connect with verified suppliers, source quality products at wholesale prices, and grow your business with Core Collective&apos;s trusted marketplace platform.
             </motion.p>
+
+            <motion.div variants={itemVariants} className="mt-6" ref={searchRef}>
+              {!searchOpen ? (
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="flex items-center gap-3 w-full max-w-md px-5 py-3.5 bg-white border-2 border-gray-200 rounded-2xl text-gray-400 hover:border-primary/50 hover:text-gray-600 transition-all duration-300 group"
+                >
+                  <Search className="w-5 h-5" />
+                  <span className="text-sm">Search products, categories, suppliers...</span>
+                  <span className="ml-auto px-3 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-all">Search</span>
+                </button>
+              ) : (
+                <form onSubmit={handleSearch} className="w-full max-w-md">
+                  <div className="flex items-center gap-3 px-5 py-3 bg-white border-2 border-primary rounded-2xl shadow-lg shadow-primary/10">
+                    <Search className="w-5 h-5 text-primary shrink-0" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="What are you looking for?"
+                      className="flex-1 bg-transparent text-gray-900 text-sm outline-none placeholder:text-gray-400"
+                      autoFocus
+                    />
+                    <button type="submit" className="p-2 bg-primary text-white rounded-xl hover:bg-primary-700 transition-colors">
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
 
             <motion.div
               variants={itemVariants}

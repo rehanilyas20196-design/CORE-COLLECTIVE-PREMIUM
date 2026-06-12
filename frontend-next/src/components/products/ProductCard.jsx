@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Heart, Star, ShoppingBag, ShieldCheck, TrendingUp, Phone } from 'lucide-react';
+import { Heart, Star, ShoppingBag, ShieldCheck, TrendingUp, ShoppingCart } from 'lucide-react';
 
 const categoryColors = {
   Electronics: 'bg-blue-100 text-blue-700',
@@ -16,6 +17,7 @@ const categoryColors = {
 };
 
 export default function ProductCard({ product, index = 0 }) {
+  const router = useRouter();
   const [wishlisted, setWishlisted] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -31,13 +33,10 @@ export default function ProductCard({ product, index = 0 }) {
   const featured = p.is_featured || false;
   const isNew = p.created_at && Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
 
-  const whatsappNumber = p.whatsapp || '+923455900229';
-
   const handleBuyNow = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const msg = encodeURIComponent(`Hi, I'm interested in buying "${p.name}" (PKR ${Number(priceDisplay).toLocaleString()}/unit). Please share more details.`);
-    window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+    router.push(`/products/${p.id}`);
   };
 
   return (
@@ -157,8 +156,8 @@ export default function ProductCard({ product, index = 0 }) {
               onClick={handleBuyNow}
               className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-2"
             >
-              <Phone className="w-4 h-4" />
-              Buy Now via WhatsApp
+              <ShoppingCart className="w-4 h-4" />
+              Buy Now
             </button>
           </motion.div>
         </div>

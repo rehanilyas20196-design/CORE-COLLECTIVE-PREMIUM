@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, X, ChevronDown, LayoutGrid, List, Star, Loader, Sparkles, TrendingUp, Shield } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
@@ -25,7 +26,8 @@ const categoryList = ['Electronics', 'Clothing', 'Furniture', 'Pet Supplies', 'T
 const cities = ['Karachi', 'Lahore', 'Islamabad', 'Faisalabad', 'Multan', 'International'];
 const PAGE_SIZE = 24;
 
-export default function ProductsPage() {
+function ProductsPage() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,13 +37,20 @@ export default function ProductsPage() {
   const [hasMore, setHasMore] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const searchTimeoutRef = useRef(null);
 
   const [filters, setFilters] = useState({
     search: '', category: '', minPrice: '', maxPrice: '', moq: '',
     cities: [], minRating: 0, stockStatus: [], verifiedOnly: false,
     featuredOnly: false, sort: 'relevance',
   });
+
+  // Read search from URL on mount
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q) {
+      setFilters(prev => ({ ...prev, search: q }));
+    }
+  }, [searchParams]);
 
   const fetchFeatured = useCallback(async () => {
     try {
@@ -52,42 +61,38 @@ export default function ProductsPage() {
 
   useEffect(() => { fetchFeatured(); }, [fetchFeatured]);
 
-  const buildQuery = useCallback((pageNum = 0, append = false) => {
-    let q = supabase.from('products').select('*', { count: 'exact' });
-    q = q.eq('is_active', true).eq('status', 'active');
-
-    if (filters.category) q = q.eq('category', filters.category);
-    if (filters.search) q = q.ilike('name', `%${filters.search}%`);
-    if (filters.minPrice) q = q.gte('price', Number(filters.minPrice));
-    if (filters.maxPrice) q = q.lte('price', Number(filters.maxPrice));
-    if (filters.moq === '1-10') q = q.lte('moq', 10);
-    else if (filters.moq === '11-50') q = q.and('moq.gte.11,moq.lte.50');
-    else if (filters.moq === '51-200') q = q.and('moq.gte.51,moq.lte.200');
-    else if (filters.moq === '200+') q = q.gte('moq', 200);
-    if (filters.minRating > 0) q = q.gte('rating', filters.minRating);
-    if (filters.verifiedOnly) q = q.eq('is_verified', true);
-    if (filters.featuredOnly) q = q.eq('is_featured', true);
-
-    if (!append) {
-      if (filters.sort === 'newest') q = q.order('created_at', { ascending: false });
-      else if (filters.sort === 'price_asc') q = q.order('price', { ascending: true });
-      else if (filters.sort === 'price_desc') q = q.order('price', { ascending: false });
-      else if (filters.sort === 'rating') q = q.order('rating', { ascending: false });
-      else if (filters.sort === 'popular') q = q.order('reviews_count', { ascending: false });
-      else q = q.order('id', { ascending: false });
-    }
-
-    const from = pageNum * PAGE_SIZE;
-    q = q.range(from, from + PAGE_SIZE - 1);
-    return q;
-  }, [filters]);
-
   const fetchProducts = useCallback(async (append = false) => {
     const loader = append ? setLoadingMore : setLoading;
     loader(true);
     try {
+      let q = supabase.from('products').select('*', { count: 'exact' });
+      q = q.eq('is_active', true).eq('status', 'active');
+
+      if (filters.category) q = q.eq('category', filters.category);
+      if (filters.search) q = q.ilike('name', `%${filters.search}%`);
+      if (filters.minPrice) q = q.gte('price', Number(filters.minPrice));
+      if (filters.maxPrice) q = q.lte('price', Number(filters.maxPrice));
+      if (filters.moq === '1-10') q = q.lte('moq', 10);
+      else if (filters.moq === '11-50') q = q.and('moq.gte.11,moq.lte.50');
+      else if (filters.moq === '51-200') q = q.and('moq.gte.51,moq.lte.200');
+      else if (filters.moq === '200+') q = q.gte('moq', 200);
+      if (filters.minRating > 0) q = q.gte('rating', filters.minRating);
+      if (filters.verifiedOnly) q = q.eq('is_verified', true);
+      if (filters.featuredOnly) q = q.eq('is_featured', true);
+
+      if (!append) {
+        if (filters.sort === 'newest') q = q.order('created_at', { ascending: false });
+        else if (filters.sort === 'price_asc') q = q.order('price', { ascending: true });
+        else if (filters.sort === 'price_desc') q = q.order('price', { ascending: false });
+        else if (filters.sort === 'rating') q = q.order('rating', { ascending: false });
+        else if (filters.sort === 'popular') q = q.order('reviews_count', { ascending: false });
+        else q = q.order('id', { ascending: false });
+      }
+
       const currentPage = append ? page : 0;
-      const q = buildQuery(currentPage, append);
+      const from = currentPage * PAGE_SIZE;
+      q = q.range(from, from + PAGE_SIZE - 1);
+
       const { data, count, error } = await q;
       if (error) throw error;
       if (append) setProducts(prev => [...prev, ...(data || [])]);
@@ -99,7 +104,7 @@ export default function ProductsPage() {
     } finally {
       loader(false);
     }
-  }, [buildQuery, page]);
+  }, [filters, page]);
 
   useEffect(() => {
     setPage(0);
@@ -115,14 +120,6 @@ export default function ProductsPage() {
   const clearFilters = () => setFilters({ search: '', category: '', minPrice: '', maxPrice: '', moq: '', cities: [], minRating: 0, stockStatus: [], verifiedOnly: false, featuredOnly: false, sort: 'relevance' });
 
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(() => {
-      updateFilter('search', value);
-    }, 300);
-  };
 
   const FilterSidebar = () => (
     <div className="space-y-6">
@@ -245,7 +242,7 @@ export default function ProductsPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-6">
             <div className="relative max-w-2xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input type="text" defaultValue={filters.search} onChange={handleSearchChange}
+              <input type="text" value={filters.search} onChange={e => updateFilter('search', e.target.value)}
                 placeholder="Search by product name, category, or supplier..."
                 className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base" />
             </div>
@@ -360,11 +357,7 @@ export default function ProductsPage() {
                 {filters.search && (
                   <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-700">
                     Search: &ldquo;{filters.search}&rdquo;
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => {
-                      updateFilter('search', '');
-                      const input = document.querySelector('input[placeholder*="Search by product"]');
-                      if (input) input.value = '';
-                    }} />
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('search', '')} />
                   </span>
                 )}
                 <button onClick={clearFilters} className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-900 transition-colors">Clear all</button>
@@ -435,5 +428,20 @@ export default function ProductsPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function ProductsPageWrapper() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-gray-500">Loading products...</p>
+        </div>
+      </div>
+    }>
+      <ProductsPage />
+    </Suspense>
   );
 }
