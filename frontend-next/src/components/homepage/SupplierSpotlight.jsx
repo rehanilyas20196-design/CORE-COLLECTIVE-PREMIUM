@@ -138,12 +138,6 @@ export default function SupplierSpotlight() {
                 </span>
               </div>
 
-              <Link
-                href="/suppliers"
-                className="block w-full text-center mt-4 px-4 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-100 hover:border-primary hover:text-primary transition-all duration-300"
-              >
-                View Supplier
-              </Link>
             </motion.div>
           ))}
 

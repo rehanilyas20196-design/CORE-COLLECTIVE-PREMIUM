@@ -24,6 +24,7 @@ const tabs = [
   { id: 'buyrequests', label: 'Buy Requests', icon: ShoppingCart, color: 'from-cyan-500 to-teal-600' },
   { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-rose-500 to-pink-600' },
   { id: 'allproducts', label: 'All Products', icon: Layers, color: 'from-teal-500 to-emerald-600' },
+  { id: 'contactmessages', label: 'Messages', icon: MessageSquare, color: 'from-indigo-500 to-purple-600' },
 ];
 
 const statusStyles = {
@@ -51,6 +52,7 @@ export default function AdminPage() {
   const [supplierProducts, setSupplierProducts] = useState([]);
   const [buyRequests, setBuyRequests] = useState([]);
   const [marketplaceProducts, setMarketplaceProducts] = useState([]);
+  const [contactMessages, setContactMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
@@ -100,11 +102,16 @@ export default function AdminPage() {
     catch (e) { console.error(e); }
   }, []);
 
+  const loadContactMessages = useCallback(async () => {
+    try { const d = await api.contactMessages.getAll(); setContactMessages(Array.isArray(d) ? d : []); }
+    catch (e) { console.error(e); }
+  }, []);
+
   const loadAll = useCallback(async () => {
     setLoading(true);
-    await Promise.all([loadOrders(), loadInquiries(), loadDiscounts(), loadNotifications(), loadSupplierProducts(), loadBuyRequests(), loadMarketplaceProducts()]);
+    await Promise.all([loadOrders(), loadInquiries(), loadDiscounts(), loadNotifications(), loadSupplierProducts(), loadBuyRequests(), loadMarketplaceProducts(), loadContactMessages()]);
     setLoading(false);
-  }, [loadOrders, loadInquiries, loadDiscounts, loadNotifications, loadSupplierProducts, loadBuyRequests, loadMarketplaceProducts]);
+  }, [loadOrders, loadInquiries, loadDiscounts, loadNotifications, loadSupplierProducts, loadBuyRequests, loadMarketplaceProducts, loadContactMessages]);
 
   useEffect(() => { if (isAdmin) loadAll(); }, [isAdmin, loadAll]);
 
@@ -196,6 +203,7 @@ export default function AdminPage() {
               {activeTab === 'buyrequests' && <BuyRequestsTab requests={buyRequests} loadRequests={loadBuyRequests} showToast={showToast} />}
               {activeTab === 'notifications' && <NotificationsTab notifications={notifications} loadNotifications={loadNotifications} showToast={showToast} />}
               {activeTab === 'allproducts' && <AllProductsTab products={marketplaceProducts} loadProducts={loadMarketplaceProducts} showToast={showToast} />}
+              {activeTab === 'contactmessages' && <ContactMessagesTab messages={contactMessages} loadMessages={loadContactMessages} showToast={showToast} />}
             </motion.div>
           )}
         </AnimatePresence>
@@ -1229,6 +1237,153 @@ function SupplierProductModal({ action, item, onClose, onConfirm, loading }) {
         </div>
       </motion.div>
     </ModalOverlay>
+  );
+}
+
+/* Ã¢â€Â¬Ã¢â€Â¬Ã¢â€Â¬ Contact Messages Tab Ã¢â€Â¬Ã¢â€Â¬Ã¢â€Â¬ */
+function ContactMessagesTab({ messages, loadMessages, showToast }) {
+  const [search, setSearch] = useState('');
+  const [replyModal, setReplyModal] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [filter, setFilter] = useState('all');
+
+  const filtered = messages.filter(m => {
+    const matchesSearch = !search ||
+      m.name?.toLowerCase().includes(search.toLowerCase()) ||
+      m.email?.toLowerCase().includes(search.toLowerCase()) ||
+      m.subject?.toLowerCase().includes(search.toLowerCase()) ||
+      m.message?.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filter === 'all' || m.status === filter;
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleReply = async (id) => {
+    if (!replyText.trim()) return;
+    setSending(true);
+    try {
+      await api.contactMessages.reply(id, replyText.trim());
+      showToast('Reply sent successfully');
+      setReplyModal(null);
+      setReplyText('');
+      await loadMessages();
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this message permanently?')) return;
+    try {
+      await api.contactMessages.delete(id);
+      showToast('Message deleted');
+      await loadMessages();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  };
+
+  return (
+    <>
+      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Contact Messages</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{messages.length} total &middot; {messages.filter(m => m.status === 'new' || m.status === 'pending').length} unread</p>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <select value={filter} onChange={e => setFilter(e.target.value)}
+              className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50">
+              <option value="all">All</option>
+              <option value="new">New</option>
+              <option value="replied">Replied</option>
+              <option value="pending">Pending</option>
+            </select>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Search messages..." className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400" />
+            </div>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-100/50">
+                {['Name', 'Email', 'Subject', 'Message', 'Status', 'Reply', 'Date', 'Actions'].map(h => (
+                  <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={8} className="px-5 py-16 text-center text-gray-400">{search ? 'No matching messages' : 'No messages yet'}</td></tr>
+              ) : (
+                filtered.map((m, i) => (
+                  <motion.tr key={m.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                    className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
+                    <td className="px-5 py-4">
+                      <p className="text-gray-900 text-sm font-medium">{m.name || 'N/A'}</p>
+                      {m.phone && <p className="text-gray-600 text-[10px]">{m.phone}</p>}
+                    </td>
+                    <td className="px-5 py-4 text-gray-600 text-xs">{m.email || 'N/A'}</td>
+                    <td className="px-5 py-4 text-gray-900 text-xs font-medium max-w-[150px] truncate">{m.subject || 'N/A'}</td>
+                    <td className="px-5 py-4 text-gray-400 text-xs max-w-[200px] truncate">{m.message}</td>
+                    <td className="px-5 py-4"><StatusBadge status={m.status} /></td>
+                    <td className="px-5 py-4 text-gray-500 text-xs max-w-[150px] truncate">{m.admin_reply || '-'}</td>
+                    <td className="px-5 py-4 text-gray-500 text-xs">{new Date(m.created_at).toLocaleDateString()}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <ActionBtn label="Reply" color="blue" onClick={() => { setReplyText(''); setReplyModal(m); }} />
+                        <button onClick={() => handleDelete(m.id)}
+                          className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10" title="Delete">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {replyModal && (
+          <ModalOverlay onClose={() => setReplyModal(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Reply to {replyModal.name}</h3>
+                <button onClick={() => setReplyModal(null)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                <p className="text-xs text-gray-500 font-medium">Subject: <span className="text-gray-900">{replyModal.subject}</span></p>
+                <p className="text-xs text-gray-500 font-medium mt-1">From: <span className="text-gray-900">{replyModal.name} ({replyModal.email})</span></p>
+                <p className="text-sm text-gray-700 mt-3 border-t border-gray-200 pt-3">{replyModal.message}</p>
+              </div>
+              <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
+                placeholder="Type your reply..." rows={4}
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 resize-none mb-4" />
+              <div className="flex items-center gap-3 justify-end">
+                <button onClick={() => setReplyModal(null)}
+                  className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">Cancel</button>
+                <button onClick={() => handleReply(replyModal.id)} disabled={sending || !replyText.trim()}
+                  className="px-5 py-2 bg-gradient-to-r from-primary to-primary-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 flex items-center gap-2">
+                  {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {sending ? 'Sending...' : 'Send Reply'}
+                </button>
+              </div>
+            </motion.div>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

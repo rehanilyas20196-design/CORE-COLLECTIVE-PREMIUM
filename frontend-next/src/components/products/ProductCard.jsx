@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Heart, Star, ShoppingBag, ShieldCheck, TrendingUp } from 'lucide-react';
+import { Heart, Star, ShoppingBag, ShieldCheck, TrendingUp, Phone } from 'lucide-react';
 
 const categoryColors = {
   Electronics: 'bg-blue-100 text-blue-700',
@@ -18,6 +18,7 @@ const categoryColors = {
 export default function ProductCard({ product, index = 0 }) {
   const [wishlisted, setWishlisted] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const p = product;
   const category = p.category || 'General';
@@ -30,6 +31,15 @@ export default function ProductCard({ product, index = 0 }) {
   const featured = p.is_featured || false;
   const isNew = p.created_at && Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000;
 
+  const whatsappNumber = p.whatsapp || '+923455900229';
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const msg = encodeURIComponent(`Hi, I'm interested in buying "${p.name}" (PKR ${Number(priceDisplay).toLocaleString()}/unit). Please share more details.`);
+    window.open(`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${msg}`, '_blank');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -37,9 +47,11 @@ export default function ProductCard({ product, index = 0 }) {
       viewport={{ once: true, margin: '-50px' }}
       transition={{ delay: index * 0.05, duration: 0.4 }}
       className="group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/products/${p.id}`} className="block">
-        <div className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-[0_8px_32px_rgba(201,151,75,0.12)] group-hover:-translate-y-1.5 shadow-sm">
+      <div className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-[0_8px_32px_rgba(201,151,75,0.12)] group-hover:-translate-y-1.5 shadow-sm relative">
+        <Link href={`/products/${p.id}`}>
           <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
             {!imgError && p.image_url ? (
               <img
@@ -68,7 +80,7 @@ export default function ProductCard({ product, index = 0 }) {
             )}
 
             <button
-              onClick={(e) => { e.preventDefault(); setWishlisted(!wishlisted); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setWishlisted(!wishlisted); }}
               className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-all duration-200"
             >
               <Heart className={`w-4 h-4 transition-colors ${wishlisted ? 'fill-red-500 text-red-500' : 'text-white'}`} />
@@ -86,54 +98,71 @@ export default function ProductCard({ product, index = 0 }) {
               </div>
             )}
           </div>
+        </Link>
 
-          <div className="p-4 space-y-2.5">
+        <div className="p-4 space-y-2.5">
+          <Link href={`/products/${p.id}`}>
             <p className="text-xs text-gray-400 truncate tracking-wide">{p.name.split(' ').slice(0, 4).join(' ')}{p.name.split(' ').length > 4 ? '...' : ''}</p>
 
             <h3 className="font-semibold text-gray-900 leading-snug line-clamp-2 min-h-[2.5rem] text-[15px]">
               {p.name}
             </h3>
+          </Link>
 
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`w-3 h-3 ${star <= Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`}
-                  />
-                ))}
-              </div>
-              <span className="text-xs text-amber-500 font-semibold">{rating}</span>
-              <span className="text-xs text-gray-400">({reviews})</span>
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`w-3 h-3 ${star <= Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`}
+                />
+              ))}
             </div>
-
-            {p.moq && p.moq > 1 && (
-              <div className="inline-flex items-center px-2.5 py-1 bg-gray-50 rounded-lg text-xs text-gray-400">
-                MOQ: {p.moq} units
-              </div>
-            )}
-
-            <div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-gray-900">
-                  PKR {Number(priceDisplay).toLocaleString()}
-                </span>
-                {hasRange && (
-                  <span className="text-sm text-gray-400">
-                    - {Number(priceMaxDisplay).toLocaleString()}
-                  </span>
-                )}
-                <span className="text-xs text-gray-400">/ unit</span>
-              </div>
-              <p className="text-[10px] text-gray-400 mt-0.5">Bulk pricing available</p>
-            </div>
-
-            <div className="w-full py-2.5 bg-gradient-to-r from-primary to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg hover:shadow-primary/20">
-              Request Quote
-            </div>
+            <span className="text-xs text-amber-500 font-semibold">{rating}</span>
+            <span className="text-xs text-gray-400">({reviews})</span>
           </div>
+
+          {p.moq && p.moq > 1 && (
+            <div className="inline-flex items-center px-2.5 py-1 bg-gray-50 rounded-lg text-xs text-gray-400">
+              MOQ: {p.moq} units
+            </div>
+          )}
+
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-bold text-gray-900">
+                PKR {Number(priceDisplay).toLocaleString()}
+              </span>
+              {hasRange && (
+                <span className="text-sm text-gray-400">
+                  - {Number(priceMaxDisplay).toLocaleString()}
+                </span>
+              )}
+              <span className="text-xs text-gray-400">/ unit</span>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-0.5">Bulk pricing available</p>
+          </div>
+
+          <motion.div
+            initial={false}
+            animate={{
+              opacity: isHovered ? 1 : 0,
+              y: isHovered ? 0 : 10,
+              height: isHovered ? 'auto' : 0,
+            }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <button
+              onClick={handleBuyNow}
+              className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-2"
+            >
+              <Phone className="w-4 h-4" />
+              Buy Now via WhatsApp
+            </button>
+          </motion.div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }

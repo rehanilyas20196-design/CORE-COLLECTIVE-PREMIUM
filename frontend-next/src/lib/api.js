@@ -209,4 +209,15 @@ export const api = {
       request(`/discount-messages/${id}/status`, { method: 'PATCH', body: { status, admin_reply: adminReply } }),
     delete: (id) => request(`/discount-messages/${id}`, { method: 'DELETE' }),
   },
+
+  contactMessages: {
+    getAll: (status) =>
+      request(`/contact-messages${status ? `?status=${status}` : ''}`),
+    getOne: (id) =>
+      request(`/contact-messages/${id}`),
+    reply: (id, adminReply) =>
+      request(`/contact-messages/${id}/reply`, { method: 'PATCH', body: { admin_reply: adminReply } }),
+    delete: (id) =>
+      request(`/contact-messages/${id}`, { method: 'DELETE' }),
+  },
 };
