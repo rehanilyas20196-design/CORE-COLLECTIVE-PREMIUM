@@ -8,7 +8,7 @@ export class ProductsService {
   async findAll(searchQuery?: string) {
     let query = this.supabase.from('products').select('*');
     if (searchQuery?.trim()) {
-      query = query.ilike('name', `%${searchQuery.trim()}%`);
+      query = query.or(`name.ilike.%${searchQuery.trim()}%,category.ilike.%${searchQuery.trim()}%`);
     }
     const { data, error } = await query;
     if (error) throw new InternalServerErrorException(error.message);

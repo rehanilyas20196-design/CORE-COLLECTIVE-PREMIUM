@@ -154,7 +154,7 @@ export default function ProductCard({ product, index = 0 }) {
           >
             <button
               onClick={handleBuyNow}
-              className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20 flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-gradient-to-r from-primary to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white rounded-xl text-sm font-semibold text-center transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2"
             >
               <ShoppingCart className="w-4 h-4" />
               Buy Now

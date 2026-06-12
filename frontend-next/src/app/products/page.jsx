@@ -69,7 +69,7 @@ function ProductsPage() {
       q = q.eq('is_active', true).eq('status', 'active');
 
       if (filters.category) q = q.eq('category', filters.category);
-      if (filters.search) q = q.ilike('name', `%${filters.search}%`);
+      if (filters.search) q = q.or(`name.ilike.%${filters.search}%,category.ilike.%${filters.search}%`);
       if (filters.minPrice) q = q.gte('price', Number(filters.minPrice));
       if (filters.maxPrice) q = q.lte('price', Number(filters.maxPrice));
       if (filters.moq === '1-10') q = q.lte('moq', 10);
