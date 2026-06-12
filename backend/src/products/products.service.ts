@@ -62,4 +62,20 @@ export class ProductsService {
     if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
+
+  async remove(id: number) {
+    const { data: product, error: fetchError } = await this.supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .single();
+    if (fetchError || !product) throw new NotFoundException('Product not found');
+
+    const { error } = await this.supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { deleted: true };
+  }
 }

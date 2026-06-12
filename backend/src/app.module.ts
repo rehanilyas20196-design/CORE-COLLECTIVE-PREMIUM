@@ -17,6 +17,8 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { CartModule } from './cart/cart.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DiscountMessagesModule } from './discount-messages/discount-messages.module';
+import { SupplierProductsModule } from './supplier-products/supplier-products.module';
+import { BuyRequestsModule } from './buy-requests/buy-requests.module';
 import { MessagesModule } from './messages/messages.module';
 
 @Module({
@@ -40,6 +42,8 @@ import { MessagesModule } from './messages/messages.module';
     CartModule,
     NotificationsModule,
     DiscountMessagesModule,
+    SupplierProductsModule,
+    BuyRequestsModule,
     MessagesModule,
   ],
   providers: [

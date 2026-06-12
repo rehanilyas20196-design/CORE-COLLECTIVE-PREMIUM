@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
       crossOriginResourcePolicy: { policy: "cross-origin" },
     }));
 
-    const devOrigins = ["http://localhost:5173", "http://localhost:4173"];
+    const devOrigins = ["http://localhost:5173", "http://localhost:4173", "http://localhost:3000"];
     const configuredOrigins = process.env.FRONTEND_URL
       ? process.env.FRONTEND_URL.split(",").map((u) => u.trim())
       : [];

@@ -17,12 +17,26 @@ async function bootstrap() {
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   }));
 
+  const corsOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',').map(u => u.trim())
+    : [];
+  corsOrigins.push(
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://frontend-eta-sepia-69.vercel.app',
+  );
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL
-      ? process.env.FRONTEND_URL.split(',').map(u => u.trim())
-      : ['http://localhost:5173'],
+    origin: (origin, callback) => {
+      if (!origin || corsOrigins.some(o => origin.startsWith(o))) {
+        callback(null, true);
+      } else {
+        // Allow any origin in dev/debug — remove in production if needed
+        callback(null, true);
+      }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 

@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
+import { AdminGuard } from '../common/admin.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -36,5 +37,11 @@ export class ProductsController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.productsService.findOne(parseInt(id));
+  }
+
+  @Delete(':id')
+  @UseGuards(AdminGuard)
+  async remove(@Param('id') id: string) {
+    return this.productsService.remove(parseInt(id));
   }
 }
