@@ -27,22 +27,26 @@ export function AuthProvider({ children }) {
       setIsSupplier(!!user.user_metadata?.is_supplier);
     };
 
-    supabase.auth.getUser().then(({ data: { user }, error }) => {
-      if (!error && user && !cancelled) {
-        onUserReady(user);
-      }
-      if (!cancelled) setLoading(false);
-    });
+    if (supabase) {
+      supabase.auth.getUser().then(({ data: { user }, error }) => {
+        if (!error && user && !cancelled) {
+          onUserReady(user);
+        }
+        if (!cancelled) setLoading(false);
+      });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user && !cancelled) {
-        onUserReady(session.user);
-      }
-      if (event === 'SIGNED_OUT' && !cancelled) {
-        setUserProfile(null);
-        setIsAdmin(false);
-      }
-    });
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session?.user && !cancelled) {
+          onUserReady(session.user);
+        }
+        if (event === 'SIGNED_OUT' && !cancelled) {
+          setUserProfile(null);
+          setIsAdmin(false);
+        }
+      });
+    } else {
+      if (!cancelled) setLoading(false);
+    }
 
     return () => { cancelled = true; subscription?.unsubscribe(); };
   }, []);
