@@ -51,6 +51,7 @@ export default function ProductDetailPage({ params }) {
 
   const fetchProduct = async () => {
     try {
+      if (!supabase) { setLoading(false); return; }
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -59,8 +60,9 @@ export default function ProductDetailPage({ params }) {
       if (error) throw error;
       setProduct(data);
 
-      // Increment views
-      await supabase.from('products').update({ views: (data.views || 0) + 1 }).eq('id', data.id);
+      if (supabase) {
+        await supabase.from('products').update({ views: (data.views || 0) + 1 }).eq('id', data.id);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -125,6 +127,7 @@ export default function ProductDetailPage({ params }) {
     setQuoteError('');
 
     try {
+      if (!supabase) { setQuoteError('Database not available'); return; }
       const { error } = await supabase.from('quotes').insert([{
         product_id: product.id,
         buyer_name: quoteForm.name,
@@ -166,7 +169,7 @@ export default function ProductDetailPage({ params }) {
     );
   }
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://frontend-next-one-ebon.vercel.app';
+  const origin = 'https://frontend-next-ten-topaz.vercel.app';
 
   const productSchema = {
     '@context': 'https://schema.org',

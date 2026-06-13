@@ -4,7 +4,7 @@ export const metadata = {
   openGraph: {
     title: 'About Core Collective | B2B Wholesale Marketplace',
     description: 'Learn about Core Collective, Pakistan\'s #1 B2B marketplace connecting verified suppliers with businesses worldwide.',
-    url: 'https://frontend-next-one-ebon.vercel.app/about',
+    url: '/about',
   },
 };
 

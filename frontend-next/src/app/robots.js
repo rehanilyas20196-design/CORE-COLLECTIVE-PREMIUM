@@ -11,6 +11,8 @@ export default function robots() {
         disallow: '/',
       },
     ],
-    sitemap: 'https://frontend-next-one-ebon.vercel.app/sitemap.xml',
+    sitemap: process.env.NEXT_PUBLIC_SITE_URL
+      ? `${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`
+      : 'https://frontend-next-ten-topaz.vercel.app/sitemap.xml',
   };
 }

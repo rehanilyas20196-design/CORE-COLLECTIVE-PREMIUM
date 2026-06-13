@@ -4,7 +4,7 @@ export const metadata = {
   openGraph: {
     title: 'Contact Us | Core Collective',
     description: 'Get in touch with Core Collective for bulk orders, partnerships, and support.',
-    url: 'https://frontend-next-one-ebon.vercel.app/contact-us',
+    url: '/contact-us',
   },
 };
 
