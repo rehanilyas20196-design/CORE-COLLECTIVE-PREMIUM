@@ -4,14 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { createClient } from '@supabase/supabase-js';
 import { ShoppingBag, Package, ChevronDown, Clock, CheckCircle, Truck, MapPin, PackageCheck, Loader, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { supabase } from '../../lib/supabase';
 
 const TRACKING_STAGES = [
   { key: 'confirmed', label: 'Confirmed', icon: CheckCircle, desc: 'Order confirmed & being prepared' },

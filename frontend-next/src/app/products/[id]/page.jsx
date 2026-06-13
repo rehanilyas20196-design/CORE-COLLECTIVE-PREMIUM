@@ -1,14 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../../lib/supabase';
 import ProductDetailClient from './ProductDetailClient';
 
-const SITE_URL = 'https://frontend-next-one-ebon.vercel.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://frontend-next-ten-topaz.vercel.app';
 
 export async function generateMetadata({ params }) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    if (!supabase) return { title: 'Product Details' };
     const { data: product } = await supabase
       .from('products')
       .select('name, description, category, price_min, price, image_url, rating, reviews_count')

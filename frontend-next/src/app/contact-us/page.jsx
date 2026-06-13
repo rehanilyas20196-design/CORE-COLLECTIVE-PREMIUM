@@ -3,12 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Mail, Phone, MapPin, Clock, Send, CheckCircle, Loader } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { supabase } from '../../lib/supabase';
 
 const faqs = [
   { q: 'How do I place a wholesale order?', a: 'Browse our products page, add items to your inquiry list, and submit a quote request. Our team will respond within 24 hours with pricing and availability.' },

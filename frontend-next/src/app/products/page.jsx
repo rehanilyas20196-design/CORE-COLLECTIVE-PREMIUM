@@ -4,14 +4,9 @@ import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, X, ChevronDown, LayoutGrid, List, Star, Loader, Sparkles, TrendingUp, Shield } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
 import ProductCard from '../../components/products/ProductCard';
 import ProductCardSkeleton from '../../components/products/ProductCardSkeleton';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { supabase } from '../../lib/supabase';
 
 const sortOptions = [
   { value: 'relevance', label: 'Relevance' },

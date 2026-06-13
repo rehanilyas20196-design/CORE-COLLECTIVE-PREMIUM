@@ -3,15 +3,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createClient } from '@supabase/supabase-js';
 import { ChevronDown, Star, ShieldCheck, Truck, Lock, Send, Loader, ChevronLeft, ChevronRight, Heart, Share2, Eye, ShoppingBag, CheckCircle, AlertCircle, X, ShoppingCart, ChevronUp, Clock } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { api } from '../../../lib/api';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { supabase } from '../../../lib/supabase';
 
 const categoryColors = {
   Electronics: 'bg-blue-500/20 text-blue-400',

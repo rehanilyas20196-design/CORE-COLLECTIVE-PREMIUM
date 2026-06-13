@@ -1,4 +1,4 @@
-const BASE_URL = 'https://frontend-next-one-ebon.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://frontend-next-ten-topaz.vercel.app';
 
 export default async function sitemap() {
   const staticRoutes = [
@@ -17,11 +17,8 @@ export default async function sitemap() {
   let productRoutes = [];
   let categoryRoutes = [];
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
+    const { supabase } = await import('../lib/supabase');
+    if (!supabase) throw new Error('Supabase not configured');
     const { data: products } = await supabase
       .from('products')
       .select('id, updated_at, category')
