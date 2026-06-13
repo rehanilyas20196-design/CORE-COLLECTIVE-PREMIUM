@@ -1,6 +1,6 @@
 {
   "name": "core-back",
-  "version": "0.0.1",
+  "version": "0.1.5",
   "description": "",
   "author": "",
   "private": true,
@@ -30,7 +30,6 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/throttler": "^6.5.0",
     "@supabase/supabase-js": "^2.106.1",
-    "express": "^4.21.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "helmet": "^8.2.0",
