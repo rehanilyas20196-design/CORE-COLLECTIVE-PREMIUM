@@ -171,6 +171,8 @@ export default function ProductDetailPage({ params }) {
     );
   }
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://frontend-next-one-ebon.vercel.app';
+
   const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -182,7 +184,7 @@ export default function ProductDetailPage({ params }) {
     brand: { '@type': 'Brand', name: product.supplier_name || 'Core Collective' },
     offers: {
       '@type': 'Offer',
-      url: `${window.location.origin}/products/${product.id}`,
+      url: `${origin}/products/${product.id}`,
       priceCurrency: 'PKR',
       price: product.price_min || product.price || 0,
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -192,7 +194,7 @@ export default function ProductDetailPage({ params }) {
     aggregateRating: product.rating > 0 ? {
       '@type': 'AggregateRating',
       ratingValue: product.rating,
-      reviewCount: product.reviews_count || 0,
+      reviewsCount: product.reviews_count || 0,
     } : undefined,
   };
 
@@ -200,10 +202,10 @@ export default function ProductDetailPage({ params }) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `${window.location.origin}/` },
-      { '@type': 'ListItem', position: 2, name: 'Products', item: `${window.location.origin}/products` },
-      { '@type': 'ListItem', position: 3, name: product.category || 'Product', item: `${window.location.origin}/products?category=${encodeURIComponent(product.category || '')}` },
-      { '@type': 'ListItem', position: 4, name: product.name, item: `${window.location.origin}/products/${product.id}` },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${origin}/` },
+      { '@type': 'ListItem', position: 2, name: 'Products', item: `${origin}/products` },
+      { '@type': 'ListItem', position: 3, name: product.category || 'Product', item: `${origin}/products?category=${encodeURIComponent(product.category || '')}` },
+      { '@type': 'ListItem', position: 4, name: product.name, item: `${origin}/products/${product.id}` },
     ],
   };
 
