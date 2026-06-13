@@ -17,16 +17,17 @@ export async function generateMetadata({ params }) {
     }
 
     const price = product.price_min || product.price || 0;
-    const productName = product.name;
+    const productName = product.name || 'Product';
     const productDesc = product.description
       ? product.description.substring(0, 160)
       : `Buy ${productName} at wholesale price. PKR ${Number(price).toLocaleString()} per unit. Bulk orders available.`;
     const productImage = product.image_url || 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/Logo/Core%20Collective%20(1).png';
+    const category = product.category || 'General';
 
     return {
       title: productName,
       description: productDesc,
-      keywords: [`${productName}`, `${product.category} wholesale`, 'buy bulk Pakistan', 'wholesale price', product.category],
+      keywords: [`${productName}`, `${category} wholesale`, 'buy bulk Pakistan', 'wholesale price', category],
       openGraph: {
         title: `${productName} | Core Collective`,
         description: productDesc,
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }) {
         'product:price:amount': price.toString(),
         'product:price:currency': 'PKR',
         'product:availability': 'in stock',
-        'product:category': product.category,
+        'product:category': category,
       },
     };
   } catch {
