@@ -189,6 +189,8 @@ export const api = {
     create: (data) => request('/buy-requests', { method: 'POST', body: data }),
     updateStatus: (id, status, adminNotes) =>
       request(`/buy-requests/${id}/status`, { method: 'PATCH', body: { status, admin_notes: adminNotes } }),
+    updateTracking: (id, trackingStatus, note) =>
+      request(`/buy-requests/${id}/tracking`, { method: 'PATCH', body: { tracking_status: trackingStatus, note } }),
     delete: (id) => request(`/buy-requests/${id}`, { method: 'DELETE' }),
   },
 

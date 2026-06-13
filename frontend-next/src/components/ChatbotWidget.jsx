@@ -231,7 +231,7 @@ export default function ChatbotWidget() {
       {(isOpen || mounted) && (
         <div
           ref={chatRef}
-          className={`fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] origin-bottom-right transition-all duration-300 ease-out ${
+          className={`fixed bottom-24 right-0 sm:right-6 z-50 w-full sm:w-[380px] max-w-[calc(100vw-0rem)] sm:max-w-[calc(100vw-2rem)] origin-bottom-right transition-all duration-300 ease-out ${
             isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-4 pointer-events-none'
           }`}
         >

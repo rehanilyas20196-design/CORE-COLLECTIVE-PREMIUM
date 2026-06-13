@@ -12,7 +12,8 @@ import {
   ChevronDown, Loader2, LogOut, ExternalLink, Clock,
   User, Mail, Phone, MapPin, CreditCard, FileText, Eye,
   ShoppingBag, ThumbsUp, ThumbsDown, Image, ShoppingCart,
-  Layers, ListChecks, Hash
+  Layers, ListChecks, Hash, Truck, CircleDot, PackageCheck,
+  MapPin as MapPinIcon, Home, ArrowUp
 } from 'lucide-react';
 
 const tabs = [
@@ -165,28 +166,40 @@ export default function AdminPage() {
           </div>
         </motion.div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
-          {tabs.map((tab, i) => {
-            const Icon = tab.icon;
-            return (
-              <motion.button
-                key={tab.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
-                    : 'bg-white border border-gray-200 text-gray-400 hover:text-white hover:border-gray-600'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </motion.button>
-            );
-          })}
+        {/* Tabs - Mobile select + Desktop bar */}
+        <div className="mb-6">
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value)}
+            className="w-full sm:hidden px-4 py-3 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 outline-none focus:border-primary mb-3"
+            aria-label="Select admin section"
+          >
+            {tabs.map(tab => (
+              <option key={tab.id} value={tab.id}>{tab.label}</option>
+            ))}
+          </select>
+          <div className="hidden sm:flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            {tabs.map((tab, i) => {
+              const Icon = tab.icon;
+              return (
+                <motion.button
+                  key={tab.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 lg:px-5 py-3 rounded-xl text-xs lg:text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
+                    activeTab === tab.id
+                      ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
+                      : 'bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-400'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Content */}
@@ -360,12 +373,12 @@ function OrdersTab({ orders, loadOrders, showToast }) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-5 px-5">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-100/50">
                 {['ID', 'Customer', 'Amount', 'Payment', 'Status', 'Tracking', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+                  <th key={h} className="text-left px-3 sm:px-5 py-3 text-gray-500 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -379,26 +392,26 @@ function OrdersTab({ orders, loadOrders, showToast }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: i * 0.02 }}
-                    className="border-b border-[#1C1C2E] hover:bg-gray-100/50 transition-colors group"
+                    className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group"
                   >
-                    <td className="px-5 py-4">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
                       <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)} className="text-primary font-mono text-xs font-semibold hover:underline">
                         #{String(order.id).padStart(6, '0')}
                       </button>
                     </td>
-                    <td className="px-5 py-4">
-                      <p className="text-gray-900 text-sm font-medium">{order.full_name || 'N/A'}</p>
-                      <p className="text-gray-600 text-[10px]">{order.user_email || ''}</p>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <p className="text-gray-900 text-xs sm:text-sm font-medium truncate max-w-[120px] sm:max-w-none">{order.full_name || 'N/A'}</p>
+                      <p className="text-gray-600 text-[10px] truncate max-w-[120px] sm:max-w-none">{order.user_email || ''}</p>
                     </td>
-                    <td className="px-5 py-4 text-white font-semibold">Rs. {Number(order.total_amount || 0).toLocaleString()}</td>
-                    <td className="px-5 py-4">
-                      <span className="text-xs text-gray-400">{order.payment_method || 'N/A'}</span>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs sm:text-sm whitespace-nowrap">Rs. {Number(order.total_amount || 0).toLocaleString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <span className="text-xs text-gray-500 whitespace-nowrap">{order.payment_method || 'N/A'}</span>
                     </td>
-                    <td className="px-5 py-4"><StatusBadge status={order.status} /></td>
-                    <td className="px-5 py-4"><StatusBadge status={order.tracking_status || order.status} /></td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">{new Date(order.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={order.status} /></td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={order.tracking_status || order.status} /></td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                         {order.status === 'pending' && (
                           <>
                             <ActionBtn label="Approve" color="green" onClick={() => { setModalType('confirm'); setShowModal(order); }} />
@@ -507,12 +520,12 @@ function InquiriesTab({ inquiries, loadInquiries, showToast }) {
               placeholder="Search inquiries..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600" />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-5 px-5">
+          <table className="w-full text-sm min-w-[650px]">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-100/50">
                 {['User', 'Item', 'Details', 'Qty', 'Status', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+                  <th key={h} className="text-left px-3 sm:px-5 py-3 text-gray-500 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -522,18 +535,18 @@ function InquiriesTab({ inquiries, loadInquiries, showToast }) {
               ) : (
                 filtered.map((inq, i) => (
                   <motion.tr key={inq.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                    className="border-b border-[#1C1C2E] hover:bg-gray-100/50 transition-colors group">
-                    <td className="px-5 py-4">
-                      <p className="text-gray-900 text-sm">{inq.user_name || 'N/A'}</p>
-                      <p className="text-gray-600 text-[10px]">{inq.user_email || ''}</p>
+                    className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <p className="text-gray-900 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{inq.user_name || 'N/A'}</p>
+                      <p className="text-gray-600 text-[10px] truncate max-w-[100px] sm:max-w-none">{inq.user_email || ''}</p>
                     </td>
-                    <td className="px-5 py-4 text-white font-medium">{inq.item_name}</td>
-                    <td className="px-5 py-4 text-gray-400 text-xs max-w-[200px] truncate">{inq.details}</td>
-                    <td className="px-5 py-4 text-gray-300">{inq.quantity} {inq.unit || 'Pcs'}</td>
-                    <td className="px-5 py-4"><StatusBadge status={inq.status} /></td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">{new Date(inq.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-medium text-xs sm:text-sm">{inq.item_name}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs max-w-[120px] sm:max-w-[200px] truncate">{inq.details}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-600 text-xs whitespace-nowrap">{inq.quantity} {inq.unit || 'Pcs'}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={inq.status} /></td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs whitespace-nowrap">{new Date(inq.created_at).toLocaleDateString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                         {inq.status === 'pending' && (
                           <>
                             <ActionBtn label="Approve" color="green" onClick={() => { setModalAction('approve'); setShowModal(inq); }} />
@@ -544,7 +557,7 @@ function InquiriesTab({ inquiries, loadInquiries, showToast }) {
                           if (!confirm('Delete this inquiry?')) return;
                           try { await api.supplierInquiries.delete(inq.id); showToast('Deleted'); await loadInquiries(); }
                           catch (e) { showToast(e.message, 'error'); }
-                        }} className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10" title="Delete">
+                        }} className="p-1.5 text-gray-500 hover:text-red-500 transition-colors rounded-lg hover:bg-red-500/10" title="Delete">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -612,12 +625,12 @@ function DiscountsTab({ discounts, loadDiscounts, showToast }) {
               placeholder="Search..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600" />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-5 px-5">
+          <table className="w-full text-sm min-w-[650px]">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-100/50">
                 {['User', 'Email', 'Message', 'Status', 'Reply', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+                  <th key={h} className="text-left px-3 sm:px-5 py-3 text-gray-500 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -627,15 +640,15 @@ function DiscountsTab({ discounts, loadDiscounts, showToast }) {
               ) : (
                 filtered.map((d, i) => (
                   <motion.tr key={d.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                    className="border-b border-[#1C1C2E] hover:bg-gray-100/50 transition-colors group">
-                    <td className="px-5 py-4 text-white text-sm">{d.user_name || 'N/A'}</td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">{d.user_email || 'N/A'}</td>
-                    <td className="px-5 py-4 text-gray-400 text-xs max-w-[220px] truncate">{d.message}</td>
-                    <td className="px-5 py-4"><StatusBadge status={d.status} /></td>
-                    <td className="px-5 py-4 text-gray-500 text-xs max-w-[120px] truncate">{d.admin_reply || '-'}</td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">{new Date(d.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                    className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{d.user_name || 'N/A'}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs truncate max-w-[100px] sm:max-w-none">{d.user_email || 'N/A'}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs max-w-[120px] sm:max-w-[220px] truncate">{d.message}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={d.status} /></td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs max-w-[80px] sm:max-w-[120px] truncate">{d.admin_reply || '-'}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs whitespace-nowrap">{new Date(d.created_at).toLocaleDateString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                         {d.status === 'pending' && (
                           <>
                             <ActionBtn label="Approve" color="green" onClick={() => { setModalAction('approve'); setShowModal(d); }} />
@@ -646,7 +659,7 @@ function DiscountsTab({ discounts, loadDiscounts, showToast }) {
                           if (!confirm('Delete?')) return;
                           try { await api.discountMessages.delete(d.id); showToast('Deleted'); await loadDiscounts(); }
                           catch (e) { showToast(e.message, 'error'); }
-                        }} className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10" title="Delete">
+                        }} className="p-1.5 text-gray-500 hover:text-red-500 transition-colors rounded-lg hover:bg-red-500/10" title="Delete">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -824,12 +837,12 @@ function AllProductsTab({ products, loadProducts, showToast }) {
             placeholder="Search products..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600" />
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto -mx-5 px-5">
+        <table className="w-full text-sm min-w-[700px]">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-100/50">
               {['Product', 'Supplier', 'Category', 'Price', 'Stock', 'Status', 'Created', 'Actions'].map(h => (
-                <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+                <th key={h} className="text-left px-3 sm:px-5 py-3 text-gray-500 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
@@ -839,23 +852,23 @@ function AllProductsTab({ products, loadProducts, showToast }) {
             ) : (
               filtered.map((p, i) => (
                 <motion.tr key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                  className="border-b border-[#1C1C2E] hover:bg-gray-100/50 transition-colors group">
-                  <td className="px-5 py-4">
-                    <p className="text-gray-900 text-sm font-medium">{p.name}</p>
+                  className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
+                  <td className="px-3 sm:px-5 py-3 sm:py-4">
+                    <p className="text-gray-900 text-xs sm:text-sm font-medium truncate max-w-[120px] sm:max-w-none">{p.name}</p>
                   </td>
-                  <td className="px-5 py-4 text-gray-400 text-xs">{p.supplier_name || 'N/A'}</td>
-                  <td className="px-5 py-4 text-gray-400 text-xs">{p.category || 'Uncategorized'}</td>
-                  <td className="px-5 py-4 text-gray-900 font-semibold text-xs">
+                  <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.supplier_name || 'N/A'}</td>
+                  <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.category || 'Uncategorized'}</td>
+                  <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs whitespace-nowrap">
                     {p.price ? `Rs. ${Number(p.price).toLocaleString()}` : p.price_min ? `Rs. ${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'}
                   </td>
-                  <td className="px-5 py-4 text-gray-400 text-xs">{p.stock ?? 'N/A'}</td>
-                  <td className="px-5 py-4"><StatusBadge status={p.status || 'active'} /></td>
-                  <td className="px-5 py-4 text-gray-500 text-xs">{new Date(p.created_at).toLocaleDateString()}</td>
-                  <td className="px-5 py-4">
+                  <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.stock ?? 'N/A'}</td>
+                  <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={p.status || 'active'} /></td>
+                  <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</td>
+                  <td className="px-3 sm:px-5 py-3 sm:py-4">
                     <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 text-red-500 text-xs font-medium rounded-lg hover:bg-red-500/20 transition-all disabled:opacity-50">
+                      className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-red-500/10 text-red-500 text-xs font-medium rounded-lg hover:bg-red-500/20 transition-all disabled:opacity-50 whitespace-nowrap">
                       {deleting === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                      {deleting === p.id ? 'Deleting...' : 'Delete'}
+                      <span className="hidden sm:inline">{deleting === p.id ? 'Deleting...' : 'Delete'}</span>
                     </button>
                   </td>
                 </motion.tr>
@@ -910,12 +923,12 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
               placeholder="Search products..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600" />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-5 px-5">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-100/50">
                 {['Product', 'Supplier', 'Category', 'Price', 'Stock', 'Status', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+                  <th key={h} className="text-left px-3 sm:px-5 py-3 text-gray-500 font-medium text-xs uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -925,25 +938,25 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
               ) : (
                 filtered.map((p, i) => (
                   <motion.tr key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                    className="border-b border-[#1C1C2E] hover:bg-gray-100/50 transition-colors group">
-                    <td className="px-5 py-4">
-                      <button onClick={() => setExpandedProduct(expandedProduct === p.id ? null : p.id)} className="text-white text-sm font-medium hover:text-primary transition-colors">
+                    className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <button onClick={() => setExpandedProduct(expandedProduct === p.id ? null : p.id)} className="text-gray-900 text-xs sm:text-sm font-medium hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-none block">
                         {p.name}
                       </button>
                     </td>
-                    <td className="px-5 py-4">
-                      <p className="text-gray-900 text-sm">{p.supplier_name || 'N/A'}</p>
-                      <p className="text-gray-600 text-[10px]">{p.supplier_email || ''}</p>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <p className="text-gray-900 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{p.supplier_name || 'N/A'}</p>
+                      <p className="text-gray-600 text-[10px] truncate max-w-[100px] sm:max-w-none">{p.supplier_email || ''}</p>
                     </td>
-                    <td className="px-5 py-4 text-gray-400 text-xs">{p.category || 'Uncategorized'}</td>
-                    <td className="px-5 py-4 text-white font-semibold">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.category || 'Uncategorized'}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs whitespace-nowrap">
                       {p.price ? `Rs. ${Number(p.price).toLocaleString()}` : p.price_min ? `Rs. ${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'}
                     </td>
-                    <td className="px-5 py-4 text-gray-400 text-xs">{p.stock ?? 'N/A'}</td>
-                    <td className="px-5 py-4"><StatusBadge status={p.status} /></td>
-                    <td className="px-5 py-4 text-gray-500 text-xs">{new Date(p.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.stock ?? 'N/A'}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={p.status} /></td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs whitespace-nowrap">{new Date(p.created_at).toLocaleDateString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                         {p.status === 'pending' && (
                           <>
                             <ActionBtn label="Approve" color="green" onClick={() => { setModalAction('approve'); setShowModal(p); }} />
@@ -1030,12 +1043,27 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
 }
 
 /* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Buy Requests Tab Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+const trackingFlow = ['confirmed', 'shipped', 'in_transit', 'out_for_delivery', 'delivered'];
+const trackingLabels = {
+  confirmed: 'Confirmed', shipped: 'Shipped', in_transit: 'In Transit',
+  out_for_delivery: 'Out for Delivery', delivered: 'Delivered'
+};
+const trackingNextStage = {
+  confirmed: 'shipped', shipped: 'in_transit', in_transit: 'out_for_delivery',
+  out_for_delivery: 'delivered'
+};
+const trackingNextLabels = {
+  confirmed: 'Mark Shipped', shipped: 'Mark In Transit', in_transit: 'Mark Out for Delivery',
+  out_for_delivery: 'Mark Delivered'
+};
+
 function BuyRequestsTab({ requests, loadRequests, showToast }) {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(null);
   const [modalAction, setModalAction] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [trackingModal, setTrackingModal] = useState(null);
 
   const filtered = requests.filter(r =>
     !search || r.product_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -1049,6 +1077,20 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
       await api.buyRequests.updateStatus(id, status, notes || undefined);
       showToast(status === 'approved' ? 'Purchase request approved' : 'Purchase request rejected');
       setShowModal(null);
+      await loadRequests();
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleTracking = async (id, trackingStatus, note) => {
+    setActionLoading(true);
+    try {
+      await api.buyRequests.updateTracking(id, trackingStatus, note || undefined);
+      showToast(`Tracking updated to ${trackingLabels[trackingStatus] || trackingStatus}`);
+      setTrackingModal(null);
       await loadRequests();
     } catch (e) {
       showToast(e.message, 'error');
@@ -1075,14 +1117,14 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50">
-                {['Product', 'Buyer', 'Qty', 'Phone', 'Status', 'Date', 'Actions'].map(h => (
+                {['Product', 'Buyer', 'Qty', 'Phone', 'Status', 'Tracking', 'Date', 'Actions'].map(h => (
                   <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={7} className="px-5 py-16 text-center text-gray-400">{search ? 'No matching requests' : 'No buy requests yet'}</td></tr>
+                <tr><td colSpan={8} className="px-5 py-16 text-center text-gray-400">{search ? 'No matching requests' : 'No buy requests yet'}</td></tr>
               ) : (
                 filtered.map((r, i) => (
                   <motion.tr key={r.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
@@ -1099,14 +1141,22 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
                     <td className="px-5 py-4 text-gray-700">{r.quantity || 1}</td>
                     <td className="px-5 py-4 text-gray-500 text-xs">{r.phone || 'N/A'}</td>
                     <td className="px-5 py-4"><StatusBadge status={r.status} /></td>
+                    <td className="px-5 py-4"><StatusBadge status={r.tracking_status || r.status} /></td>
                     <td className="px-5 py-4 text-gray-500 text-xs">{new Date(r.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-4">
-                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity flex-wrap">
                         {r.status === 'pending' && (
                           <>
                             <ActionBtn label="Approve" color="green" onClick={() => { setModalAction('approve'); setShowModal(r); }} />
                             <ActionBtn label="Reject" color="red" onClick={() => { setModalAction('reject'); setShowModal(r); }} />
                           </>
+                        )}
+                        {r.status === 'approved' && trackingNextStage[r.tracking_status] && (
+                          <ActionBtn
+                            label={trackingNextLabels[r.tracking_status]}
+                            color="blue"
+                            onClick={() => setTrackingModal({ request: r, nextStage: trackingNextStage[r.tracking_status] })}
+                          />
                         )}
                         <button onClick={async () => {
                           if (!confirm('Delete this request?')) return;
@@ -1129,6 +1179,7 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
         {expandedId && (() => {
           const r = requests.find(x => x.id === expandedId);
           if (!r) return null;
+          const trackingHistory = Array.isArray(r.tracking_history) ? r.tracking_history : [];
           return (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
               className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden mt-2">
@@ -1144,6 +1195,39 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
                 <DetailCard icon={MessageSquare} label="Message" value={r.message || 'No message'} />
                 <DetailCard icon={FileText} label="Admin Notes" value={r.admin_notes || 'No notes'} />
               </div>
+              {trackingHistory.length > 0 && (
+                <div className="px-6 pb-6">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Truck className="w-4 h-4 text-primary" />
+                    Tracking Timeline
+                  </h4>
+                  <div className="space-y-0">
+                    {trackingHistory.map((entry, idx) => (
+                      <div key={idx} className="flex gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full border-2 ${
+                            idx === trackingHistory.length - 1
+                              ? 'bg-primary border-primary'
+                              : 'bg-gray-200 border-gray-300'
+                          }`} />
+                          {idx < trackingHistory.length - 1 && (
+                            <div className="w-0.5 h-full min-h-[24px] bg-gray-200" />
+                          )}
+                        </div>
+                        <div className="pb-4">
+                          <p className="text-sm font-medium text-gray-900">
+                            {trackingLabels[entry.status] || entry.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          </p>
+                          <p className="text-xs text-gray-500">{entry.note || ''}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">
+                            {entry.date ? new Date(entry.date).toLocaleString() : ''}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           );
         })()}
@@ -1160,7 +1244,56 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
           />
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {trackingModal && (
+          <BuyRequestTrackingModal
+            request={trackingModal.request}
+            nextStage={trackingModal.nextStage}
+            onClose={() => setTrackingModal(null)}
+            onConfirm={handleTracking}
+            loading={actionLoading}
+          />
+        )}
+      </AnimatePresence>
     </>
+  );
+}
+
+function BuyRequestTrackingModal({ request, nextStage, onClose, onConfirm, loading }) {
+  const [note, setNote] = useState('');
+  return (
+    <ModalOverlay onClose={onClose}>
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Update Tracking</h3>
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <p className="text-sm text-gray-500 mb-1">
+          Product: <span className="text-gray-900 font-medium">{request.product_name}</span>
+        </p>
+        <p className="text-xs text-gray-400 mb-4">
+          Move to: <span className="text-blue-600 font-semibold">{trackingLabels[nextStage] || nextStage}</span>
+        </p>
+        <textarea value={note} onChange={e => setNote(e.target.value)}
+          placeholder="Optional note for this tracking update..."
+          rows={3}
+          className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 resize-none mb-3" />
+        <div className="flex items-center gap-3 justify-end">
+          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
+            Cancel
+          </button>
+          <button onClick={() => onConfirm(request.id, nextStage, note || undefined)} disabled={loading}
+            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2">
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Update to {trackingLabels[nextStage] || nextStage}
+          </button>
+        </div>
+      </motion.div>
+    </ModalOverlay>
   );
 }
 

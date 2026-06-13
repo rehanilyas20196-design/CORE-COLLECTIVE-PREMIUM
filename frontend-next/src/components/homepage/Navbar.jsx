@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Bell, Menu, X, LogOut, LayoutDashboard, Store } from 'lucide-react';
+import { Search, Bell, Menu, X, LogOut, LayoutDashboard, Store, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotif } from '../../context/NotificationsContext';
 
@@ -11,6 +11,7 @@ const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Categories', href: '/products' },
   { label: 'Products', href: '/products' },
+  { label: 'Orders', href: '/orders' },
   { label: 'Suppliers', href: '/suppliers' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact-us' },
@@ -92,11 +93,11 @@ export default function Navbar() {
                   key={i}
                   href={link.href}
                   onClick={() => setActiveLink(link.href)}
-                  className={`relative text-sm font-medium transition-all duration-200 py-1 ${
-                    activeLink === link.href
-                       ? 'text-primary'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
+                   className={`relative text-sm font-medium transition-all duration-200 py-1 ${
+                     activeLink === link.href
+                        ? 'text-primary'
+                       : 'text-gray-600 hover:text-gray-900'
+                   }`}
                 >
                   {link.label}
                   {activeLink === link.href && (
@@ -108,7 +109,7 @@ export default function Navbar() {
 
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="relative" ref={searchRef}>
-                <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-100" aria-label="Search">
+                <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-500 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100" aria-label="Search">
                   <Search className="w-5 h-5" />
                 </button>
                 {searchOpen && (
@@ -132,7 +133,7 @@ export default function Navbar() {
               </div>
               {userProfile ? (
                 <>
-                  <Link href="/notifications" className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-100 relative" aria-label="Notifications">
+                  <Link href="/notifications" className="p-2 text-gray-500 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100 relative" aria-label="Notifications">
                     <Bell className="w-5 h-5" />
                     {notifCount > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold text-white">
@@ -152,7 +153,7 @@ export default function Navbar() {
                       Supplier
                     </Link>
                   )}
-                  <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-gray-100 hidden sm:block" aria-label="Logout">
+                  <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100 hidden sm:block" aria-label="Logout">
                     <LogOut className="w-5 h-5" />
                   </button>
                 </>
@@ -166,7 +167,7 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/login"
-                    className="px-4 py-2 border border-gray-200 text-gray-300 text-sm font-semibold rounded-lg hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 hidden sm:block"
+                    className="px-4 py-2 border border-gray-300 text-gray-600 text-sm font-semibold rounded-lg hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 hidden sm:block"
                   >
                     Login
                   </Link>
@@ -186,11 +187,11 @@ export default function Navbar() {
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <div className="absolute right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white border-l border-gray-200 shadow-2xl overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <span className="text-lg font-bold text-white">Menu</span>
-              <button onClick={() => setMobileOpen(false)} className="p-2 text-gray-400 hover:text-white transition-colors" aria-label="Close menu">
+              <span className="text-lg font-bold text-gray-900">Menu</span>
+              <button onClick={() => setMobileOpen(false)} className="p-2 text-gray-500 hover:text-gray-900 transition-colors" aria-label="Close menu">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -203,7 +204,7 @@ export default function Navbar() {
                   className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
                     activeLink === link.href
                       ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                      : 'text-gray-400 hover:bg-gray-100 hover:text-white'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                   }`}
                 >
                   {link.label}
@@ -239,7 +240,7 @@ export default function Navbar() {
                   )}
                   <button
                     onClick={() => { handleLogout(); setMobileOpen(false); }}
-                    className="block w-full text-center px-4 py-3 border border-gray-200 text-gray-300 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 mt-2"
+                    className="block w-full text-center px-4 py-3 border border-gray-300 text-gray-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 mt-2"
                   >
                     Logout
                   </button>
@@ -256,7 +257,7 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setMobileOpen(false)}
-                    className="block w-full text-center px-4 py-3 border border-gray-200 text-gray-300 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 mt-2"
+                    className="block w-full text-center px-4 py-3 border border-gray-300 text-gray-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 mt-2"
                   >
                     Login / Dashboard
                   </Link>

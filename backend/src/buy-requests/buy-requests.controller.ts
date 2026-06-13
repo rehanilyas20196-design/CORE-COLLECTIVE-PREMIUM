@@ -37,6 +37,15 @@ export class BuyRequestsController {
     return this.buyRequestsService.updateStatus(parseInt(id), body.status, body.admin_notes);
   }
 
+  @Patch(':id/tracking')
+  @UseGuards(AdminGuard)
+  async updateTracking(
+    @Param('id') id: string,
+    @Body() body: { tracking_status: string; note?: string },
+  ) {
+    return this.buyRequestsService.updateTracking(parseInt(id), body.tracking_status, body.note);
+  }
+
   @Delete(':id')
   @UseGuards(AdminGuard)
   async remove(@Param('id') id: string) {

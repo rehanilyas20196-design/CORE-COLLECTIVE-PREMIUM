@@ -44,12 +44,15 @@ function ProductsPage() {
     featuredOnly: false, sort: 'relevance',
   });
 
-  // Read search from URL on mount
+  // Read search from URL on mount and changes
   useEffect(() => {
-    const q = searchParams.get('search');
-    if (q) {
-      setFilters(prev => ({ ...prev, search: q }));
-    }
+    const q = searchParams.get('search') || '';
+    const cat = searchParams.get('category') || '';
+    setFilters(prev => ({
+      ...prev,
+      search: q,
+      category: cat || prev.category,
+    }));
   }, [searchParams]);
 
   const fetchFeatured = useCallback(async () => {
@@ -203,8 +206,18 @@ function ProductsPage() {
     </div>
   );
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://frontend-next-one-ebon.vercel.app/' },
+      { '@type': 'ListItem', position: 2, name: 'Products', item: 'https://frontend-next-one-ebon.vercel.app/products' },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 py-14 sm:py-20">
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />

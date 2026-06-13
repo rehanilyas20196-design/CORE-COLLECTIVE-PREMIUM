@@ -51,7 +51,7 @@ export default function ProductCard({ product, index = 0 }) {
     >
       <div className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-500 group-hover:border-primary/40 group-hover:shadow-[0_8px_32px_rgba(201,151,75,0.12)] group-hover:-translate-y-1.5 shadow-sm relative">
         <Link href={`/products/${p.id}`}>
-          <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
+          <div className="relative aspect-[4/3] sm:aspect-[4/3] overflow-hidden bg-gray-50">
             {!imgError && p.image_url ? (
               <img
                 src={p.image_url}

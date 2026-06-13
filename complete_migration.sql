@@ -216,21 +216,35 @@ ALTER TABLE supplier_products ENABLE ROW LEVEL SECURITY;
 
 -- ─── BUY REQUESTS TABLE ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS buy_requests (
-  id             BIGSERIAL PRIMARY KEY,
-  product_id     BIGINT REFERENCES products(id) ON DELETE CASCADE,
-  product_name   TEXT,
-  product_image  TEXT,
-  user_id        UUID REFERENCES profiles(id),
-  user_email     TEXT,
-  user_name      TEXT,
-  phone          TEXT,
-  quantity       INTEGER DEFAULT 1,
-  message        TEXT,
-  status         TEXT DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
-  admin_notes    TEXT,
-  reviewed_at    TIMESTAMPTZ,
-  created_at     TIMESTAMPTZ DEFAULT NOW()
+  id                BIGSERIAL PRIMARY KEY,
+  product_id        BIGINT REFERENCES products(id) ON DELETE CASCADE,
+  product_name      TEXT,
+  product_image     TEXT,
+  user_id           UUID REFERENCES profiles(id),
+  user_email        TEXT,
+  user_name         TEXT,
+  phone             TEXT,
+  quantity          INTEGER DEFAULT 1,
+  total_amount      NUMERIC(12,2),
+  address           TEXT,
+  payment_method    TEXT,
+  payment_screenshot TEXT,
+  message           TEXT,
+  status            TEXT DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected','delivered')),
+  tracking_status   TEXT DEFAULT 'pending',
+  tracking_history  JSONB DEFAULT '[]',
+  admin_notes       TEXT,
+  reviewed_at       TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add tracking columns if they don't already exist (for existing tables)
+ALTER TABLE buy_requests ADD COLUMN IF NOT EXISTS tracking_status TEXT DEFAULT 'pending';
+ALTER TABLE buy_requests ADD COLUMN IF NOT EXISTS tracking_history JSONB DEFAULT '[]';
+ALTER TABLE buy_requests ADD COLUMN IF NOT EXISTS total_amount NUMERIC(12,2);
+ALTER TABLE buy_requests ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE buy_requests ADD COLUMN IF NOT EXISTS payment_method TEXT;
+ALTER TABLE buy_requests ADD COLUMN IF NOT EXISTS payment_screenshot TEXT;
 
 -- ─── NEWSLETTER TABLE ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS newsletter (
