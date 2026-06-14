@@ -5,6 +5,21 @@ import { SupabaseService } from '../supabase/supabase.service';
 export class ContactMessagesService {
   constructor(private supabase: SupabaseService) {}
 
+  async create(data: { name: string; email: string; phone?: string; subject: string; message: string }) {
+    const { error } = await this.supabase
+      .from('contact_messages')
+      .insert([{
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        subject: data.subject,
+        message: data.message,
+        status: 'new',
+      }]);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { success: true };
+  }
+
   async findAll(status?: string) {
     let query = this.supabase
       .from('contact_messages')

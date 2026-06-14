@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Mail, Phone, MapPin, Clock, Send, CheckCircle, Loader } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 
 const faqs = [
   { q: 'How do I place a wholesale order?', a: 'Browse our products page, add items to your inquiry list, and submit a quote request. Our team will respond within 24 hours with pricing and availability.' },
@@ -38,11 +38,7 @@ export default function ContactPage() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('contact_messages').insert([{
-        name: form.name, email: form.email, phone: form.phone || null,
-        subject: form.subject, message: form.message,
-      }]);
-      if (error) throw error;
+      await api.contactMessages.create(form.name, form.email, form.phone, form.subject, form.message);
       setSubmitted(true);
       setForm({ name: '', email: '', phone: '', subject: '', message: '' });
     } catch (err) {

@@ -1,4 +1,4 @@
-const API_BASE = '/api';
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || '/api';
 
 function sanitizeUrls(obj) {
   if (typeof obj === 'string') {
@@ -213,6 +213,8 @@ export const api = {
   },
 
   contactMessages: {
+    create: (name, email, phone, subject, message) =>
+      request('/contact-messages', { method: 'POST', body: { name, email, phone, subject, message } }),
     getAll: (status) =>
       request(`/contact-messages${status ? `?status=${status}` : ''}`),
     getOne: (id) =>
