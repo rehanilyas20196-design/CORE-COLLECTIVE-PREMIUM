@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
         title: `${productName} | Core Collective`,
         description: productDesc,
         url: `${SITE_URL}/products/${params.id}`,
-        type: 'product',
+        type: 'website',
         images: [{ url: productImage, width: 800, height: 800, alt: productName }],
       },
       twitter: {

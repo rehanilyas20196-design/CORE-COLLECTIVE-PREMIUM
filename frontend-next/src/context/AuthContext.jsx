@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let cancelled = false;
+    let subscription = null;
 
     const onUserReady = (user) => {
       if (cancelled) return;
@@ -35,7 +36,7 @@ export function AuthProvider({ children }) {
         if (!cancelled) setLoading(false);
       });
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const result = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session?.user && !cancelled) {
           onUserReady(session.user);
         }
@@ -44,6 +45,7 @@ export function AuthProvider({ children }) {
           setIsAdmin(false);
         }
       });
+      subscription = result.data.subscription;
     } else {
       if (!cancelled) setLoading(false);
     }

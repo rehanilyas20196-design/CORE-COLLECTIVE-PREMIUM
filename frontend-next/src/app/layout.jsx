@@ -4,7 +4,7 @@ import Navbar from '../components/homepage/Navbar';
 import FooterSection from '../components/homepage/FooterSection';
 import ConditionalBackButton from '../components/ConditionalBackButton';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://frontend-next-ten-topaz.vercel.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://core-collective-premium.vercel.app';
 const SITE_NAME = 'Core Collective';
 const OG_IMAGE = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/SEO/og-banner.jpg';
 const FALLBACK_OG = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/Logo/Core%20Collective%20(1).png';
@@ -88,7 +88,7 @@ export const metadata = {
     'geo.position': '30.3753;69.3451',
     'ICBM': '30.3753, 69.3451',
     'theme-color': '#C9974B',
-    'apple-mobile-web-app-capable': 'yes',
+    'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
   },
 };
