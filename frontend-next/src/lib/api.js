@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || '/api';
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-tau-virid-51.vercel.app';
 
 function sanitizeUrls(obj) {
   if (typeof obj === 'string') {
