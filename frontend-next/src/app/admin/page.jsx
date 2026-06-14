@@ -26,6 +26,7 @@ const tabs = [
   { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-rose-500 to-pink-600' },
   { id: 'allproducts', label: 'All Products', icon: Layers, color: 'from-teal-500 to-emerald-600' },
   { id: 'contactmessages', label: 'Messages', icon: MessageSquare, color: 'from-indigo-500 to-purple-600' },
+  { id: 'quotes', label: 'Quotes', icon: FileText, color: 'from-yellow-500 to-amber-600' },
 ];
 
 const statusStyles = {
@@ -54,6 +55,7 @@ export default function AdminPage() {
   const [buyRequests, setBuyRequests] = useState([]);
   const [marketplaceProducts, setMarketplaceProducts] = useState([]);
   const [contactMessages, setContactMessages] = useState([]);
+  const [quotes, setQuotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
@@ -108,9 +110,14 @@ export default function AdminPage() {
     catch (e) { console.error(e); }
   }, []);
 
+  const loadQuotes = useCallback(async () => {
+    try { const d = await api.quotes.getAll(); setQuotes(Array.isArray(d) ? d : []); }
+    catch (e) { console.error(e); }
+  }, []);
+
   const loadAll = useCallback(async () => {
     setLoading(true);
-    await Promise.all([loadOrders(), loadInquiries(), loadDiscounts(), loadNotifications(), loadSupplierProducts(), loadBuyRequests(), loadMarketplaceProducts(), loadContactMessages()]);
+    await Promise.all([loadOrders(), loadInquiries(), loadDiscounts(), loadNotifications(), loadSupplierProducts(), loadBuyRequests(), loadMarketplaceProducts(), loadContactMessages(), loadQuotes()]);
     setLoading(false);
   }, [loadOrders, loadInquiries, loadDiscounts, loadNotifications, loadSupplierProducts, loadBuyRequests, loadMarketplaceProducts, loadContactMessages]);
 
@@ -217,6 +224,7 @@ export default function AdminPage() {
               {activeTab === 'notifications' && <NotificationsTab notifications={notifications} loadNotifications={loadNotifications} showToast={showToast} />}
               {activeTab === 'allproducts' && <AllProductsTab products={marketplaceProducts} loadProducts={loadMarketplaceProducts} showToast={showToast} />}
               {activeTab === 'contactmessages' && <ContactMessagesTab messages={contactMessages} loadMessages={loadContactMessages} showToast={showToast} />}
+              {activeTab === 'quotes' && <QuotesTab quotes={quotes} loadQuotes={loadQuotes} showToast={showToast} />}
             </motion.div>
           )}
         </AnimatePresence>
@@ -1520,7 +1528,137 @@ function ContactMessagesTab({ messages, loadMessages, showToast }) {
   );
 }
 
-/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Shared Components ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+function QuotesTab({ quotes, loadQuotes, showToast }) {
+  const [search, setSearch] = useState('');
+  const [expandedId, setExpandedId] = useState(null);
+  const [statusModal, setStatusModal] = useState(null);
+  const [statusText, setStatusText] = useState('');
+  const [adminNote, setAdminNote] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const filtered = quotes.filter(q =>
+    !search || q.buyer_name?.toLowerCase().includes(search.toLowerCase()) ||
+    q.email?.toLowerCase().includes(search.toLowerCase()) ||
+    q.product_name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleStatusChange = async (id, status) => {
+    setActionLoading(true);
+    try {
+      await api.quotes.updateStatus(id, status, adminNote || undefined);
+      showToast(`Quote ${status}`);
+      setStatusModal(null);
+      setAdminNote('');
+      setStatusText('');
+      await loadQuotes();
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this quote?')) return;
+    try {
+      await api.quotes.delete(id);
+      showToast('Quote deleted');
+      await loadQuotes();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  };
+
+  return (
+    <>
+      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Quote Requests</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{quotes.length} total &middot; {quotes.filter(q => q.status === 'new').length} new</p>
+          </div>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search quotes..."
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-primary focus:bg-white transition-all" />
+          </div>
+        </div>
+
+        <div className="divide-y divide-gray-100">
+          {filtered.length === 0 ? (
+            <div className="p-10 text-center"><p className="text-sm text-gray-400">No quotes found</p></div>
+          ) : filtered.map(q => (
+            <div key={q.id}>
+              <div className="p-4 hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={() => setExpandedId(expandedId === q.id ? null : q.id)}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{q.buyer_name}</p>
+                      <p className="text-xs text-gray-500 truncate">{q.email} &middot; {q.product_name || `Product #${q.product_id}`}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <StatusBadge status={q.status} />
+                    <span className="text-[10px] text-gray-400">{timeAgo(q.created_at)}</span>
+                    <ChevronDown className={`w-4 h-4 text-gray-300 transition-transform ${expandedId === q.id ? 'rotate-180' : ''}`} />
+                  </div>
+                </div>
+              </div>
+
+              {expandedId === q.id && (
+                <div className="px-4 pb-4 border-t border-gray-50">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                    <DetailCard icon={Mail} label="Email" value={q.email} />
+                    <DetailCard icon={Phone} label="Phone" value={q.phone} />
+                    <DetailCard icon={ShoppingBag} label="Quantity" value={q.quantity} />
+                    <DetailCard icon={Hash} label="Product ID" value={q.product_id} />
+                  </div>
+                  {q.business_name && <DetailCard icon={User} label="Business" value={q.business_name} />}
+                  {q.message && <DetailCard icon={FileText} label="Message" value={q.message} />}
+                  {q.admin_note && <DetailCard icon={MessageSquare} label="Admin Note" value={q.admin_note} />}
+
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {q.status !== 'read' && (
+                      <ActionBtn label="Mark Read" color="blue" onClick={() => handleStatusChange(q.id, 'read')} />
+                    )}
+                    {q.status !== 'replied' && (
+                      <ActionBtn label="Mark Replied" color="green" onClick={() => handleStatusChange(q.id, 'replied')} />
+                    )}
+                    {q.status !== 'closed' && (
+                      <ActionBtn label="Close" color="red" onClick={() => handleStatusChange(q.id, 'closed')} />
+                    )}
+                    <ActionBtn label="Delete" color="red" onClick={() => handleDelete(q.id)} />
+                  </div>
+
+                  <div className="mt-3 flex gap-2">
+                    <input value={adminNote} onChange={e => setAdminNote(e.target.value)} placeholder="Add admin note..."
+                      className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 placeholder-gray-400 outline-none focus:border-primary" />
+                    <button onClick={async () => {
+                      if (!adminNote.trim()) return;
+                      setActionLoading(true);
+                      try {
+                        await api.quotes.updateStatus(q.id, q.status || 'new', adminNote);
+                        showToast('Note added');
+                        setAdminNote('');
+                        await loadQuotes();
+                      } catch (e) { showToast(e.message, 'error'); }
+                      finally { setActionLoading(false); }
+                    }} disabled={actionLoading || !adminNote.trim()}
+                      className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary-700 transition-all disabled:opacity-50">
+                      {actionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save Note'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ─── Shared Components ───────────────────────────────── */
 
 function ActionBtn({ label, color, icon: Icon, onClick }) {
   const colors = { green: 'bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20', red: 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border-red-500/20', blue: 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20' };

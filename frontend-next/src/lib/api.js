@@ -215,6 +215,11 @@ export const api = {
   quotes: {
     create: (data) =>
       request('/quotes', { method: 'POST', body: data }),
+    getAll: () => request('/quotes'),
+    getOne: (id) => request(`/quotes/${id}`),
+    updateStatus: (id, status, adminNote) =>
+      request(`/quotes/${id}/status`, { method: 'PATCH', body: { status, admin_note: adminNote } }),
+    delete: (id) => request(`/quotes/${id}`, { method: 'DELETE' }),
   },
 
   contactMessages: {

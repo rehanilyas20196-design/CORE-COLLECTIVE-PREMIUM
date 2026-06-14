@@ -28,4 +28,41 @@ export class QuotesService {
     if (error) throw new InternalServerErrorException(error.message);
     return { success: true };
   }
+
+  async findAll() {
+    const { data, error } = await this.supabase
+      .from('quotes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw new InternalServerErrorException(error.message);
+    return data || [];
+  }
+
+  async findOne(id: number) {
+    const { data, error } = await this.supabase
+      .from('quotes')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
+  }
+
+  async updateStatus(id: number, status: string, adminNote?: string) {
+    const { error } = await this.supabase
+      .from('quotes')
+      .update({ status, admin_note: adminNote || null })
+      .eq('id', id);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { success: true };
+  }
+
+  async remove(id: number) {
+    const { error } = await this.supabase
+      .from('quotes')
+      .delete()
+      .eq('id', id);
+    if (error) throw new InternalServerErrorException(error.message);
+    return { deleted: true };
+  }
 }
