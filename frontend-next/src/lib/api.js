@@ -212,6 +212,11 @@ export const api = {
     delete: (id) => request(`/discount-messages/${id}`, { method: 'DELETE' }),
   },
 
+  quotes: {
+    create: (data) =>
+      request('/quotes', { method: 'POST', body: data }),
+  },
+
   contactMessages: {
     create: (name, email, phone, subject, message) =>
       request('/contact-messages', { method: 'POST', body: { name, email, phone, subject, message } }),

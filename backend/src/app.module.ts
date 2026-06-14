@@ -21,6 +21,7 @@ import { SupplierProductsModule } from './supplier-products/supplier-products.mo
 import { BuyRequestsModule } from './buy-requests/buy-requests.module';
 import { MessagesModule } from './messages/messages.module';
 import { ContactMessagesModule } from './contact-messages/contact-messages.module';
+import { QuotesModule } from './quotes/quotes.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ContactMessagesModule } from './contact-messages/contact-messages.modul
     BuyRequestsModule,
     MessagesModule,
     ContactMessagesModule,
+    QuotesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: CustomThrottlerGuard },

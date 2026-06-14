@@ -127,8 +127,7 @@ export default function ProductDetailPage({ params }) {
     setQuoteError('');
 
     try {
-      if (!supabase) { setQuoteError('Database not available'); return; }
-      const { error } = await supabase.from('quotes').insert([{
+      await api.quotes.create({
         product_id: product.id,
         buyer_name: quoteForm.name,
         business_name: quoteForm.business,
@@ -136,8 +135,7 @@ export default function ProductDetailPage({ params }) {
         email: quoteForm.email,
         quantity: Number(quoteForm.quantity),
         message: quoteForm.message,
-      }]);
-      if (error) throw error;
+      });
       setQuoteSent(true);
     } catch (err) {
       setQuoteError(err.message || 'Failed to send quote request');
