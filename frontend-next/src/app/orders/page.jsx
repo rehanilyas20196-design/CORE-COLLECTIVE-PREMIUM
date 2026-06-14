@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Package, ChevronDown, Clock, CheckCircle, Truck, MapPin, PackageCheck, Loader, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { api } from '../../lib/api';
 
 const TRACKING_STAGES = [
   { key: 'confirmed', label: 'Confirmed', icon: CheckCircle, desc: 'Order confirmed & being prepared' },
@@ -167,13 +167,8 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from('buy_requests')
-        .select('*')
-        .eq('user_id', userProfile.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setOrders(data || []);
+      const data = await api.buyRequests.getAll();
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
     } finally {

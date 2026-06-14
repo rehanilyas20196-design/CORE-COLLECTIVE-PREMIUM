@@ -90,7 +90,7 @@ export default function ModelViewerInner({ src }) {
 
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full border border-gray-200 shadow-sm">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-gray-600 font-medium">3D Interactive — Drag to rotate</span>
+
         </div>
       </div>
     </motion.div>
