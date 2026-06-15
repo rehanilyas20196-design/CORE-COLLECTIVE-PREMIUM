@@ -167,7 +167,7 @@ export default function ProductDetailPage({ params }) {
     );
   }
 
-  const origin = 'https://frontend-next-ten-topaz.vercel.app';
+  const origin = 'https://buy-allproduts-corecollective.vercel.app';
 
   const productSchema = {
     '@context': 'https://schema.org',

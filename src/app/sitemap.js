@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://frontend-next-ten-topaz.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://buy-allproduts-corecollective.vercel.app';
 
 export default async function sitemap() {
   const staticRoutes = [

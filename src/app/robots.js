@@ -13,6 +13,6 @@ export default function robots() {
     ],
     sitemap: process.env.NEXT_PUBLIC_SITE_URL
       ? `${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`
-      : 'https://frontend-next-ten-topaz.vercel.app/sitemap.xml',
+      : 'https://buy-allproduts-corecollective.vercel.app/sitemap.xml',
   };
 }

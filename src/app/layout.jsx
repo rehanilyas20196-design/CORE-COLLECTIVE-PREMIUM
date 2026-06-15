@@ -4,7 +4,7 @@ import Navbar from '../components/homepage/Navbar';
 import FooterSection from '../components/homepage/FooterSection';
 import ConditionalBackButton from '../components/ConditionalBackButton';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://core-collective-premium.vercel.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://buy-allproduts-corecollective.vercel.app';
 const SITE_NAME = 'Core Collective';
 const OG_IMAGE = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/SEO/og-banner.jpg';
 const FALLBACK_OG = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/Logo/Core%20Collective%20(1).png';
@@ -143,10 +143,10 @@ export default function RootLayout({ children }) {
     <html lang="en-PK">
       <head>
         <link rel="preconnect" href="https://izqxsfuyibbzwdxdcmev.supabase.co" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://core-collective-premium-np5x.vercel.app" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://core-backend-collect.vercel.app" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://challenges.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://izqxsfuyibbzwdxdcmev.supabase.co" />
-        <link rel="dns-prefetch" href="https://core-collective-premium-np5x.vercel.app" />
+        <link rel="dns-prefetch" href="https://core-backend-collect.vercel.app" />
         <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
         <link rel="canonical" href={SITE_URL} />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />

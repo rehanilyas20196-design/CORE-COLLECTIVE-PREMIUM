@@ -23,7 +23,7 @@ async function bootstrap() {
   corsOrigins.push(
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://core-collective-premium.vercel.app',
+    'https://buy-allproduts-corecollective.vercel.app',
   );
 
   app.enableCors({

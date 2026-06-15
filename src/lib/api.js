@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://core-collective-premium-np5x.vercel.app';
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://core-backend-collect.vercel.app';
 
 function sanitizeUrls(obj) {
   if (typeof obj === 'string') {

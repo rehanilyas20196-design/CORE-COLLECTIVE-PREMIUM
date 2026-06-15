@@ -1,7 +1,7 @@
 import { supabase } from '../../../lib/supabase';
 import ProductDetailClient from './ProductDetailClient';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://frontend-next-ten-topaz.vercel.app';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://buy-allproduts-corecollective.vercel.app';
 
 export async function generateMetadata({ params }) {
   try {
