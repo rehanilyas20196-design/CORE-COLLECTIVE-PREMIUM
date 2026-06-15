@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-tau-virid-51.vercel.app';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://core-collective-premium-np5x.vercel.app';
 
 async function handler(request, { params }) {
   const path = params.catchall.join('/');

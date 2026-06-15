@@ -143,10 +143,10 @@ export default function RootLayout({ children }) {
     <html lang="en-PK">
       <head>
         <link rel="preconnect" href="https://izqxsfuyibbzwdxdcmev.supabase.co" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://backend-tau-virid-51.vercel.app" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://core-collective-premium-np5x.vercel.app" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://challenges.cloudflare.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://izqxsfuyibbzwdxdcmev.supabase.co" />
-        <link rel="dns-prefetch" href="https://backend-tau-virid-51.vercel.app" />
+        <link rel="dns-prefetch" href="https://core-collective-premium-np5x.vercel.app" />
         <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
         <link rel="canonical" href={SITE_URL} />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />

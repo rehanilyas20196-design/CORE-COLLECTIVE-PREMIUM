@@ -23,7 +23,7 @@ async function bootstrap() {
   corsOrigins.push(
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://frontend-eta-sepia-69.vercel.app',
+    'https://core-collective-premium.vercel.app',
   );
 
   app.enableCors({
