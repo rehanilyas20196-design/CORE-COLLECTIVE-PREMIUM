@@ -28,7 +28,7 @@ async function getToken() {
 }
 
 async function request(path, options = {}) {
-  const url = `${API_BASE}${path}`;
+  const url = `/api${path}`;
   const token = await getToken();
   const isFormData = options.body instanceof FormData;
   const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
