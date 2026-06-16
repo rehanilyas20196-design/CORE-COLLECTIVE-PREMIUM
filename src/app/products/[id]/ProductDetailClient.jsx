@@ -509,7 +509,7 @@ export default function ProductDetailPage({ params }) {
 
           {/* Related Products */}
           <div className="lg:col-span-7">
-            <RelatedProducts category={product.category} currentId={product.id} />
+            <RelatedProducts category={product.category} currentId={product.id} currentName={product.name} />
           </div>
         </div>
       </div>
@@ -593,15 +593,17 @@ function ReviewSection({ productId, rating, reviewsCount }) {
   );
 }
 
-function RelatedProducts({ category, currentId }) {
+function RelatedProducts({ category, currentId, currentName }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     supabase.from('products').select('*')
       .eq('category', category).eq('is_active', true).eq('status', 'active')
-      .not('id', 'eq', currentId).limit(6)
+      .not('id', 'eq', currentId)
+      .not('name', 'eq', currentName)
+      .limit(6)
       .then(({ data }) => setProducts(data || []));
-  }, [category, currentId]);
+  }, [category, currentId, currentName]);
 
   if (products.length === 0) return null;
 
