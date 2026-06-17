@@ -1330,7 +1330,7 @@ function BuyRequestModal({ action, item, onClose, onConfirm, loading }) {
           <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
             Cancel
           </button>
-          <button onClick={() => onConfirm(item.id, action, isApprove ? undefined : (notes || undefined))} disabled={loading}
+          <button onClick={() => onConfirm(item.id, isApprove ? 'approved' : 'rejected', isApprove ? undefined : (notes || undefined))} disabled={loading}
             className={`px-5 py-2 text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 ${
               isApprove ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
             }`}>
@@ -1368,12 +1368,12 @@ function SupplierProductModal({ action, item, onClose, onConfirm, loading }) {
           <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
             Cancel
           </button>
-          <button onClick={() => onConfirm(item.id, action, isApprove ? undefined : (notes || undefined))} disabled={loading}
+          <button onClick={() => onConfirm(item.id, isApprove ? 'approved' : 'rejected', isApprove ? undefined : (notes || undefined))} disabled={loading}
             className={`px-5 py-2 text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 ${
               isApprove ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
             }`}>
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isApprove ? 'Approve & Publish' : 'Reject'}
+            {isApprove ? 'Approve' : 'Reject'}
           </button>
         </div>
       </motion.div>
@@ -1788,7 +1788,7 @@ function InquiryModal({ action, inquiry, onClose, onConfirm, loading }) {
           <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
             Cancel
           </button>
-          <button onClick={() => onConfirm(inquiry.id, action, isApprove ? undefined : notes, isApprove ? (ref || undefined) : undefined)} disabled={loading}
+          <button onClick={() => onConfirm(inquiry.id, isApprove ? 'approved' : 'rejected', isApprove ? undefined : notes, isApprove ? (ref || undefined) : undefined)} disabled={loading}
             className={`px-5 py-2 text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 ${
               isApprove ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
             }`}>
@@ -1824,7 +1824,7 @@ function DiscountModal({ action, item, onClose, onConfirm, loading }) {
           <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
             Cancel
           </button>
-          <button onClick={() => onConfirm(item.id, action, reply || undefined)} disabled={loading}
+          <button onClick={() => onConfirm(item.id, isApprove ? 'approved' : 'rejected', reply || undefined)} disabled={loading}
             className={`px-5 py-2 text-white text-sm font-semibold rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 ${
               isApprove ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
             }`}>
