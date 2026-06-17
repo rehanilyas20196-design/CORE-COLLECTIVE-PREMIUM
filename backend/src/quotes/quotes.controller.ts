@@ -28,7 +28,7 @@ export class QuotesController {
   @Get(':id')
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string) {
-    return this.quotesService.findOne(parseInt(id));
+    return this.quotesService.findOne(id);
   }
 
   @Patch(':id/status')
@@ -37,12 +37,12 @@ export class QuotesController {
     @Param('id') id: string,
     @Body() body: { status: string; admin_note?: string },
   ) {
-    return this.quotesService.updateStatus(parseInt(id), body.status, body.admin_note);
+    return this.quotesService.updateStatus(id, body.status, body.admin_note);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(@Param('id') id: string) {
-    return this.quotesService.remove(parseInt(id));
+    return this.quotesService.remove(id);
   }
 }

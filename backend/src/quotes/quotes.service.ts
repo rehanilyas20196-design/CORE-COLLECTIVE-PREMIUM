@@ -38,7 +38,7 @@ export class QuotesService {
     return data || [];
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const { data, error } = await this.supabase
       .from('quotes')
       .select('*')
@@ -48,7 +48,7 @@ export class QuotesService {
     return data;
   }
 
-  async updateStatus(id: number, status: string, adminNote?: string) {
+  async updateStatus(id: string, status: string, adminNote?: string) {
     const { error } = await this.supabase
       .from('quotes')
       .update({ status, admin_note: adminNote || null })
@@ -57,7 +57,7 @@ export class QuotesService {
     return { success: true };
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const { error } = await this.supabase
       .from('quotes')
       .delete()
