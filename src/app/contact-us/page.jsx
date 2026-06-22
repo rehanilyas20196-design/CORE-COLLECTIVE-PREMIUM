@@ -73,7 +73,7 @@ export default function ContactPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 space-y-4">
             <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
               <ContactInfo icon={Mail} label="Email" value="ecommerce_corecollective@gmail.com" href="mailto:ecommerce_corecollective@gmail.com" />
-              <ContactInfo icon={Phone} label="Phone" value="+92 345 5900229" href="tel:+923000000000" />
+              <ContactInfo icon={Phone} label="Phone" value="+92 345 5900229" href="tel:+923455900229" />
               <ContactInfo icon={MapPin} label="Address" value="Karachi, Pakistan" />
               <ContactInfo icon={Clock} label="Business Hours" value="Mon–Sat: 9:00 AM – 6:00 PM PKT" />
             </div>
@@ -81,8 +81,9 @@ export default function ContactPage() {
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-3">Follow Us</h3>
               <div className="flex gap-3">
-                {['LinkedIn', 'Twitter', 'Facebook', 'Instagram'].map(sm => (
-                  <a key={sm} href="#" className="px-4 py-2 bg-gray-100 rounded-xl text-sm text-gray-600 hover:text-primary hover:border-primary/30 border border-gray-200 transition-all">{sm}</a>
+                {['LinkedIn', 'Twitter', 'Facebook', 'Instagram'].map(sm => {
+                  const href = sm === 'LinkedIn' ? 'https://www.linkedin.com/in/rehan-ilyas-6976793a7' : '#';
+                  return <a key={sm} href={href} className="px-4 py-2 bg-gray-100 rounded-xl text-sm text-gray-600 hover:text-primary hover:border-primary/30 border border-gray-200 transition-all">{sm}</a>
                 ))}
               </div>
             </div>
