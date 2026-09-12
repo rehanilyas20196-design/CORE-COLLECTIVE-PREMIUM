@@ -185,7 +185,7 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/supplier/signup"
-                    className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#D9A63C] via-[#B8862E] to-[#8A6A1E] text-white text-sm font-bold rounded-full shadow-[0_8px_20px_-4px_rgba(201,151,75,0.55)] hover:shadow-[0_10px_26px_-4px_rgba(201,151,75,0.7)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300"
+                    className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#D9A63C] via-[#B8862E] to-[#8A6A1E] text-white text-sm font-bold shadow-[0_8px_20px_-4px_rgba(201,151,75,0.55)] hover:shadow-[0_10px_26px_-4px_rgba(201,151,75,0.7)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300"
                   >
                     <Users className="w-4 h-4" />
                     Become a Supplier
@@ -194,7 +194,7 @@ export default function Navbar() {
                   <span className="hidden sm:block w-px h-9 bg-gray-200" />
                   <Link
                     href="/login"
-                    className="hidden sm:flex items-center gap-2 px-5 py-2.5 border border-[#B8862E]/60 bg-transparent text-[#8A5A2E] text-sm font-semibold rounded-full hover:bg-[#FFF6E0] hover:border-[#B8862E] hover:shadow-md hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 shadow-sm"
+                    className="hidden sm:flex items-center gap-2 px-5 py-2.5 border border-[#B8862E]/60 bg-transparent text-[#8A5A2E] text-sm font-semibold hover:bg-[#FFF6E0] hover:border-[#B8862E] hover:shadow-md hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 shadow-sm"
                   >
                     <User className="w-4 h-4" />
                     Login
