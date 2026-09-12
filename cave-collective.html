@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cave Collective — Bulk Wholesale Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#211A15;-webkit-font-smoothing:antialiased}
+body{font-family:"Work Sans",-apple-system,"Segoe UI",sans-serif;font-optical-sizing:auto;color:#F1E7D3;background:#FBF7EF}
+a{color:inherit;text-decoration:none}
+svg{display:block}
+::selection{background:rgba(233,199,102,.35);color:#2E2010}
+
+.grain{position:absolute;inset:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");background-size:200px 200px}
+
+.testimonials{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(160deg,#211A15 0%,#2B221B 100%)}
+.testimonials>.grain{opacity:.06;z-index:0}
+.vignette{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(1100px 560px at 82% 4%,rgba(233,199,102,.1),transparent 62%),radial-gradient(1000px 640px at 4% 100%,rgba(0,0,0,.4),transparent 62%)}
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:clamp(64px,9vw,120px) clamp(20px,4vw,48px) 0}
+
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:48px;flex-wrap:wrap}
+.head-copy{max-width:660px}
+.pill{display:inline-flex;align-items:center;gap:9px;padding:8px 17px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.pill i{width:6px;height:6px;border-radius:50%;flex:none}
+.pill--dark{color:#E9C766;border:1px solid rgba(233,199,102,.3);background:rgba(233,199,102,.05)}
+.pill--dark i{background:#E9C766;box-shadow:0 0 10px rgba(233,199,102,.9)}
+.pill--gold{color:#2E2010;border:1px solid rgba(58,42,16,.4);background:rgba(255,255,255,.16)}
+.pill--gold i{background:#2E2010}
+
+.h1{font-family:"Fraunces",Georgia,serif;font-weight:590;line-height:1.03;letter-spacing:-.02em;color:#F1E7D3;font-size:clamp(38px,5.4vw,66px);margin-top:26px}
+.gold-em{font-style:italic;background:linear-gradient(118deg,#F6E19A 0%,#C6962F 70%,#9A7B1D 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:22px;font-size:16.5px;line-height:1.65;color:rgba(241,231,211,.55);max-width:480px}
+
+.rating{position:relative;flex:none;text-align:right;padding-bottom:6px}
+.rating::before{content:"";position:absolute;top:2px;right:-22px;width:150px;height:150px;border:1px solid rgba(233,199,102,.15);border-radius:50%}
+.rating-num{position:relative;display:inline-block;font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:520;font-size:clamp(84px,9vw,150px);line-height:.82;background:linear-gradient(120deg,#F6E19A 0%,#C6962F 55%,#9A7B1D 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rating-star{position:relative;display:inline-block;transform:translateY(-10px);margin-left:3px;color:#E9C766;font-size:30px}
+.rating-cap{margin-top:14px;font-size:13px;line-height:1.6;color:rgba(241,231,211,.5);max-width:230px}
+
+.track-wrap{position:relative;margin-top:clamp(52px,8vw,80px)}
+.track-wrap::after{content:"";position:absolute;top:0;right:0;bottom:44px;width:120px;background:linear-gradient(90deg,transparent,rgba(33,26,21,.92));pointer-events:none;z-index:2}
+.cards-track{display:flex;gap:22px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;overscroll-behavior-inline:contain;padding:10px 24px 44px 0;scrollbar-width:thin;scrollbar-color:rgba(233,199,102,.35) rgba(255,255,255,.05)}
+.cards-track::-webkit-scrollbar{height:8px}
+.cards-track::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:99px}
+.cards-track::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#C6962F,#E9C766);border-radius:99px}
+
+.quote-card{flex:0 0 clamp(300px,26vw,374px);position:relative;display:flex;flex-direction:column;gap:20px;padding:30px 28px 0;border:1px solid rgba(233,199,102,.16);border-radius:14px;background:linear-gradient(168deg,rgba(255,255,255,.05),rgba(255,255,255,.015));-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);scroll-snap-align:start;transition:transform .5s cubic-bezier(.22,.9,.24,1),box-shadow .5s ease,border-color .5s ease,background .5s ease}
+.quote-card:nth-child(even){transform:translateY(16px)}
+.first-card{border-color:rgba(233,199,102,.38)}
+.first-card::after{content:"";position:absolute;top:-1px;left:18%;right:18%;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#E9C766,transparent);opacity:.85}
+.quote-card:hover{transform:translateY(-9px);border-color:rgba(233,199,102,.55);background:linear-gradient(168deg,rgba(255,255,255,.08),rgba(255,255,255,.03));box-shadow:0 30px 54px -20px rgba(0,0,0,.65),0 0 44px -6px rgba(233,199,102,.3)}
+
+.qmark{display:block;font-family:"Fraunces",Georgia,serif;font-style:italic;font-weight:700;font-size:66px;line-height:.55;transform:translate(-4px,4px);background:linear-gradient(120deg,#F6E19A,#C6962F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.quote-card blockquote{display:flex;flex-direction:column;gap:22px;flex:1}
+.quote-card blockquote p{font-size:15.5px;line-height:1.68;color:rgba(241,231,211,.85)}
+.qfoot{display:flex;align-items:center;gap:12px;padding:18px 0 22px;border-top:1px solid rgba(233,199,102,.12);margin-top:auto}
+.avatar{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:"Fraunces",Georgia,serif;font-weight:650;font-size:15px;color:#211A15;background:linear-gradient(135deg,#E9C766 0%,#C6962F 60%,#9A7B1D 100%);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3),0 6px 14px -6px rgba(0,0,0,.5)}
+.who{min-width:0;overflow:hidden}
+.name{display:block;font-size:14.5px;font-weight:600;color:#F1E7D3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.biz{display:block;font-size:11.5px;color:rgba(241,231,211,.5);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stars{margin-left:auto;flex:none;font-size:12.5px;color:#E9C766;letter-spacing:3px}
+
+.cta{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(115deg,#7A5A17 0%,#C6962F 25%,#E9C766 52%,#C6962F 78%,#7A5A17 100%);background-size:230% 230%;animation:drift 14s ease-in-out infinite;color:#2E2010;box-shadow:inset 0 26px 40px -34px rgba(20,12,3,.55)}
+@keyframes drift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cta>.grain{z-index:3;mix-blend-mode:overlay;opacity:.4}
+.sheen{position:absolute;top:-30%;left:-20%;width:120px;height:160%;z-index:1;pointer-events:none;transform:skewX(-16deg);background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.32) 50%,rgba(255,255,255,0));animation:sheen 7s ease-in-out infinite}
+@keyframes sheen{0%{left:-20%;opacity:0}60%{left:-20%;opacity:0}64%{opacity:1}84%{left:116%;opacity:1}88%{opacity:0}100%{left:116%;opacity:0}}
+
+.cta-inner{position:relative;z-index:2;max-width:860px;margin:0 auto;text-align:center;padding:clamp(84px,11vw,140px) clamp(20px,5vw,48px) clamp(150px,16vw,210px)}
+.cta-h{font-family:"Fraunces",Georgia,serif;font-weight:590;line-height:1.04;letter-spacing:-.02em;font-size:clamp(38px,6vw,74px);color:#2E2010;margin-top:24px}
+.cta-copy{margin:22px auto 0;max-width:600px;font-size:17px;line-height:1.65;color:rgba(46,32,16,.72)}
+.actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:38px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 28px;border-radius:999px;font-family:"Work Sans",sans-serif;font-size:15px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:transform .4s cubic-bezier(.22,.9,.24,1),box-shadow .4s ease,background .4s ease,color .4s ease,border-color .4s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-dark{background:#251C12;color:#F1E7D3;border:1px solid #251C12}
+.btn-dark:hover{box-shadow:0 16px 30px -12px rgba(28,18,8,.55)}
+.btn-ghost{border:1.5px solid rgba(58,42,16,.55);color:#2E2010;background:rgba(255,255,255,.06)}
+.btn-ghost:hover{background:#251C12;border-color:#251C12;color:#E9C766;box-shadow:0 16px 30px -12px rgba(28,18,8,.5)}
+
+.strip{position:absolute;left:0;right:0;bottom:-1px;height:80px;z-index:4;pointer-events:none;background:#F4EAD5;clip-path:polygon(0% 16%,9% 9%,18% 17%,27% 8%,36% 15%,45% 7%,54% 18%,63% 9%,72% 16%,81% 8%,90% 15%,100% 9%,100% 100%,95% 88%,88% 97%,80% 85%,71% 98%,62% 86%,53% 99%,44% 87%,35% 98%,26% 86%,17% 99%,8% 87%,0% 99%)}
+.strip::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,40,10,.16),transparent 40%)}
+
+.next{background:#FBF7EF;color:rgba(58,42,16,.72);text-align:center;padding:72px 24px 60px;font-size:13.5px;line-height:1.7;letter-spacing:.02em}
+.next .word{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:20px;color:#3A2A10}
+
+.line{display:block;overflow:hidden}
+.line>span{display:block;will-change:transform;transition:transform 1.05s cubic-bezier(.22,.9,.24,1)}
+.js .line>span{transform:translateY(112%)}
+.js .in-view .line>span{transform:translateY(0)}
+.l1>span{transition-delay:.05s}
+.l2>span{transition-delay:.15s}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .js .line>span{transform:none!important}
+}
+@media (max-width:860px){
+  .head{flex-direction:column;align-items:flex-start;gap:36px}
+  .rating{text-align:left}
+  .rating-cap{max-width:none}
+  .rating::before{right:auto;left:-6px}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+<section class="testimonials" data-reveal>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="container">
+    <header class="head">
+      <div class="head-copy">
+        <div class="pill pill--dark"><i></i>From verified buyers</div>
+        <h1 class="h1">
+          <span class="line l1"><span>What buyers say</span></span>
+          <span class="line l2"><span>after their <em class="gold-em">first order</em></span></span>
+        </h1>
+        <p class="sub">Real orders in real bulk — verified retailers across the country on sourcing through Cave Collective, quoted in PKR.</p>
+      </div>
+      <div class="rating">
+        <span class="rating-num" id="rate">4.8</span><span class="rating-star">★</span>
+        <p class="rating-cap">Average buyer rating · 2,400+ verified bulk orders</p>
+      </div>
+    </header>
+
+    <div class="track-wrap">
+      <div class="cards-track">
+        <article class="quote-card first-card">
+          <span class="qmark">”</span>
+          <blockquote>
+            <p>We consolidated our entire dry-goods range with Cave Collective after a single trial order. Quotes from twelve verified suppliers landed in a day, and the bulk pricing in PKR came in 18% below our old channel. I have not once had to chase a delivery since.</p>
+            <footer class="qfoot">
+              <span class="avatar">AR</span>
+              <div class="who">
+                <span class="name">Aisha Rahman</span>
+                <span class="biz">Rahman General Stores · Karachi</span>
+              </div>
+              <span class="stars" aria-label="5 out of 5 stars">★★★★★</span>
+            </footer>
+          </blockquote>
+        </article>
+
+        <article class="quote-card">
+          <span class="qmark">”</span>
+          <blockquote>
+            <p>The supplier verification gave our procurement team real confidence. Every bulk order arrived exactly to spec, exactly on time, and comparing batch rates across suppliers now takes minutes, not weeks.</p>
+            <footer class="qfoot">
+              <span class="avatar">BC</span>
+              <div class="who">
+                <span class="name">Bilal Chaudhry</span>
+                <span class="biz">MetroMart Chain · Lahore</span>
+              </div>
+              <span class="stars" aria-label="5 out of 5 stars">★★★★★</span>
+            </footer>
+          </blockquote>
+        </article>
+
+        <article class="quote-card">
+          <span class="qmark">”</span>
+          <blockquote>
+            <p>We stocked a full season's inventory in one go. The ratings are honest — what a supplier lists is what shows up at our warehouse, and the PKR settlement made cash-flow planning far simpler.</p>
+            <footer class="qfoot">
+              <span class="avatar">HS</span>
+              <div class="who">
+                <span class="name">Hina Shahid</span>
+                <span class="biz">Dara Bazaar Retailers · Peshawar</span>
+              </div>
+              <span class="stars" aria-label="5 out of 5 stars">★★★★★</span>
+            </footer>
+          </blockquote>
+        </article>
+
+        <article class="quote-card">
+          <span class="qmark">”</span>
+          <blockquote>
+            <p>Our fortnightly bulk re-orders used to eat an entire morning. Cave Collective trims the sourcing admin to about ten minutes, and we've cut warehouse trips in half since onboarding.</p>
+            <footer class="qfoot">
+              <span class="avatar">UT</span>
+              <div class="who">
+                <span class="name">Usman Tariq</span>
+                <span class="biz">Tariq Traders · Faisalabad</span>
+              </div>
+              <span class="stars" aria-label="5 out of 5 stars">★★★★★</span>
+            </footer>
+          </blockquote>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" data-reveal>
+  <div class="sheen" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cta-inner">
+    <div class="pill pill--gold"><i></i>For suppliers</div>
+    <h2 class="cta-h">
+      <span class="line l1"><span>Have a warehouse full</span></span>
+      <span class="line l2"><span>of stock to move?</span></span>
+    </h2>
+    <p class="cta-copy">List your batch pricing in PKR and reach thousands of verified retailers ready to buy in bulk.</p>
+    <div class="actions">
+      <a class="btn btn-dark" href="#">List your stock &rarr;</a>
+      <a class="btn btn-ghost" href="#">Talk to our team</a>
+    </div>
+  </div>
+  <div class="strip" aria-hidden="true"></div>
+</section>
+
+<section class="next">
+  <p class="word">Cave Collective</p>
+  <p>Verified suppliers · bulk pricing in PKR · nationwide delivery</p>
+</section>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){entry.target.classList.add('in-view');io.unobserve(entry.target);}
+    });
+  },{threshold:0.22});
+  var targets=document.querySelectorAll('[data-reveal]');
+  for(var i=0;i<targets.length;i++){io.observe(targets[i]);}
+
+  var rate=document.getElementById('rate');
+  if(rate){
+    var target=4.8;
+    var rin=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(!entry.isIntersecting){return;}
+        rin.unobserve(rate);
+        if(reduce){rate.textContent=target.toFixed(1);return;}
+        var start=performance.now();
+        rate.textContent='0.0';
+        var step=function(now){
+          var p=Math.min(1,(now-start)/1150);
+          var eased=1-Math.pow(1-p,3);
+          rate.textContent=(target*eased).toFixed(1);
+          if(p<1){requestAnimationFrame(step);}else{rate.textContent=target.toFixed(1);}
+        };
+        requestAnimationFrame(step);
+      });
+    },{threshold:0.4});
+    rin.observe(rate);
+  }
+})();
+</script>
+</body>
+</html>

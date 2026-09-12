@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Core Collective — Mail &amp; Paper Plane Concept</title>
+<style>
+  :root {
+    --cream: #fbf7ee;
+    --paper: #faf4e4;
+    --paper-2: #f1e6cc;
+    --line: rgba(192, 138, 46, .28);
+    --gold: #c08a2e;
+    --gold-2: #e9c776;
+    --graphite: #201811;
+
+    --t: 6s;
+    --smooth: cubic-bezier(.33, .72, .22, 1);
+    --soft: cubic-bezier(.45, .1, .28, 1);
+    --sky: cubic-bezier(.35, .2, .55, .95);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(1000px 600px at 50% -10%, #f2ead2 0%, transparent 60%),
+      #e7dfca;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .label {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .label h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #5c411e;
+    margin-bottom: 5px;
+  }
+
+  .label p {
+    font-size: 13px;
+    color: #8a6a35;
+  }
+
+  .label p b { color: #5c411e; }
+
+  .stage {
+    position: relative;
+    width: min(560px, 92vw);
+    aspect-ratio: 1 / 1.02;
+    border-radius: 26px;
+    background: radial-gradient(130% 120% at 50% 22%, #fffdf6 0%, #f7eed8 52%, #ede0bc 100%);
+    box-shadow: 0 34px 90px -28px rgba(87, 60, 12, .5), 0 10px 30px -14px rgba(87, 60, 12, .28);
+    border: 1px solid rgba(192, 138, 46, .28);
+    overflow: hidden;
+  }
+
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 30%, rgba(233, 199, 118, .16), transparent 58%);
+    pointer-events: none;
+  }
+
+  .stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 253, 246, .7);
+    pointer-events: none;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    perspective: 1000px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  /* ground glow */
+  .haze {
+    position: absolute;
+    bottom: 8%;
+    left: 50%;
+    width: 62%;
+    height: 26%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, rgba(107, 76, 22, .28), transparent 70%);
+    filter: blur(14px);
+    border-radius: 50%;
+  }
+
+  /* ---------- envelope ---------- */
+  .env {
+    position: absolute;
+    bottom: 24%;
+    left: 50%;
+    width: 250px;
+    height: 170px;
+    transform: translateX(-50%);
+    transform-style: preserve-3d;
+    animation: envSit var(--t) var(--soft) both;
+  }
+
+  .env .shadow {
+    position: absolute;
+    left: 50%;
+    bottom: -34px;
+    width: 230px;
+    height: 42px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(32, 24, 17, .32), transparent 68%);
+    filter: blur(7px);
+    animation: envShadow var(--t) var(--smooth) both;
+  }
+
+  .back, .front {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+  }
+
+  .back {
+    background: linear-gradient(160deg, #f7eeda, #e9dabc);
+    box-shadow: inset 0 0 22px rgba(120, 84, 30, .18);
+    transform: translateZ(-10px);
+  }
+
+  .front {
+    overflow: hidden;
+    background: linear-gradient(155deg, #fdf8eb 0%, #f5ecd4 40%, #f1e5c6 100%);
+    border-radius: 16px;
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, .9),
+      inset 0 -8px 18px -12px rgba(120, 84, 30, .35),
+      0 16px 34px -18px rgba(60, 42, 16, .55);
+  }
+
+  /* front decorative bands */
+  .front::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    border: 1px solid rgba(192, 138, 46, .35);
+    border-radius: 10px;
+  }
+
+  .front::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 22px;
+    width: 74px;
+    height: 3px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: .7;
+  }
+
+  /* opened flap (sits above front, revealed during open) */
+  .cavity {
+    position: absolute;
+    top: 0;
+    left: 24px;
+    right: 24px;
+    height: 62px;
+    border-radius: 0 0 14px 14px;
+    background: radial-gradient(120% 130% at 50% 0%, #2d2317 0%, #17110a 62%, #0d0905 100%);
+    box-shadow: inset 0 4px 10px rgba(0, 0, 0, .8);
+    overflow: hidden;
+  }
+
+  .cavity::after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(233, 199, 118, .55), transparent);
+    opacity: .8;
+  }
+
+  /* flap */
+  .flap {
+    position: absolute;
+    top: 0;
+    left: 18px;
+    right: 18px;
+    height: 64px;
+    transform-origin: 50% 0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    will-change: transform;
+    animation: flapOpen var(--t) var(--smooth) both;
+    z-index: 6;
+  }
+
+  .flap .inside {
+    position: absolute;
+    inset: 0;
+    clip-path: inherit;
+    background: linear-gradient(180deg, #f8f0dc 0%, #eedfc0 70%, #dcc48e 100%);
+    box-shadow: inset 0 -10px 14px -10px rgba(120, 84, 30, .5);
+  }
+
+  .seal {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, #f3d389 0%, #d5a43e 42%, #c08a2e 68%, #8a5f1c 100%);
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, .8), 0 4px 10px rgba(138, 95, 28, .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: rgba(255, 245, 220, .92);
+    text-shadow: 0 1px 1px rgba(90, 60, 10, .6);
+  }
+
+  /* ---------- letters ---------- */
+  .sheet {
+    position: absolute;
+    left: 50%;
+    bottom: 96px;
+    width: 148px;
+    height: 96px;
+    margin-left: -74px;
+    border-radius: 4px;
+    transform-origin: 50% 100%;
+    will-change: transform, opacity;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sheet .body {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background: linear-gradient(160deg, #fffdf6 0%, #f8f0dc 55%, #efe3c4 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(192, 138, 46, .16),
+      0 10px 20px -12px rgba(60, 42, 16, .5),
+      0 2px 4px rgba(60, 42, 16, .12);
+  }
+
+  .sheet .body::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 14px;
+    height: 1px;
+    box-shadow:
+      0 0 0 rgba(0,0,0,0),
+      0 12px 0 var(--line),
+      0 24px 0 var(--line),
+      0 36px 0 var(--line);
+    background: transparent;
+  }
+
+  .s1 { animation: sheet1 var(--t) var(--smooth) both; }
+  .s2 { animation: sheet2 var(--t) var(--smooth) both; }
+  .s3 { animation: sheet3 var(--t) var(--smooth) both; }
+
+  /* ---------- plane ---------- */
+  .plane {
+    position: absolute;
+    left: 50%;
+    bottom: 170px;
+    width: 120px;
+    height: 52px;
+    margin-left: -60px;
+    transform-origin: 15% 50%;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: planeFly var(--t) var(--sky) both;
+  }
+
+  .plane .body {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(100% 26%, 8% 0%, 46% 46%, 4% 60%, 8% 100%, 100% 52%);
+    background: linear-gradient(120deg, #fffdf6 0%, #f6edd6 45%, #e9d8ad 100%);
+    filter: drop-shadow(0 12px 16px rgba(60, 42, 16, .4));
+  }
+
+  .plane .fold {
+    position: absolute;
+    left: 44%;
+    top: 4%;
+    width: 55%;
+    height: 92%;
+    clip-path: polygon(0 0, 100% 46%, 0 94%);
+    background: linear-gradient(100deg, rgba(192, 138, 46, .16), rgba(233, 199, 118, .4));
+  }
+
+  .plane .nose {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 62%;
+    bottom: 0;
+    clip-path: polygon(0 0, 100% 26%, 100% 52%, 0 100%);
+    background: rgba(255, 253, 246, .55);
+  }
+
+  /* sparkles */
+  .spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f3d389, rgba(192, 138, 46, 0));
+    opacity: 0;
+    animation: sparkle var(--t) ease-out both;
+  }
+  .spark.a { left: 58%; top: 34%; animation-delay: 0s; }
+  .spark.b { left: 66%; top: 26%; animation-delay: .18s; }
+  .spark.c { left: 52%; top: 22%; animation-delay: .36s; }
+
+  .hint {
+    margin-top: 18px;
+    font-size: 12px;
+    color: #8a6a35;
+    text-align: center;
+    letter-spacing: .04em;
+  }
+
+  .hint b { color: #5c411e; cursor: pointer; text-decoration: underline; }
+
+  /* ---------- keyframes ---------- */
+  @keyframes envSit {
+    0%, 100% { transform: translateX(-50%); }
+    30%, 86% { transform: translateX(-50%); }
+    34% { transform: translateX(-50%) translateY(3px) rotate(.6deg); }
+    38% { transform: translateX(-50%) rotate(-.7deg); }
+    42% { transform: translateX(-50%) translateY(1px); }
+  }
+
+  @keyframes envShadow {
+    0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 1; }
+    34% { transform: translateX(-50%) scaleX(.9); opacity: .85; }
+    42% { transform: translateX(-50%) scaleX(1.02); opacity: 1; }
+  }
+
+  @keyframes flapOpen {
+    0%, 12% { transform: rotateX(0); }
+    20% { transform: rotateX(-128deg) translateY(-4px) translateZ(10px); }
+    24%, 82% { transform: rotateX(-132deg) translateY(-6px) translateZ(12px); }
+    88% { transform: rotateX(-120deg) translateY(-3px) translateZ(9px); }
+    94%, 100% { transform: rotateX(0) translateY(0) translateZ(0); }
+  }
+
+  @keyframes sheet1 {
+    0%, 24% { opacity: 0; transform: translateY(0) rotate(0); }
+    30% { opacity: 1; transform: translateY(-22px) rotate(-7deg); }
+    38% { opacity: 1; transform: translateY(-118px) rotate(-5deg); }
+    44% { opacity: 1; transform: translateY(-150px) rotate(-3deg) scale(.92); }
+    52% { opacity: 0; transform: translateY(-168px) rotate(0) scale(.7); }
+    100% { opacity: 0; }
+  }
+
+  @keyframes sheet2 {
+    0%, 28% { opacity: 0; transform: translateY(0) rotate(0); }
+    34% { opacity: 1; transform: translateY(-18px) rotate(3deg); }
+    42% { opacity: 1; transform: translateY(-126px) rotate(2deg); }
+    48% { opacity: 1; transform: translateY(-156px) rotate(1deg) scale(.92); }
+    55% { opacity: 0; transform: translateY(-172px) rotate(0) scale(.68); }
+    100% { opacity: 0; }
+  }
+
+  @keyframes sheet3 {
+    0%, 32% { opacity: 0; transform: translateY(0) rotate(0); }
+    38% { opacity: 1; transform: translateY(-14px) rotate(-2deg); }
+    46% { opacity: 1; transform: translateY(-132px) rotate(0deg); }
+    52% { opacity: 1; transform: translateY(-160px) rotate(1deg) scale(.9); }
+    58% { opacity: 0; transform: translateY(-176px) rotate(2deg) scale(.65); }
+    100% { opacity: 0; }
+  }
+
+  @keyframes planeFly {
+    0%, 42% { opacity: 0; transform: translate(0, 0) rotate(0) scale(.4); }
+    50% { opacity: 1; transform: translate(14px, -30px) rotate(-8deg) scale(1.06); }
+    55% { opacity: 1; transform: translate(8px, -44px) rotate(-6deg) scale(1); }
+    62% { opacity: 1; transform: translate(40px, -84px) rotate(-12deg) scale(.96); }
+    72% { opacity: 1; transform: translate(110px, -118px) rotate(-24deg) scale(.9); }
+    80% { opacity: .9; transform: translate(205px, -146px) rotate(-36deg) scale(.72); }
+    88%, 100% { opacity: 0; transform: translate(300px, -170px) rotate(-46deg) scale(.4); }
+  }
+
+  @keyframes sparkle {
+    0%, 42% { opacity: 0; transform: translateY(0) scale(.6); }
+    48%, 56% { opacity: .9; transform: translateY(-26px) scale(1); }
+    66%, 100% { opacity: 0; transform: translateY(-70px) translateX(24px) scale(.4); }
+  }
+
+  /* reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .env, .env .shadow, .flap, .sheet, .plane, .spark {
+      animation: none !important;
+    }
+    .flap { transform: rotateX(0); }
+    .sheet { opacity: 0; }
+    .plane { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="label">
+    <h1>Core Collective · Contact Hero concept</h1>
+    <p>Mail opens &rarr; letters float out &rarr; fold into a paper plane &rarr; it flies away</p>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="scene">
+      <div class="haze"></div>
+
+      <div class="env">
+        <div class="shadow"></div>
+        <div class="back"></div>
+        <div class="cavity"></div>
+        <div class="front"></div>
+        <div class="flap"><div class="inside"></div><div class="seal">C</div></div>
+      </div>
+
+      <div class="sheet s1"><div class="body"></div></div>
+      <div class="sheet s2"><div class="body"></div></div>
+      <div class="sheet s3"><div class="body"></div></div>
+
+      <div class="plane"><div class="body"></div><div class="fold"></div><div class="nose"></div></div>
+
+      <div class="spark a"></div>
+      <div class="spark b"></div>
+      <div class="spark c"></div>
+    </div>
+  </div>
+
+  <p class="hint">Click <b id="replay">here</b> to replay the loop.</p>
+
+  <script>
+    const stage = document.getElementById('stage');
+    document.getElementById('replay').addEventListener('click', () => { stage.classList.remove('run'); void stage.offsetWidth; stage.classList.add('run'); });
+  </script>
+</body>
+</html>

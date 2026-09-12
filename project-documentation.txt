@@ -1,0 +1,367 @@
+================================================================================
+                  CORES WORK - COMPLETE PROJECT DOCUMENTATION
+================================================================================
+
+Project Name: Core Collective
+Type: Full-stack B2B Marketplace with AI Chatbot
+Deployed URLs:
+  - Frontend: https://frontend-eta-sepia-69.vercel.app
+  - Backend API: https://backend-ten-lime-44.vercel.app
+  - Supabase: https://izqxsfuyibbzwdxdcmev.supabase.co
+
+================================================================================
+1. FRONTEND
+================================================================================
+
+Framework:       React 18 (react@^18.2.0)
+Language:        JavaScript (JSX files)
+Build Tool:      Vite 7 (vite@^7.3.2)
+CSS Framework:   Tailwind CSS 3 (tailwindcss@^3.3.3)
+Icons Library:   Lucide React (lucide-react@^0.263.1)
+State Mgmt:      @tanstack/react-query@^5.100.1 (server-state)
+                 + React useState/useRef (local UI state)
+Package Manager: npm
+
+Major Dependencies (Frontend):
+  - react, react-dom            ^18.2.0     UI Library
+  - @supabase/supabase-js       ^2.104.1    Supabase Client (Auth, DB, Storage)
+  - @tanstack/react-query       ^5.100.1    Data Fetching / Caching
+  - lucide-react                ^0.263.1    SVG Icons
+  - vite                        ^7.3.2      Build / Dev Server
+  - tailwindcss                 ^3.3.3      Utility CSS
+  - @vitejs/plugin-react        ^4.0.3      Vite React Plugin
+
+Frontend File Structure:
+  frontend/
+    .env                          Environment variables (Supabase, Gemini, API URL)
+    index.html                    Root HTML (SEO, Cloudflare Turnstile, JSON-LD)
+    package.json
+    vite.config.js                Vite config (React plugin, @ alias, proxy, code splitting)
+    tailwind.config.js            Tailwind theme (colors, fonts, shadows, animations)
+    vercel.json                   Vercel headers (CSP, caching, security)
+    supabase_schema.sql           DB schema
+    supabase_migration.sql        DB migration (RLS, indexes)
+    public/                       Static assets (favicons, manifest)
+    src/
+      main.jsx                    Entry point (React Query provider)
+      App.jsx                     Root component (routing, layout)
+      index.css                   Global styles (Tailwind + custom)
+      supabaseClient.js           Legacy Supabase client
+      auth.js                     Legacy auth helpers
+      lib/
+        api.js                    API client (fetch wrapper for backend)
+        supabase.js               Supabase client instance
+      hooks/
+        useProducts.js            React Query hooks
+      components/
+        AdminPanel.jsx            Admin dashboard (orders, discounts, inquiries)
+        Auth.jsx                  Login/Signup (with Cloudflare Turnstile)
+        Cart.jsx                  Shopping cart (quantities, coupons)
+        CategorySection.jsx       Product categories on home page
+        Chatbot.jsx               Chatbot wrapper
+        Checkout.jsx              3-step checkout (delivery, payment, confirmation)
+        ContactUs.jsx             Contact page
+        Deals.jsx                 Timed deals with countdown
+        FAQ.jsx                   Frequently Asked Questions
+        Footer.jsx                Site footer
+        GiftBoxes.jsx             Gift box products
+        Header.jsx                Navigation (search, cart, favorites, user menu)
+        HelpCenter.jsx            Help center
+        Hero.jsx                  Hero carousel/banners
+        HotOffers.jsx             Hot offers (up to 50% off)
+        InquiryForm.jsx           Supplier inquiry/quote form
+        MenuItems.jsx             Menu-based product listing
+        Messages.jsx              AI Chatbot (Gemini + keyword fallback)
+        Newsletter.jsx            Email newsletter signup
+        Notifications.jsx         User notifications
+        Orders.jsx                Order tracking (6-step status)
+        ProductDetails.jsx        Product detail page (gallery, specs, reviews)
+        ProductListing.jsx        Product listing grid
+        Profile.jsx               User profile
+        Projects.jsx              Crowdfunding projects page
+        PromoModal.jsx            Promotion modal
+        RecommendedItems.jsx      Recommended products
+        RegionSuppliers.jsx       Suppliers by region
+        ReturnsInfo.jsx           Returns policy
+        SellerProfile.jsx         Seller detail page
+        Services.jsx              Services (sourcing, customization, shipping)
+        ShippingInfo.jsx          Shipping methods & tracking
+
+================================================================================
+2. BACKEND
+================================================================================
+
+Framework:       NestJS 11 (@nestjs/core@^11.0.1)
+Language:        TypeScript
+Runtime:         Node.js 18+
+ORM:             None (uses Supabase JS Client directly)
+Deployment:      Serverless on Vercel (via api/index.js)
+Package Manager: npm
+
+Major Dependencies (Backend):
+  @nestjs/common              ^11.0.1     Core framework
+  @nestjs/config              ^4.0.4      Environment variables
+  @nestjs/core                ^11.0.1     Core framework
+  @nestjs/platform-express    ^11.0.1     Express adapter
+  @nestjs/throttler           ^6.5.0      Rate limiting
+  @supabase/supabase-js       ^2.106.1    Supabase client
+  class-transformer           ^0.5.1      DTO transformation
+  class-validator             ^0.15.1     DTO validation
+  helmet                      ^8.2.0      Security HTTP headers
+  serverless-http             ^4.0.0      Serverless adapter
+  reflect-metadata            ^0.2.2      Decorator metadata
+  rxjs                        ^7.8.1      Reactive extensions
+
+Backend File Structure:
+  backend/
+    .env                          Environment variables (Supabase keys, pepper, CORS)
+    api/index.js                  Serverless handler (cached NestJS app)
+    src/
+      main.ts                     Bootstrap (Helmet, CORS, ValidationPipe, global prefix "api")
+      app.module.ts               Root module
+      app.controller.ts           Root controller
+      app.service.ts              Root service
+      auth/
+        auth.module.ts
+        auth.controller.ts        /api/auth (signup, login, logout, session, google)
+        auth.service.ts           Supabase Auth + Cloudflare Turnstile verification
+      cart/
+        cart.module.ts
+        cart.controller.ts        /api/cart (CRUD)
+        cart.service.ts
+      common/
+        common.module.ts          Global module
+        auth.guard.ts             Validates Bearer token (401 if invalid)
+        admin.guard.ts            Admin check (rehanilyas20196@gmail.com -> 403)
+        optional-auth.guard.ts    Attaches user if token present, else null
+        custom-throttler.guard.ts Custom rate limit error messages
+        dto/
+          auth.dto.ts             SignUpDto, LoginDto
+          inquiry.dto.ts          Supplier inquiry DTO
+          order.dto.ts            Order DTO
+          review.dto.ts           Review DTO
+      deals/
+        deals.controller.ts       /api/deals
+        deals.service.ts
+      discount-messages/
+        discount-messages.controller.ts  /api/discount-messages
+        discount-messages.service.ts
+      favorites/
+        favorites.controller.ts   /api/favorites
+        favorites.service.ts
+      messages/
+        messages.controller.ts    /api/messages (chat history)
+        messages.service.ts
+      notifications/
+        notifications.controller.ts  /api/notifications
+        notifications.service.ts
+      orders/
+        orders.controller.ts      /api/orders (CRUD, status, tracking)
+        orders.service.ts
+      products/
+        products.controller.ts    /api/products (search, categories, related)
+        products.service.ts
+      recommended-items/
+        recommended-items.controller.ts  /api/recommended-items
+        recommended-items.service.ts
+      reviews/
+        reviews.controller.ts     /api/reviews
+        reviews.service.ts
+      supplier-inquiries/
+        supplier-inquiries.controller.ts  /api/supplier-inquiries
+        supplier-inquiries.service.ts
+      supabase/
+        supabase.module.ts        Global module
+        supabase.service.ts       Supabase client + admin client
+      upload/
+        upload.controller.ts      /api/upload/payment-screenshot
+        upload.service.ts         Uploads to Supabase Storage
+
+================================================================================
+3. DATABASE (Supabase - PostgreSQL)
+================================================================================
+
+Platform:  Supabase (PostgreSQL)
+URL:       https://izqxsfuyibbzwdxdcmev.supabase.co
+Access:    Supabase JS Client (direct queries, no ORM)
+           - anon key (public/standard auth)
+           - service_role key (admin: all tables, storage, bypasses RLS)
+
+Tables:
+  products              Product catalog (name, description, price, category, image, rating, stock)
+  orders                Customer orders (address, payment, status, tracking, JSONB items)
+  favorites             User favorites (user_id + product_id unique)
+  cart_items            Shopping cart (user_id + product_id unique, qty, product_data JSONB)
+  notifications         User notifications (type, title, message, is_read)
+  discount_messages     Discount request messages
+  supplier_inquiries    Supplier quote requests
+  recommended_items     Recommended products
+  deals                 Timed deals (name, discount, image, category)
+  reviews               Product reviews
+  user_messages         Chatbot conversation history
+
+Security: Row Level Security (RLS) enabled on all user tables
+  - orders: users see own; admin sees all
+  - favorites: users see own only
+  - cart_items: users see own only
+  - notifications: users see own only
+  - discount_messages: users see own; admin can update
+  - supplier_inquiries: users see own; admin can update
+  - user_messages: users see own chat history only
+
+Key Features: JSONB columns for flexible data, UUID foreign keys to auth.users,
+              indexes on user_id and status columns
+
+================================================================================
+4. SECURITY MEASURES
+================================================================================
+
+A. Authentication & Authorization (Backend Guards):
+   - auth.guard.ts          Validates Bearer token via supabase.auth.getUser()
+                            -> 401 Unauthorized if missing/invalid
+   - admin.guard.ts         Checks user.email === 'rehanilyas20196@gmail.com'
+                            -> 403 Forbidden for non-admins
+   - optional-auth.guard.ts Attaches user if token present, else anonymous
+
+B. Supabase Auth:
+   - Email/Password signup & login
+   - Google OAuth sign-in
+   - Password hashing (bcrypt via Supabase)
+
+C. Cloudflare Turnstile (CAPTCHA):
+   - Verified server-side on signup and login endpoints
+   - Frontend renders Turnstile widget
+
+D. HTTP Security (Helmet - Backend):
+   - crossOriginResourcePolicy: cross-origin
+   - contentSecurityPolicy: false (handled by frontend/Vercel)
+   - xssFilter: true
+   - noSniff: true
+   - hidePoweredBy: true
+   - frameguard: deny
+   - hsts: maxAge=31536000, includeSubDomains, preload
+   - referrerPolicy: strict-origin-when-cross-origin
+
+E. CORS (Backend):
+   - Allows origins from FRONTEND_URL env var (comma-separated)
+   - Allows localhost and any .vercel.app domain
+   - Methods: GET, POST, PATCH, DELETE
+   - Headers: Content-Type, Authorization
+   - Credentials: true
+
+F. Rate Limiting (@nestjs/throttler):
+   - Global:      100 requests / 60 seconds
+   - Signup:       5 requests  / 60 seconds
+   - Login:       10 requests  / 60 seconds
+   - Returns HTTP 429 Too Many Requests
+
+G. Input Validation (Backend):
+   - Global ValidationPipe with whitelist: true, forbidNonWhitelisted: true
+   - class-validator decorators (@IsEmail(), @MinLength(8), @MaxLength(), etc.)
+   - File upload validation: max 5MB, image types only
+
+H. Frontend Security (Vercel Headers in vercel.json):
+   - X-Frame-Options: DENY
+   - X-Content-Type-Options: nosniff
+   - Referrer-Policy: strict-origin-when-cross-origin
+   - Content-Security-Policy: restrictive (default-src 'self'; scripts Cloudflare)
+   - Cache-Control: 1-year immutable for static assets
+
+I. Password Handling:
+   - Password pepper (PASSWORD_PEPPER env var) appended before Supabase hashing
+   - Frontend validation: min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special
+
+================================================================================
+5. AI CHATBOT
+================================================================================
+
+Implementation: frontend/src/components/Messages.jsx (rendered via Chatbot.jsx)
+
+Two-Tier Architecture:
+
+TIER 1: Google Gemini 1.5 Flash (Primary AI)
+  - API Key: VITE_GEMINI_API_KEY (frontend .env, direct browser call)
+  - Model: gemini-1.5-flash
+  - Endpoint: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+  - System Prompt: 110+ lines covering all store features, products, policies, FAQs
+  - Generation Config: temperature 0.7, maxOutputTokens 500
+  - Context: Last 10 messages sent as conversation history
+  - Instructed to NEVER refuse to answer
+
+TIER 2: Keyword-Based Fallback (When Gemini fails/unavailable)
+  - 21 support topics with keyword matching (shipping, tracking, returns, refunds,
+    quality, payment, cancellation, availability, bulk orders, warranty, account,
+    navigation, search, cart, favorites, checkout, contact, profile, FAQ, admin, orders)
+  - Product matching: searches product names, returns stock/price info
+  - Order matching: detects #orderNumber patterns
+  - Question bank: 20 templates x 19 topics = 380 pre-generated questions
+  - Fallback answer: encourages user to ask about specific topics
+
+Additional Chat Features:
+  - Persistent chat history in user_messages table via /api/messages
+  - Login-aware: syncs history when logged in; local-only otherwise
+  - 5 quick-action buttons (Shipping times, Return policy, Payment methods, Track my order, Bulk order)
+  - "Powered by Gemini AI" attribution
+
+================================================================================
+6. OTHER FEATURES & FUNCTIONALITY
+================================================================================
+
+- Shopping Cart with quantity management, coupons, discounts
+- 3-Step Checkout (delivery -> payment -> confirmation)
+- 6-Step Order Tracking (pending -> confirmed -> processing -> shipped -> delivered -> completed)
+- Product Catalog with categories, search, filters
+- Product Details with gallery, specs, reviews
+- Favorites / Wishlist
+- Admin Panel (manage orders, discounts, supplier inquiries)
+- Supplier Inquiry / Quote Request System
+- Deals & Hot Offers with countdown timers
+- Gift Boxes Products
+- Region-Based Supplier Discovery
+- Services (sourcing, customization, shipping)
+- Returns Information
+- Shipping Information & Tracking
+- Help Center & FAQ
+- Contact Us Page
+- Newsletter Signup
+- Notifications (read/unread)
+- User Profile & Account Settings
+- Promotional Modals
+- Recommended Items
+- Crowdfunding-Style Projects Page
+- Responsive Design (mobile-friendly)
+- Cloudflare Turnstile CAPTCHA
+- Google OAuth Login
+- Payment Screenshot Upload to Supabase Storage
+- SEO Meta Tags & JSON-LD Structured Data
+- Code Splitting (Vite config)
+
+================================================================================
+7. DEPLOYMENT
+================================================================================
+
+Platform: Vercel (both frontend + backend serverless)
+Deployment Config:
+  - Frontend: Standard Vite build, deployed to Vercel
+  - Backend: Pre-compiled with nest build (tsc) to dist/, then api/index.js
+    (plain JS) uses dynamic require() to load compiled NestJS app
+    (esbuild does not support emitDecoratorMetadata)
+
+Key Deployment Detail:
+  - Vercel's @vercel/node uses esbuild which lacks emitDecoratorMetadata support
+  - Solution: nest build -> dist/ folder -> api/index.js loads via require()
+  - Dynamic require(path.join(...)) prevents esbuild from bundling dist files
+  - ConfigModule.forRoot() with ignoreEnvFile: true in production
+
+================================================================================
+8. COLLECTUVE/ DIRECTORY
+================================================================================
+
+Status: Minimal/vestigial directory
+Contents: Only a .env file with same Supabase credentials
+Purpose: Possibly an abandoned stub project or earlier frontend attempt
+         No active code (no package.json or source files)
+
+================================================================================
+                   END OF DOCUMENTATION
+================================================================================
