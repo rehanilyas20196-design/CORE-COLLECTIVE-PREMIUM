@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { User, Mail, Phone, Lock, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import OtpVerificationCard from './OtpVerificationCard';
 
 const creamBg = '#EFE3C8';
 const cardBg = '#FBF5E8';
@@ -23,7 +24,7 @@ function SignupCard() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [otpStep, setOtpStep] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
   // --- 3D tilt toward the cursor (same treatment as LoginCard) ---
@@ -87,7 +88,8 @@ function SignupCard() {
         setError('An account with this email already exists');
         return;
       }
-      setSuccess(true);
+      // Account created — move to the OTP verification step
+      setOtpStep(true);
     } catch (err) {
       if (err.message?.includes('already registered')) setError('An account with this email already exists');
       else setError(err.message || 'Something went wrong');
@@ -117,74 +119,14 @@ function SignupCard() {
     boxShadow: focusedField === field ? glowIn : 'none',
   });
 
-  if (success) {
+  if (otpStep) {
     return (
-      <div
-        className="relative w-full overflow-hidden flex items-center justify-center min-h-screen pt-[84px] sm:pt-[96px] md:pt-[100px] pb-12"
-        style={{ backgroundColor: creamBg }}
-      >
-        {/* soft radial gold-tinted glows in the corners */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: '-180px', right: '-160px', width: '640px', height: '640px',
-            background: 'radial-gradient(circle at 70% 30%, rgba(217,166,60,0.22) 0%, transparent 62%)',
-          }}
-        />
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            bottom: '-200px', left: '-180px', width: '680px', height: '680px',
-            background: 'radial-gradient(circle at 30% 70%, rgba(184,134,46,0.18) 0%, transparent 60%)',
-          }}
-        />
-
-        <motion.div
-          initial={{ opacity: 0, y: 40, rotateX: -10, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          className="relative w-full max-w-[440px]"
-          style={{ perspective: 1200 }}
-        >
-          <div className="relative" style={{ backgroundColor: cardBg, border: `1px solid ${goldSoft}` }}>
-            <div className="login-gold-line" />
-            <div
-              className="absolute pointer-events-none"
-              style={{ top: 0, right: 0, width: 26, height: 26, borderTop: `2.5px solid ${goldMid}`, borderRight: `2.5px solid ${goldMid}` }}
-            />
-            <div
-              className="absolute pointer-events-none"
-              style={{ bottom: 0, left: 0, width: 26, height: 26, borderBottom: `2.5px solid ${goldMid}`, borderLeft: `2.5px solid ${goldMid}` }}
-            />
-            <div className="p-7 sm:p-10 sm:pt-9 text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.2 }}
-                className="w-16 h-16 mx-auto mb-4 flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(217,166,60,0.14)', border: `1px solid ${goldSoft}` }}
-              >
-                <User className="w-8 h-8" style={{ color: goldMid }} />
-              </motion.div>
-              <h2 className="font-fraunces text-[1.6rem] sm:text-[1.85rem] font-semibold leading-tight" style={{ color: ink }}>
-                Account created!
-              </h2>
-              <p className="mt-2 text-[0.95rem]" style={{ color: tan }}>
-                Check your email for a confirmation link to activate your account.
-              </p>
-              <div className="mt-7">
-                <Link
-                  href="/login"
-                  className="login-gold-btn inline-flex items-center gap-2 px-7 py-3 text-[1rem] font-semibold tracking-wide"
-                >
-                  Go to Sign In
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      <OtpVerificationCard
+        email={form.email}
+        successHref="/"
+        backHref="/login"
+        backLabel="Back to sign in"
+      />
     );
   }
 

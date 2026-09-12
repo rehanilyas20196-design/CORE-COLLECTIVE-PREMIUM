@@ -16,3 +16,20 @@
  GET /supplier/login 200 in 572ms
  ✓ Compiled /supplier/signup in 497ms (1698 modules)
  GET /supplier/signup 200 in 653ms
+ ✓ Compiled in 7.3s (856 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 1071ms (817 modules)
+ GET / 200 in 5009ms
+ ✓ Compiled in 6.1s (856 modules)
+ ✓ Compiled in 737ms (856 modules)
+ ✓ Compiled in 996ms (861 modules)
+ ✓ Compiled in 705ms (861 modules)
+ ✓ Compiled in 946ms (861 modules)
+ ✓ Compiled in 594ms (861 modules)
+ ✓ Compiled in 846ms (861 modules)
+ ✓ Compiled in 824ms (860 modules)
+ ○ Compiling /signup ...
+ ✓ Compiled /signup in 1205ms (780 modules)
+ GET /signup 200 in 4747ms
+ ✓ Compiled /supplier/signup in 236ms (791 modules)
+ GET /supplier/signup 200 in 526ms

@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import {
   User, Mail, Phone, Lock, Eye, EyeOff, Loader, ArrowRight,
-  Building2, Globe, Tag, Package, CheckCircle,
+  Building2, Globe, Tag, Package,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import OtpVerificationCard from './OtpVerificationCard';
 
 const creamBg = '#EFE3C8';
 const cardBg = '#FBF5E8';
@@ -98,7 +99,7 @@ function SupplierSignupCard() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [otpStep, setOtpStep] = useState(false);
 
   // --- 3D tilt toward the cursor (gentler: max ~6deg for this taller card) ---
   const rotateX = useMotionValue(0);
@@ -167,7 +168,7 @@ function SupplierSignupCard() {
       });
       if (authError) throw authError;
       if (data?.user?.identities?.length === 0) { setError('An account with this email already exists'); return; }
-      setSuccess(true);
+      setOtpStep(true);
     } catch (err) {
       const msg = err.message || '';
       if (msg.includes('already registered') || msg.includes('already exists')) {
@@ -184,74 +185,23 @@ function SupplierSignupCard() {
 
   const set = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.value }));
 
-  if (success) {
+  if (otpStep) {
     return (
-      <div
-        className="relative w-full overflow-hidden flex items-center justify-center min-h-screen pt-[84px] sm:pt-[96px] md:pt-[100px] pb-12"
-        style={{ backgroundColor: creamBg }}
-      >
-        {/* soft radial gold-tinted glows in the corners */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: '-180px', right: '-160px', width: '640px', height: '640px',
-            background: 'radial-gradient(circle at 70% 30%, rgba(217,166,60,0.22) 0%, transparent 62%)',
-          }}
-        />
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            bottom: '-200px', left: '-180px', width: '680px', height: '680px',
-            background: 'radial-gradient(circle at 30% 70%, rgba(184,134,46,0.18) 0%, transparent 60%)',
-          }}
-        />
-
-        <motion.div
-          initial={{ opacity: 0, y: 40, rotateX: -10, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          className="relative w-full max-w-[560px] px-4"
-          style={{ perspective: 1200 }}
-        >
-          <div className="relative" style={{ backgroundColor: cardBg, border: `1px solid ${goldSoft}` }}>
-            <div className="login-gold-line" />
-            <div
-              className="absolute pointer-events-none"
-              style={{ top: 0, right: 0, width: 26, height: 26, borderTop: `2.5px solid ${goldMid}`, borderRight: `2.5px solid ${goldMid}` }}
-            />
-            <div
-              className="absolute pointer-events-none"
-              style={{ bottom: 0, left: 0, width: 26, height: 26, borderBottom: `2.5px solid ${goldMid}`, borderLeft: `2.5px solid ${goldMid}` }}
-            />
-            <div className="p-7 sm:p-10 sm:pt-9 text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.2 }}
-                className="w-16 h-16 mx-auto mb-4 flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(217,166,60,0.14)', border: `1px solid ${goldSoft}` }}
-              >
-                <CheckCircle className="w-8 h-8" style={{ color: goldMid }} />
-              </motion.div>
-              <h2 className="font-fraunces text-[1.6rem] sm:text-[1.85rem] font-semibold leading-tight" style={{ color: ink }}>
-                Registration submitted!
-              </h2>
-              <p className="mt-2 text-[0.95rem]" style={{ color: tan }}>
-                Check your email for a confirmation link. Our team will review your application within 48 hours.
-              </p>
-              <div className="mt-7">
-                <Link
-                  href="/supplier/login"
-                  className="login-gold-btn inline-flex items-center gap-2 px-7 py-3 text-[1rem] font-semibold tracking-wide"
-                >
-                  Go to Supplier Sign In
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      <OtpVerificationCard
+        email={form.email}
+        successHref="/supplier/login"
+        backHref="/supplier/login"
+        backLabel="Back to supplier sign in"
+        title="Verify your email"
+        subtext={
+          <>
+            Enter the 6-digit code sent to{' '}
+            <span className="font-semibold" style={{ color: ink }}>{form.email}</span> to confirm your supplier account. After verification, our team will review your application within 48 hours.
+          </>
+        }
+        successTitle="Email verified!"
+        successText="Your supplier account is confirmed. Taking you to sign in..."
+      />
     );
   }
 
