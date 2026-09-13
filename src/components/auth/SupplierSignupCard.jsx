@@ -8,6 +8,7 @@ import {
   Building2, Globe, Tag, Package,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { signupErrorMessage } from '../../lib/auth';
 import OtpVerificationCard from './OtpVerificationCard';
 
 const creamBg = '#EFE3C8';
@@ -170,14 +171,7 @@ function SupplierSignupCard() {
       if (data?.user?.identities?.length === 0) { setError('An account with this email already exists'); return; }
       setOtpStep(true);
     } catch (err) {
-      const msg = err.message || '';
-      if (msg.includes('already registered') || msg.includes('already exists')) {
-        setError('An account with this email already exists');
-      } else if (msg.includes('Database error')) {
-        setError('Signup failed due to a database configuration issue. Please run the trigger fix SQL in your Supabase dashboard (see fix_trigger.sql file).');
-      } else {
-        setError(msg || 'Something went wrong');
-      }
+      setError(signupErrorMessage(err));
     } finally {
       setLoading(false);
     }

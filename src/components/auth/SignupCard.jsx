@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { User, Mail, Phone, Lock, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { signupErrorMessage } from '../../lib/auth';
 import OtpVerificationCard from './OtpVerificationCard';
 
 const creamBg = '#EFE3C8';
@@ -91,8 +92,7 @@ function SignupCard() {
       // Account created — move to the OTP verification step
       setOtpStep(true);
     } catch (err) {
-      if (err.message?.includes('already registered')) setError('An account with this email already exists');
-      else setError(err.message || 'Something went wrong');
+      setError(signupErrorMessage(err));
     } finally {
       setLoading(false);
     }
