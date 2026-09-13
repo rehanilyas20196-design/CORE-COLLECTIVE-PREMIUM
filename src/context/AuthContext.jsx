@@ -15,6 +15,14 @@ export function AuthProvider({ children }) {
     let cancelled = false;
     let subscription = null;
 
+    const clearStaleSession = async () => {
+      try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
+      try {
+        Object.keys(localStorage || {}).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
+        Object.keys(sessionStorage || {}).forEach(k => { if (k.startsWith('sb-')) sessionStorage.removeItem(k); });
+      } catch {}
+    };
+
     const onUserReady = (user) => {
       if (cancelled) return;
       const profile = {
@@ -32,6 +40,8 @@ export function AuthProvider({ children }) {
       supabase.auth.getUser().then(({ data: { user }, error }) => {
         if (!error && user && !cancelled) {
           onUserReady(user);
+        } else if (error && !cancelled) {
+          clearStaleSession();
         }
         if (!cancelled) setLoading(false);
       });

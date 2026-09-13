@@ -27,6 +27,20 @@ async function getToken() {
   return refreshed?.access_token || '';
 }
 
+async function clearLocalAuth() {
+  const { supabase } = await import('./supabase');
+  try {
+    await supabase.auth.signOut({ scope: 'local' });
+  } catch {}
+  try {
+    Object.keys(localStorage || {}).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
+    Object.keys(sessionStorage || {}).forEach(k => { if (k.startsWith('sb-')) sessionStorage.removeItem(k); });
+  } catch {}
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('authExpired'));
+  }
+}
+
 async function request(path, options = {}) {
   const url = `/api${path}`;
   const token = await getToken();
@@ -50,14 +64,7 @@ async function request(path, options = {}) {
   const res = await fetch(url, config);
   if (!res.ok) {
     if (res.status === 401) {
-      const { supabase } = await import('./supabase');
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await supabase.auth.signOut();
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('authExpired'));
-        }
-      }
+      await clearLocalAuth();
     }
     if (res.status === 429) {
       const retryAfter = res.headers.get('Retry-After');
