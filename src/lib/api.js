@@ -83,6 +83,10 @@ export const api = {
       request('/auth/session'),
     googleSignIn: () =>
       request('/auth/google', { method: 'POST' }),
+    ensureAdmin: () =>
+      request('/auth/ensure-admin', { method: 'POST' }),
+    getUsers: () =>
+      request('/auth/admin/users'),
   },
 
   products: {
@@ -98,6 +102,8 @@ export const api = {
       request(`/products/seller?limit=${limit}`),
     getMinimal: (limit = 200) =>
       request(`/products/minimal?limit=${limit}`),
+    create: (productData) =>
+      request('/products', { method: 'POST', body: productData }),
     delete: (id) =>
       request(`/products/${id}`, { method: 'DELETE' }),
   },
@@ -108,6 +114,7 @@ export const api = {
     create: (orderData) => request('/orders', { method: 'POST', body: orderData }),
     updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PATCH', body: { status } }),
     updateTracking: (id, trackingStatus, note) => request(`/orders/${id}/tracking`, { method: 'PATCH', body: { tracking_status: trackingStatus, note } }),
+    sendMessage: (id, message) => request(`/orders/${id}/message`, { method: 'POST', body: { message } }),
     delete: (id) => request(`/orders/${id}`, { method: 'DELETE' }),
   },
 

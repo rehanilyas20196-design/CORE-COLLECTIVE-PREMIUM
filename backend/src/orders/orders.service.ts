@@ -6,7 +6,7 @@ export class OrdersService {
   constructor(private supabase: SupabaseService) {}
 
   async findAll(userId?: string, userEmail?: string) {
-    const isAdmin = userEmail === 'rehanilyas20196@gmail.com';
+    const isAdmin = userEmail === 'hinata4020196@gmail.com';
 
     let query = this.supabase
       .from('orders')
@@ -23,7 +23,7 @@ export class OrdersService {
   }
 
   async findConfirmedCount(userId?: string, userEmail?: string) {
-    const isAdmin = userEmail === 'rehanilyas20196@gmail.com';
+    const isAdmin = userEmail === 'hinata4020196@gmail.com';
 
     let query = this.supabase
       .from('orders')
@@ -162,6 +162,35 @@ export class OrdersService {
       .eq('id', orderId);
     if (error) throw new InternalServerErrorException(error.message);
     return { deleted: true };
+  }
+
+  async sendMessage(orderId: number, message: string) {
+    if (!message?.trim()) throw new InternalServerErrorException('Message is required');
+
+    const { data: order, error: fetchError } = await this.supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+    if (fetchError || !order) throw new NotFoundException('Order not found');
+
+    const userId = order.user_id;
+    if (userId) {
+      await this.supabase.from('user_messages').insert([{
+        user_id: userId,
+        sender: 'Admin',
+        message,
+      }]);
+      await this.supabase.from('notifications').insert([{
+        user_id: userId,
+        type: 'info',
+        title: `Message about Order #ORD-${String(orderId).padStart(6, '0')}`,
+        message,
+        data: { order_id: orderId },
+      }]);
+    }
+
+    return { sent: true, order_id: orderId, to: order.user_email || userId || null };
   }
 }
 

@@ -3,7 +3,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class BuyRequestsService {
-  private readonly adminEmail = 'rehanilyas20196@gmail.com';
+  private readonly adminEmail = 'hinata4020196@gmail.com';
 
   constructor(private supabase: SupabaseService) {}
 

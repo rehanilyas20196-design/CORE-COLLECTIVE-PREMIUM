@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
         phone: user.user_metadata?.phone || ''
       };
       setUserProfile(profile);
-      setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
+      setIsAdmin(user.email === 'hinata4020196@gmail.com');
       setIsSupplier(!!user.user_metadata?.is_supplier);
     };
 
@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
           date_of_birth: user.user_metadata?.date_of_birth || '',
         };
         setUserProfile(profile);
-        setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
+        setIsAdmin(user.email === 'hinata4020196@gmail.com');
         setIsSupplier(!!user.user_metadata?.is_supplier);
       }
     };

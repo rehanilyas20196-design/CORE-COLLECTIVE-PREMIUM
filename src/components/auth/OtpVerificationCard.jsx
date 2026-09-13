@@ -145,7 +145,7 @@ function OtpVerificationCard({
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
         token: code,
-        type: 'signup',
+        type: 'email',
       });
       if (verifyError) throw verifyError;
       if (onVerified) await onVerified();

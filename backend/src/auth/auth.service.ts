@@ -3,10 +3,94 @@ import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class AuthService {
+  private readonly adminEmail = 'hinata4020196@gmail.com';
+  private readonly adminPassword = 'pak@2233';
 
   constructor(
     private supabase: SupabaseService,
   ) {}
+
+  async ensureAdmin() {
+    const adminClient = this.supabase.admin;
+    if (!adminClient) throw new InternalServerErrorException('Server not configured for admin operations');
+
+    const { data: { users }, error: listError } = await (adminClient.auth as any).admin.listUsers({});
+    if (listError) throw new InternalServerErrorException(listError.message);
+
+    const existing = (users || []).find((u: any) => u.email?.toLowerCase() === this.adminEmail);
+    if (existing) {
+      if (existing.email_confirmed_at) return { exists: true, confirmed: true };
+      const { error: confirmError } = await (adminClient.auth as any).admin.updateUserById(existing.id, { email_confirm: true });
+      if (confirmError) throw new InternalServerErrorException(confirmError.message);
+      return { exists: true, confirmed: true };
+    }
+
+    const { data, error } = await (adminClient.auth as any).admin.createUser({
+      email: this.adminEmail,
+      password: this.adminPassword,
+      email_confirm: true,
+      user_metadata: { full_name: 'Admin', role: 'admin', is_admin: true },
+      app_metadata: { role: 'admin' },
+    });
+    if (error) {
+      if (error.message?.includes('already registered')) {
+        return { exists: true, confirmed: true };
+      }
+      throw new InternalServerErrorException(error.message);
+    }
+
+    try {
+      await this.supabase.from('profiles').upsert({
+        id: data.user.id,
+        email: this.adminEmail,
+        full_name: 'Admin',
+        role: 'admin',
+        status: 'active',
+      }, { onConflict: 'id' });
+    } catch {
+      // profile upsert is best-effort
+    }
+
+    return { exists: false, created: true };
+  }
+
+  async getAdminUsers() {
+    const adminClient = this.supabase.admin;
+    if (!adminClient) throw new InternalServerErrorException('Server not configured for admin operations');
+
+    const { data: { users }, error } = await (adminClient.auth as any).admin.listUsers({});
+    if (error) throw new InternalServerErrorException(error.message);
+
+    const ids = (users || []).map((u: any) => u.id);
+    let profiles: any[] = [];
+    if (ids.length > 0) {
+      const { data: profileRows, error: profileError } = await this.supabase
+        .from('profiles')
+        .select('*')
+        .in('id', ids);
+      if (!profileError) profiles = profileRows || [];
+    }
+
+    const profileMap = new Map(profiles.map((p: any) => [p.id, p]));
+
+    return (users || []).map((u: any) => {
+      const profile = profileMap.get(u.id) || {};
+      return {
+        id: u.id,
+        email: u.email,
+        phone: u.phone,
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at,
+        confirmed: !!u.email_confirmed_at,
+        full_name: profile.full_name || u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
+        role: profile.role || u.user_metadata?.role || 'user',
+        is_supplier: !!u.user_metadata?.is_supplier || profile.role === 'supplier',
+        status: profile.status || 'active',
+        is_admin: u.email?.toLowerCase() === this.adminEmail,
+        metadata: u.user_metadata || {},
+      };
+    });
+  }
 
   async signUp(email: string, password: string, metadata?: { full_name?: string; joiningDate?: string; phone?: string; date_of_birth?: string }) {
     const { data, error } = await this.supabase.auth.signUp({

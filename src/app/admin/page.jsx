@@ -6,18 +6,20 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import AdminLoginCard from '../../components/admin/AdminLoginCard';
 import {
   LayoutDashboard, Package, ClipboardList, MessageSquare,
   Bell, ArrowLeft, X, Check, Search, Trash2, Send,
   ChevronDown, Loader2, LogOut, ExternalLink, Clock,
-  User, Mail, Phone, MapPin, CreditCard, FileText, Eye,
+  User, Users, Mail, Phone, MapPin, CreditCard, FileText, Eye,
   ShoppingBag, ThumbsUp, ThumbsDown, Image, ShoppingCart,
   Layers, ListChecks, Hash, Truck, CircleDot, PackageCheck,
-  MapPin as MapPinIcon, Home, ArrowUp
+  MapPin as MapPinIcon, Home, ArrowUp, Plus
 } from 'lucide-react';
 
 const tabs = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-gold to-amber-600' },
+  { id: 'users', label: 'Users', icon: Users, color: 'from-slate-600 to-gray-700' },
   { id: 'orders', label: 'Orders', icon: Package, color: 'from-blue-500 to-cyan-600' },
   { id: 'inquiries', label: 'Inquiries', icon: ClipboardList, color: 'from-amber-500 to-orange-600' },
   { id: 'discounts', label: 'Discounts', icon: MessageSquare, color: 'from-emerald-500 to-teal-600' },
@@ -44,7 +46,7 @@ const statusStyles = {
 };
 
 export default function AdminPage() {
-  const { userProfile, isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [orders, setOrders] = useState([]);
@@ -56,6 +58,7 @@ export default function AdminPage() {
   const [marketplaceProducts, setMarketplaceProducts] = useState([]);
   const [contactMessages, setContactMessages] = useState([]);
   const [quotes, setQuotes] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
@@ -63,6 +66,11 @@ export default function AdminPage() {
     setToast({ msg, type, id: Date.now() });
     setTimeout(() => setToast(null), 3000);
   };
+
+  const loadUsers = useCallback(async () => {
+    try { const d = await api.auth.getUsers(); setUsers(Array.isArray(d) ? d : []); }
+    catch (e) { console.error(e); }
+  }, []);
 
   useEffect(() => {
     if (!authLoading && (!userProfile || !isAdmin)) {
@@ -117,14 +125,17 @@ export default function AdminPage() {
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    await Promise.all([loadOrders(), loadInquiries(), loadDiscounts(), loadNotifications(), loadSupplierProducts(), loadBuyRequests(), loadMarketplaceProducts(), loadContactMessages(), loadQuotes()]);
+    await Promise.all([loadOrders(), loadInquiries(), loadDiscounts(), loadNotifications(), loadSupplierProducts(), loadBuyRequests(), loadMarketplaceProducts(), loadContactMessages(), loadQuotes(), loadUsers()]);
     setLoading(false);
-  }, [loadOrders, loadInquiries, loadDiscounts, loadNotifications, loadSupplierProducts, loadBuyRequests, loadMarketplaceProducts, loadContactMessages]);
+  }, [loadOrders, loadInquiries, loadDiscounts, loadNotifications, loadSupplierProducts, loadBuyRequests, loadMarketplaceProducts, loadContactMessages, loadQuotes, loadUsers]);
 
-  useEffect(() => { if (isAdmin) loadAll(); }, [isAdmin, loadAll]);
+  useEffect(() => {
+    if (authLoading) return;
+    if (isAdmin) loadAll();
+  }, [isAdmin, authLoading, loadAll]);
 
   if (authLoading) return <LoadingScreen />;
-  if (!userProfile || !isAdmin) return null;
+  if (!isAdmin) return <AdminLoginCard />;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -215,7 +226,8 @@ export default function AdminPage() {
             <LoadingSkeleton key="loading" />
           ) : (
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              {activeTab === 'dashboard' && <DashboardTab orders={orders} inquiries={inquiries} discounts={discounts} notifications={notifications} />}
+              {activeTab === 'dashboard' && <DashboardTab orders={orders} inquiries={inquiries} discounts={discounts} notifications={notifications} products={marketplaceProducts} users={users} />}
+              {activeTab === 'users' && <UsersTab users={users} loadUsers={loadUsers} showToast={showToast} />}
               {activeTab === 'orders' && <OrdersTab orders={orders} loadOrders={loadOrders} showToast={showToast} />}
               {activeTab === 'inquiries' && <InquiriesTab inquiries={inquiries} loadInquiries={loadInquiries} showToast={showToast} />}
               {activeTab === 'discounts' && <DiscountsTab discounts={discounts} loadDiscounts={loadDiscounts} showToast={showToast} />}
@@ -234,14 +246,22 @@ export default function AdminPage() {
 }
 
 /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Dashboard ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
-function DashboardTab({ orders, inquiries, discounts, notifications }) {
+function DashboardTab({ orders, inquiries, discounts, notifications, products, users }) {
+  const categories = [...new Set((products || []).map(p => p.category).filter(Boolean))];
+  const totalRevenue = orders.reduce((s, o) => s + (Number(o.total_amount) || 0), 0);
+  const confirmedCount = orders.filter(o => o.status === 'confirmed' || o.status === 'delivered').length;
+  const deliveredCount = orders.filter(o => o.status === 'delivered').length;
+  const productNames = [...(products || [])]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 12);
+
   const stats = [
     { label: 'Total Orders', value: orders.length, icon: Package, color: 'from-gold/20 to-amber-600/10', textColor: 'text-gold', change: `${orders.filter(o => o.status === 'pending').length} pending` },
-    { label: 'Confirmed', value: orders.filter(o => o.status === 'confirmed' || o.status === 'delivered').length, icon: Check, color: 'from-emerald-500/20 to-emerald-600/10', textColor: 'text-emerald-400', change: `${orders.filter(o => o.status === 'delivered').length} delivered` },
-    { label: 'Inquiries', value: inquiries.length, icon: ClipboardList, color: 'from-amber-500/20 to-amber-600/10', textColor: 'text-amber-400', change: `${inquiries.filter(i => i.status === 'pending').length} pending` },
-    { label: 'Discount Requests', value: discounts.length, icon: MessageSquare, color: 'from-cyan-500/20 to-cyan-600/10', textColor: 'text-cyan-400', change: `${discounts.filter(d => d.status === 'pending').length} pending` },
-    { label: 'Unread', value: notifications.filter(n => !n.is_read).length, icon: Bell, color: 'from-rose-500/20 to-rose-600/10', textColor: 'text-rose-400', change: 'notifications' },
-    { label: 'Revenue', value: `Rs. ${orders.reduce((s, o) => s + (Number(o.total_amount) || 0), 0).toLocaleString()}`, icon: CreditCard, color: 'from-blue-500/20 to-blue-600/10', textColor: 'text-blue-400', change: 'total' },
+    { label: 'Confirmed', value: confirmedCount, icon: Check, color: 'from-emerald-500/20 to-emerald-600/10', textColor: 'text-emerald-400', change: `${deliveredCount} delivered` },
+    { label: 'Total Users', value: users.length, icon: Users, color: 'from-slate-500/20 to-slate-600/10', textColor: 'text-slate-500', change: `${users.filter(u => u.is_supplier).length} suppliers` },
+    { label: 'Total Products', value: products.length, icon: Layers, color: 'from-teal-500/20 to-teal-600/10', textColor: 'text-teal-500', change: `${categories.length} categories` },
+    { label: 'Categories', value: categories.length, icon: ListChecks, color: 'from-indigo-500/20 to-indigo-600/10', textColor: 'text-indigo-500', change: 'in catalog' },
+    { label: 'Revenue', value: `Rs. ${totalRevenue.toLocaleString()}`, icon: CreditCard, color: 'from-blue-500/20 to-blue-600/10', textColor: 'text-blue-400', change: 'total' },
   ];
 
   return (
@@ -271,8 +291,97 @@ function DashboardTab({ orders, inquiries, discounts, notifications }) {
         })}
       </div>
 
-      <RecentActivityPanel orders={orders} inquiries={inquiries} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <WebsiteProgressPanel
+          orders={orders}
+          products={products}
+          users={users}
+          categories={categories}
+          confirmed={confirmedCount}
+          delivered={deliveredCount}
+        />
+        <CatalogPanel productNames={productNames} categories={categories} total={products.length} />
+        <RecentActivityPanel orders={orders} inquiries={inquiries} />
+      </div>
     </div>
+  );
+}
+
+function WebsiteProgressPanel({ orders, products, users, categories, confirmed, delivered }) {
+  const steps = [
+    { label: 'Registered Users', value: users.length, done: users.length > 0 },
+    { label: 'Products in Catalog', value: products.length, done: products.length > 0 },
+    { label: 'Categories', value: categories.length, done: categories.length > 0 },
+    { label: 'Orders Placed', value: orders.length, done: orders.length > 0 },
+    { label: 'Orders Confirmed', value: confirmed, done: confirmed > 0 },
+    { label: 'Orders Delivered', value: delivered, done: delivered > 0 },
+  ];
+  const avg = steps.every(s => s.done);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+      className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="flex items-center gap-3 mb-5">
+        <Truck className="w-5 h-5 text-primary" />
+        <h3 className="font-semibold text-gray-900">Website Progress</h3>
+      </div>
+      <div className="space-y-3">
+        {steps.map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.05 }}
+            className="flex items-center gap-3">
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${s.done ? 'bg-emerald-500/15 text-emerald-500' : 'bg-gray-200 text-gray-400'}`}>
+              <Check className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-sm text-gray-700 flex-1">{s.label}</span>
+            <span className="text-xs font-semibold text-gray-900">{s.value}</span>
+          </motion.div>
+        ))}
+      </div>
+      <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+        <span className="text-xs text-gray-500">Overall progress</span>
+        <span className={`text-xs font-semibold ${avg ? 'text-emerald-500' : 'text-amber-500'}`}>
+          {Math.round((steps.filter(s => s.done).length / steps.length) * 100)}%
+        </span>
+      </div>
+      <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
+        <motion.div initial={{ width: 0 }} animate={{ width: `${Math.round((steps.filter(s => s.done).length / steps.length) * 100)}%` }} transition={{ delay: 0.5, duration: 0.8 }}
+          className="h-full bg-gradient-to-r from-[#E8C04A] to-[#B8862E] rounded-full" />
+      </div>
+    </motion.div>
+  );
+}
+
+function CatalogPanel({ productNames, categories, total }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+      className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <Layers className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-gray-900">Product Catalog</h3>
+        </div>
+        <span className="text-xs text-gray-500">{total} products</span>
+      </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {categories.map(c => (
+          <span key={c} className="px-2.5 py-1 bg-[#F6EDDE] text-[#8A5A2E] text-[11px] font-semibold rounded-full border border-[#D4A853]/30">
+            {c}
+          </span>
+        ))}
+      </div>
+      {productNames.length === 0 ? (
+        <p className="text-sm text-gray-400 text-center py-8">No products yet</p>
+      ) : (
+        <ul className="divide-y divide-gray-100 max-h-[240px] overflow-y-auto pr-1">
+          {productNames.map(p => (
+            <li key={p.id} className="py-2 flex items-center justify-between gap-3">
+              <span className="text-sm text-gray-800 truncate">{p.name}</span>
+              <span className="text-[10px] text-gray-500 shrink-0">{p.category || 'Uncategorized'}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </motion.div>
   );
 }
 
@@ -326,17 +435,131 @@ function RecentActivityPanel({ orders, inquiries }) {
 }
 
 /* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Orders Tab ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+/* Users Tab --------------------------------------------------------------------- */
+function UsersTab({ users, loadUsers, showToast }) {
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
+
+  const filtered = users.filter(u => {
+    const matchesSearch = !search ||
+      u.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+      u.email?.toLowerCase().includes(search.toLowerCase());
+    const role = u.is_admin ? 'admin' : u.is_supplier ? 'supplier' : 'user';
+    const matchesFilter = filter === 'all' || role === filter;
+    return matchesSearch && matchesFilter;
+  });
+
+  const initials = (name) => (name || '?').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?';
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Registered Users</h3>
+          <p className="text-xs text-gray-400 mt-0.5">{users.length} total &middot; {users.filter(u => u.is_supplier).length} suppliers</p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <select value={filter} onChange={e => setFilter(e.target.value)}
+            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50">
+            <option value="all">All users</option>
+            <option value="user">Buyers</option>
+            <option value="supplier">Suppliers</option>
+            <option value="admin">Admin</option>
+          </select>
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search by name or email..." className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400" />
+          </div>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[760px]">
+          <thead>
+            <tr className="border-b border-gray-200 bg-gray-100/50">
+              {['User', 'Email', 'Phone', 'Role', 'Status', 'Joined', 'Last Sign In', 'Verified'].map(h => (
+                <th key={h} className="text-left px-5 py-3.5 text-gray-500 font-medium text-xs uppercase tracking-wider">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={8} className="px-5 py-16 text-center text-gray-400">{search ? 'No matching users' : 'No users yet'}</td></tr>
+            ) : (
+              filtered.map((u, i) => {
+                const role = u.is_admin ? 'admin' : u.is_supplier ? 'supplier' : 'user';
+                return (
+                  <motion.tr key={u.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                    className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#E8C04A] to-[#B8862E] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                          {initials(u.full_name || u.name || u.email)}
+                        </div>
+                        <p className="text-gray-900 text-sm font-medium">{u.full_name || u.name || 'User'}</p>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-gray-600 text-xs">{u.email || 'N/A'}</td>
+                    <td className="px-5 py-4 text-gray-500 text-xs">{u.phone || '-'}</td>
+                    <td className="px-5 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
+                        role === 'admin' ? 'bg-gold/10 text-gold border-gold/30'
+                        : role === 'supplier' ? 'bg-amber-500/10 text-amber-500 border-amber-500/25'
+                        : 'bg-blue-500/10 text-blue-500 border-blue-500/25'
+                      }`}>
+                        {role}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4"><StatusBadge status={u.status || 'active'} /></td>
+                    <td className="px-5 py-4 text-gray-500 text-xs whitespace-nowrap">{u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}</td>
+                    <td className="px-5 py-4 text-gray-500 text-xs whitespace-nowrap">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString() : 'Never'}</td>
+                    <td className="px-5 py-4">
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${u.confirmed ? 'text-emerald-500' : 'text-red-400'}`}>
+                        <CircleDot className="w-3.5 h-3.5" />
+                        {u.confirmed ? 'Confirmed' : 'Unconfirmed'}
+                      </span>
+                    </td>
+                  </motion.tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* Orders Tab ------------------------------------------------------------------ */
 function OrdersTab({ orders, loadOrders, showToast }) {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(null);
   const [modalType, setModalType] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const [messageOrder, setMessageOrder] = useState(null);
+  const [messageText, setMessageText] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   const filtered = orders.filter(o =>
     !search || o.full_name?.toLowerCase().includes(search.toLowerCase()) ||
     String(o.id).includes(search) || o.user_email?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const sendCustomerMessage = async (orderId) => {
+    if (!messageText.trim()) return;
+    setSendingMessage(true);
+    try {
+      await api.orders.sendMessage(orderId, messageText.trim());
+      showToast('Message sent to customer');
+      setMessageOrder(null);
+      setMessageText('');
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
 
   const handleAction = async (id, action, extra) => {
     setActionLoading(true);
@@ -429,6 +652,7 @@ function OrdersTab({ orders, loadOrders, showToast }) {
                         {order.status === 'confirmed' && (
                           <ActionBtn label="Track" color="blue" onClick={() => { setModalType('tracking'); setShowModal(order); }} />
                         )}
+                        <ActionBtn label="Message" color="blue" onClick={() => { setMessageText(''); setMessageOrder(order); }} />
                         <ActionBtn label="" color="red" icon={Trash2} onClick={() => { setModalType('delete'); setShowModal(order); }} />
                       </div>
                     </td>
@@ -482,6 +706,39 @@ function OrdersTab({ orders, loadOrders, showToast }) {
             }
             loading={actionLoading}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Message Customer Modal */}
+      <AnimatePresence>
+        {messageOrder && (
+          <ModalOverlay onClose={() => setMessageOrder(null)}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Message Customer</h3>
+                <button onClick={() => setMessageOrder(null)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                <p className="text-sm text-gray-900 font-medium">{messageOrder.full_name || 'Customer'}</p>
+                <p className="text-xs text-gray-500 mt-0.5">Order #ORD-{String(messageOrder.id).padStart(6, '0')} &middot; {messageOrder.user_email || 'no email'}</p>
+              </div>
+              <textarea value={messageText} onChange={e => setMessageText(e.target.value)}
+                placeholder="Type your message to the customer..." rows={4}
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 resize-none mb-4" />
+              <div className="flex items-center gap-3 justify-end">
+                <button onClick={() => setMessageOrder(null)}
+                  className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">Cancel</button>
+                <button onClick={() => sendCustomerMessage(messageOrder.id)} disabled={sendingMessage || !messageText.trim()}
+                  className="px-5 py-2 bg-gradient-to-r from-[#D9A63C] to-[#8A6A1E] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+                  {sendingMessage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {sendingMessage ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </motion.div>
+          </ModalOverlay>
         )}
       </AnimatePresence>
     </>
@@ -811,12 +1068,28 @@ function NotificationsTab({ notifications, loadNotifications, showToast }) {
 function AllProductsTab({ products, loadProducts, showToast }) {
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState(null);
+  const [adding, setAdding] = useState(false);
+  const [addingLoading, setAddingLoading] = useState(false);
 
   const filtered = products.filter(p =>
     !search || p.name?.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase()) ||
     p.supplier_name?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleAddProduct = async (data) => {
+    setAddingLoading(true);
+    try {
+      await api.products.create(data);
+      showToast('Product added to marketplace');
+      setAdding(false);
+      await loadProducts();
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setAddingLoading(false);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (!confirm('Permanently delete this product from the marketplace?')) return;
@@ -839,10 +1112,17 @@ function AllProductsTab({ products, loadProducts, showToast }) {
           <h3 className="text-lg font-semibold text-gray-900">All Marketplace Products</h3>
           <p className="text-xs text-gray-400 mt-0.5">{products.length} total products</p>
         </div>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search products..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600" />
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button onClick={() => setAdding(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#D9A63C] to-[#8A6A1E] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all whitespace-nowrap">
+            <Plus className="w-4 h-4" />
+            Add Product
+          </button>
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search products..." className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600" />
+          </div>
         </div>
       </div>
       <div className="overflow-x-auto -mx-5 px-5">
@@ -882,14 +1162,108 @@ function AllProductsTab({ products, loadProducts, showToast }) {
                 </motion.tr>
               ))
             )}
-          </tbody>
+</tbody>
         </table>
       </div>
+
+      {/* Add Product Modal */}
+      <AnimatePresence>
+        {adding && (
+          <AddProductModal
+            onClose={() => setAdding(false)}
+            onConfirm={handleAddProduct}
+            loading={addingLoading}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Supplier Products Tab ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */
+function AddProductModal({ onClose, onConfirm, loading }) {
+  const [form, setForm] = useState({
+    name: '', category: '', price: '', price_min: '', price_max: '',
+    stock: '', moq: '1', unit: 'Pcs', description: '', image_url: '',
+    whatsapp: '', supplier_name: 'Admin',
+  });
+
+  const fields = [
+    { key: 'name', label: 'Product Name', type: 'text', required: true, placeholder: 'e.g. Premium T-Shirt', span: true },
+    { key: 'category', label: 'Category', type: 'text', required: true, placeholder: 'e.g. Clothing', span: true },
+    { key: 'price', label: 'Price (Rs.)', type: 'number', placeholder: '0' },
+    { key: 'price_min', label: 'Price Min (Rs.)', type: 'number', placeholder: 'optional' },
+    { key: 'price_max', label: 'Price Max (Rs.)', type: 'number', placeholder: 'optional' },
+    { key: 'stock', label: 'Stock', type: 'number', placeholder: '0' },
+    { key: 'moq', label: 'MOQ', type: 'number', placeholder: '1' },
+    { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Pcs' },
+    { key: 'image_url', label: 'Image URL', type: 'text', placeholder: 'https://...', span: true },
+    { key: 'whatsapp', label: 'WhatsApp', type: 'text', placeholder: '+92...' },
+    { key: 'supplier_name', label: 'Supplier Name', type: 'text', placeholder: 'Admin' },
+  ];
+
+  const handleSubmit = () => {
+    if (!form.name.trim() || !form.category.trim()) return;
+    onConfirm({
+      name: form.name.trim(),
+      category: form.category.trim(),
+      description: form.description.trim(),
+      image_url: form.image_url.trim(),
+      price: form.price ? Number(form.price) : null,
+      price_min: form.price_min ? Number(form.price_min) : null,
+      price_max: form.price_max ? Number(form.price_max) : null,
+      stock: form.stock ? Number(form.stock) : 0,
+      moq: form.moq ? Number(form.moq) : 1,
+      unit: form.unit || 'Pcs',
+      whatsapp: form.whatsapp.trim(),
+      supplier_name: form.supplier_name.trim() || 'Admin',
+    });
+  };
+
+  return (
+    <ModalOverlay onClose={onClose}>
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-2xl mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Add New Product</h3>
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          {fields.map(f => (
+            <div key={f.key} className={f.span ? 'sm:col-span-2' : ''}>
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">{f.label}{f.required && <span className="text-red-400"> *</span>}</label>
+              <input
+                type={f.type}
+                required={f.required}
+                value={form[f.key]}
+                onChange={e => setForm({ ...form, [f.key]: e.target.value })}
+                placeholder={f.placeholder}
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400"
+              />
+            </div>
+          ))}
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Description</label>
+            <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
+              placeholder="Product description..." rows={3}
+              className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 resize-none" />
+          </div>
+        </div>
+        <div className="flex items-center gap-3 justify-end">
+          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">Cancel</button>
+          <button onClick={handleSubmit} disabled={loading || !form.name.trim() || !form.category.trim()}
+            className="px-5 py-2 bg-gradient-to-r from-[#D9A63C] to-[#8A6A1E] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {loading ? 'Adding...' : 'Add Product'}
+          </button>
+        </div>
+      </motion.div>
+    </ModalOverlay>
+  );
+}
+
+/* Supplier Products Tab ------------------------------------------------------ */
 function SupplierProductsTab({ products, loadProducts, showToast }) {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(null);

@@ -63,6 +63,38 @@ export class ProductsService {
     return data || [];
   }
 
+  async create(dto: any) {
+    const payload = {
+      name: dto.name,
+      description: dto.description || '',
+      category: dto.category || '',
+      image_url: dto.image_url || '',
+      images: dto.images || [],
+      price: dto.price || null,
+      price_min: dto.price_min || null,
+      price_max: dto.price_max || null,
+      stock: dto.stock ?? 0,
+      moq: dto.moq ?? 1,
+      unit: dto.unit || 'Pcs',
+      whatsapp: dto.whatsapp || '',
+      stock_status: dto.stock_status || 'in_stock',
+      specifications: dto.specifications || {},
+      pricing_tiers: dto.pricing_tiers || [],
+      supplier_name: dto.supplier_name || 'Admin',
+      is_verified: true,
+      status: 'active',
+      rating: 0,
+      review_count: 0,
+    };
+
+    const { data, error } = await this.supabase
+      .from('products')
+      .insert([payload])
+      .select();
+    if (error) throw new InternalServerErrorException(error.message);
+    return data;
+  }
+
   async remove(id: number) {
     const { data: product, error: fetchError } = await this.supabase
       .from('products')

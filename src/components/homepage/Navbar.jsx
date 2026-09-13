@@ -165,6 +165,16 @@ export default function Navbar() {
                       </span>
                     )}
                   </Link>
+                  <Link
+                    href="/profile"
+                    className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-[#F1ECE1] hover:bg-[#EADFC6] transition-all duration-300 shadow-inner group"
+                    aria-label="My Profile"
+                  >
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-[#E8C04A] to-[#B4843F] text-white text-[11px] font-bold flex items-center justify-center">
+                      {(userProfile.name || '?').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()}
+                    </span>
+                    <span className="hidden lg:inline text-xs font-semibold text-[#8A5A2E] group-hover:text-[#6b451f]">Profile</span>
+                  </Link>
                   {isAdmin && (
                     <Link href="/admin" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-[#F6EDDE] text-[#8A5A2E] text-sm font-semibold rounded-full hover:bg-[#EEDCC0] transition-all duration-300 border border-[#D4A853]/40 shadow-sm">
                       <LayoutDashboard className="w-4 h-4" />
@@ -253,6 +263,13 @@ export default function Navbar() {
                     className="block w-full text-center px-4 py-3 bg-[#F6EDDE] text-[#8A5A2E] font-semibold rounded-xl hover:bg-[#EEDCC0] transition-all duration-300"
                   >
                     Notifications {notifCount > 0 ? `(${notifCount})` : ''}
+                  </Link>
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileOpen(false)}
+                    className="block w-full text-center px-4 py-3 bg-[#F6EDDE] text-[#8A5A2E] font-semibold rounded-xl hover:bg-[#EEDCC0] transition-all duration-300 mt-2"
+                  >
+                    My Profile
                   </Link>
                   {isAdmin && (
                     <Link

@@ -1,10 +1,16 @@
-import { Controller, Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { AdminGuard } from '../common/admin.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Post()
+  @UseGuards(AdminGuard)
+  async create(@Body() body: any) {
+    return this.productsService.create(body);
+  }
 
   @Get()
   async findAll(@Query('search') search?: string) {

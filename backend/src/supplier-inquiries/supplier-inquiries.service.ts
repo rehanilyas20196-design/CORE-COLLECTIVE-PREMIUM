@@ -6,7 +6,7 @@ export class SupplierInquiriesService {
   constructor(private supabase: SupabaseService) {}
 
   async findAll(userId?: string, userEmail?: string) {
-    const isAdmin = userEmail === 'rehanilyas20196@gmail.com';
+    const isAdmin = userEmail === 'hinata4020196@gmail.com';
     let query = this.supabase
       .from('supplier_inquiries')
       .select('*')

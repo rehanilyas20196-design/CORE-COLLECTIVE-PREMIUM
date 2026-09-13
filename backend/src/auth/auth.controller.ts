@@ -1,11 +1,24 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
+import { AdminGuard } from '../common/admin.guard';
 import { SignUpDto, LoginDto, SupplierSignUpDto } from '../common/dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('ensure-admin')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  async ensureAdmin() {
+    return this.authService.ensureAdmin();
+  }
+
+  @Get('admin/users')
+  @UseGuards(AdminGuard)
+  async getAdminUsers() {
+    return this.authService.getAdminUsers();
+  }
 
   @Post('signup')
   @Throttle({ default: { limit: 5, ttl: 60000 } })

@@ -42,6 +42,12 @@ export class OrdersController {
     return this.ordersService.updateTracking(parseInt(id), body.tracking_status, body.note);
   }
 
+  @Post(':id/message')
+  @UseGuards(AdminGuard)
+  async sendMessage(@Param('id') id: string, @Body() body: { message: string }) {
+    return this.ordersService.sendMessage(parseInt(id), body.message);
+  }
+
   @Delete(':id')
   @UseGuards(AdminGuard)
   async remove(@Param('id') id: string) {
