@@ -41,10 +41,13 @@ export function AuthProvider({ children }) {
         if (!error && user && !cancelled) {
           onUserReady(user);
         } else if (error && !cancelled) {
-          clearStaleSession();
+          const msg = String(error.message || '').toLowerCase();
+          const isInvalidSession = (error.status && Number(error.status) > 0) ||
+            /invalid|expired|not found|does not exist|missing|token/i.test(msg);
+          if (isInvalidSession) clearStaleSession();
         }
         if (!cancelled) setLoading(false);
-      });
+      }).catch(() => { if (!cancelled) setLoading(false); });
 
       const result = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session?.user && !cancelled) {

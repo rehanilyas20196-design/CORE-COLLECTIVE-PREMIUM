@@ -17,11 +17,23 @@ function sanitizeUrls(obj) {
   return obj;
 }
 
+async function refreshSessionToken() {
+  const { supabase } = await import('./supabase');
+  if (!supabase) return '';
+  try {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (!error && data?.session?.access_token) {
+      return data.session.access_token;
+    }
+  } catch {}
+  return '';
+}
+
 async function getToken() {
   const { supabase } = await import('./supabase');
   if (!supabase) return '';
 
-  let { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
 
   // If the session is missing or its access token is expired (or about to
   // expire), force a refresh instead of returning a stale token that the
@@ -29,22 +41,21 @@ async function getToken() {
   const expiresAtMs = (session?.expires_at || 0) * 1000;
   const isExpired = !session?.access_token || Date.now() >= expiresAtMs - 30_000;
   if (!session?.access_token || isExpired) {
-    try {
-      const { data, error } = await supabase.auth.refreshSession();
-      if (!error && data?.session?.access_token) {
-        session = data.session;
-      }
-    } catch {}
+    return refreshSessionToken();
   }
 
-  if (session?.access_token) return session.access_token;
+  return session.access_token;
+}
 
-  // Last resort: getUser() may recover via the cookie/localStorage even
-  // when getSession() came up empty.
-  const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
-  if (!user) return '';
-  const { data: { session: recovered } } = await supabase.auth.getSession();
-  return recovered?.access_token || '';
+async function throwErrorResponse(res) {
+  if (res.status === 429) {
+    const retryAfter = res.headers.get('Retry-After');
+    const seconds = retryAfter ? parseInt(retryAfter) : 60;
+    const minutes = Math.ceil(seconds / 60);
+    throw new Error(`Too many requests. Please try again after ${minutes} minute${minutes > 1 ? 's' : ''}.`);
+  }
+  const body = await res.json().catch(() => ({ message: res.statusText }));
+  throw new Error(body.message || `Request failed: ${res.status}`);
 }
 
 async function clearLocalAuth() {
@@ -81,19 +92,24 @@ async function request(path, options = {}) {
     config.body = JSON.stringify(config.body);
   }
 
-  const res = await fetch(url, config);
-  if (!res.ok) {
+  let res = await fetch(url, config);
+
+  // A single 401 may be caused by a stale/expired token (clock skew, or the
+  // background auto-refresh racing with this request). Refresh the session and
+  // retry once before signing the user out.
+  if (res.status === 401) {
+    const refreshed = await refreshSessionToken();
+    if (refreshed) {
+      headers['Authorization'] = `Bearer ${refreshed}`;
+      res = await fetch(url, { ...config, headers });
+    }
     if (res.status === 401) {
       await clearLocalAuth();
     }
-    if (res.status === 429) {
-      const retryAfter = res.headers.get('Retry-After');
-      const seconds = retryAfter ? parseInt(retryAfter) : 60;
-      const minutes = Math.ceil(seconds / 60);
-      throw new Error(`Too many requests. Please try again after ${minutes} minute${minutes > 1 ? 's' : ''}.`);
-    }
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || `Request failed: ${res.status}`);
+  }
+
+  if (!res.ok) {
+    await throwErrorResponse(res);
   }
   return sanitizeUrls(await res.json());
 }

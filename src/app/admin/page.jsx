@@ -46,7 +46,7 @@ const statusStyles = {
 };
 
 export default function AdminPage() {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { userProfile, isAdmin, loading: authLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [orders, setOrders] = useState([]);
