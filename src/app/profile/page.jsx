@@ -43,18 +43,22 @@ function DetailRow({ icon: Icon, label, value }) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { userProfile, isAdmin, isSupplier, loading: authLoading } = useAuth();
+  const { isAdmin, isSupplier, loading: authLoading } = useAuth();
   const [account, setAccount] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
-    if (!userProfile) {
-      router.push('/login');
-      return;
-    }
+    let active = true;
+
     supabase.auth.getUser().then(({ data: { user }, error }) => {
-      if (!error && user) {
+      if (!active) return;
+      if (error || !user) {
+        router.push('/login');
+        return;
+      }
+      window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
+      if (active) {
         setAccount({
           id: user.id,
           email: user.email,
@@ -67,8 +71,13 @@ export default function ProfilePage() {
         });
       }
       setLoading(false);
+    }).catch(() => {
+      if (active) router.push('/login');
+      if (active) setLoading(false);
     });
-  }, [authLoading, userProfile, isAdmin, isSupplier, router]);
+
+    return () => { active = false; };
+  }, [authLoading, isAdmin, isSupplier, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
