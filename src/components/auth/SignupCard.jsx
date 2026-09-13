@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { User, Mail, Phone, Lock, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { signupErrorMessage } from '../../lib/auth';
+import { signupErrorMessage, validatePassword, passwordIssues } from '../../lib/auth';
 import OtpVerificationCard from './OtpVerificationCard';
 
 const creamBg = '#EFE3C8';
@@ -67,8 +67,13 @@ function SignupCard() {
       setError('Please enter a valid email address');
       return;
     }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (form.password && form.password.length < 8) {
+      setError(validatePassword(form.password) || 'Password must be at least 8 characters');
+      return;
+    }
+    const passwordError = validatePassword(form.password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -118,6 +123,8 @@ function SignupCard() {
     borderColor: focusedField === field ? goldMid : goldSoft,
     boxShadow: focusedField === field ? glowIn : 'none',
   });
+
+  const pwdIssues = form.password ? passwordIssues(form.password) : [];
 
   if (otpStep) {
     return (
@@ -275,7 +282,7 @@ function SignupCard() {
                       type={showPassword ? 'text' : 'password'}
                       value={form.password}
                       onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-                      placeholder="Min. 6 characters"
+                      placeholder="Min. 8 characters with A-Z, a-z, 0-9"
                       autoComplete="new-password"
                       required
                       onFocus={() => setFocusedField('password')}
@@ -293,6 +300,11 @@ function SignupCard() {
                       {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                     </button>
                   </div>
+                  {pwdIssues.length > 0 && (
+                    <p className="mt-1.5 text-[0.75rem] leading-relaxed" style={{ color: '#9B2C2C' }}>
+                      Needs {pwdIssues.join(', ')}.
+                    </p>
+                  )}
                 </div>
 
                 {/* Confirm Password */}

@@ -46,7 +46,7 @@ const statusStyles = {
 };
 
 export default function AdminPage() {
-  const { userProfile, isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [orders, setOrders] = useState([]);
@@ -71,12 +71,6 @@ export default function AdminPage() {
     try { const d = await api.auth.getUsers(); setUsers(Array.isArray(d) ? d : []); }
     catch (e) { console.error(e); }
   }, []);
-
-  useEffect(() => {
-    if (!authLoading && (!userProfile || !isAdmin)) {
-      router.push('/login');
-    }
-  }, [userProfile, isAdmin, authLoading, router]);
 
   const loadOrders = useCallback(async () => {
     try { const d = await api.orders.getAll(); setOrders(Array.isArray(d) ? d : []); }

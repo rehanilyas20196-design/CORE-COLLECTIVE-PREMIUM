@@ -17,3 +17,20 @@ export function signupErrorMessage(err) {
   }
   return msg || 'Something went wrong. Please try again.';
 }
+
+const PASSWORD_RULES = [
+  { test: (p) => (p || '').length >= 8, label: 'at least 8 characters' },
+  { test: (p) => /[A-Z]/.test(p || ''), label: 'at least one UPPERCASE letter (A\u2013Z)' },
+  { test: (p) => /[a-z]/.test(p || ''), label: 'at least one lowercase letter (a\u2013z)' },
+  { test: (p) => /\d/.test(p || ''), label: 'at least one number (0\u20139)' },
+];
+
+export function passwordIssues(password = '') {
+  return PASSWORD_RULES.filter((rule) => !rule.test(password)).map((rule) => rule.label);
+}
+
+export function validatePassword(password = '') {
+  const issues = passwordIssues(password);
+  if (issues.length === 0) return null;
+  return `Password must include ${issues.join(', ')}.`;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import {
@@ -8,7 +8,7 @@ import {
   Building2, Globe, Tag, Package,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { signupErrorMessage } from '../../lib/auth';
+import { signupErrorMessage, validatePassword, passwordIssues } from '../../lib/auth';
 import OtpVerificationCard from './OtpVerificationCard';
 
 const creamBg = '#EFE3C8';
@@ -141,8 +141,13 @@ function SupplierSignupCard() {
       setError('Please enter a valid email address');
       return;
     }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (form.password && form.password.length < 8) {
+      setError(validatePassword(form.password) || 'Password must be at least 8 characters');
+      return;
+    }
+    const passwordError = validatePassword(form.password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
     if (form.password !== form.confirmPassword) {
@@ -179,11 +184,13 @@ function SupplierSignupCard() {
 
   const set = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.value }));
 
+  const pwdIssues = useMemo(() => (form.password ? passwordIssues(form.password) : []), [form.password]);
+
   if (otpStep) {
     return (
       <OtpVerificationCard
         email={form.email}
-        successHref="/supplier/login"
+        successHref="/supplier/dashboard"
         backHref="/supplier/login"
         backLabel="Back to supplier sign in"
         title="Verify your email"
@@ -194,7 +201,7 @@ function SupplierSignupCard() {
           </>
         }
         successTitle="Email verified!"
-        successText="Your supplier account is confirmed. Taking you to sign in..."
+        successText="Your supplier account is confirmed. Taking you to your supplier dashboard..."
       />
     );
   }
@@ -297,9 +304,14 @@ function SupplierSignupCard() {
                 <Field
                   icon={Lock} label="Password" required
                   type={showPassword ? 'text' : 'password'} value={form.password} onChange={set('password')}
-                  placeholder="Min. 6 characters" autoComplete="new-password"
+                  placeholder="Min. 8 characters" autoComplete="new-password"
                   toggle={{ shown: showPassword, onToggle: () => setShowPassword(!showPassword) }}
                 />
+                {pwdIssues.length > 0 && (
+                  <p className="text-[0.75rem] leading-relaxed -mt-2" style={{ color: '#9B2C2C' }}>
+                    Needs {pwdIssues.join(', ')}.
+                  </p>
+                )}
 
                 <Field
                   icon={Lock} label="Confirm Password" required

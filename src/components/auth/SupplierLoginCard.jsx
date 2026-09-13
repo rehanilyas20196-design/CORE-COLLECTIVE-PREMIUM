@@ -70,7 +70,7 @@ function SupplierLoginCard() {
       if (user) {
         window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
       }
-      router.push('/admin');
+      router.push('/supplier/dashboard');
       router.refresh();
     } catch (err) {
       setError(err.message === 'Invalid login credentials' ? 'Invalid email or password' : err.message);

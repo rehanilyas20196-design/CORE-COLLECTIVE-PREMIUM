@@ -15,14 +15,6 @@ export function AuthProvider({ children }) {
     let cancelled = false;
     let subscription = null;
 
-    const clearStaleSession = async () => {
-      try { await supabase.auth.signOut({ scope: 'local' }); } catch {}
-      try {
-        Object.keys(localStorage || {}).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
-        Object.keys(sessionStorage || {}).forEach(k => { if (k.startsWith('sb-')) sessionStorage.removeItem(k); });
-      } catch {}
-    };
-
     const onUserReady = (user) => {
       if (cancelled) return;
       const profile = {
@@ -41,10 +33,11 @@ export function AuthProvider({ children }) {
         if (!error && user && !cancelled) {
           onUserReady(user);
         } else if (error && !cancelled) {
-          const msg = String(error.message || '').toLowerCase();
-          const isInvalidSession = (error.status && Number(error.status) > 0) ||
-            /invalid|expired|not found|does not exist|missing|token/i.test(msg);
-          if (isInvalidSession) clearStaleSession();
+          // Do NOT wipe the session here. A transient network blip (or an
+          // in-flight OTP/refresh) can produce an error that looks like an
+          // invalid session, which would auto-logout freshly signed-in users.
+          // Real session failures are handled when API calls 401 (lib/api.js).
+          console.warn('getUser() could not restore session:', error?.message);
         }
         if (!cancelled) setLoading(false);
       }).catch(() => { if (!cancelled) setLoading(false); });
