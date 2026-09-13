@@ -19,12 +19,32 @@ function sanitizeUrls(obj) {
 
 async function getToken() {
   const { supabase } = await import('./supabase');
-  const { data: { session } } = await supabase.auth.getSession();
+  if (!supabase) return '';
+
+  let { data: { session } } = await supabase.auth.getSession();
+
+  // If the session is missing or its access token is expired (or about to
+  // expire), force a refresh instead of returning a stale token that the
+  // backend will reject with 401.
+  const expiresAtMs = (session?.expires_at || 0) * 1000;
+  const isExpired = !session?.access_token || Date.now() >= expiresAtMs - 30_000;
+  if (!session?.access_token || isExpired) {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (!error && data?.session?.access_token) {
+        session = data.session;
+      }
+    } catch {}
+  }
+
   if (session?.access_token) return session.access_token;
+
+  // Last resort: getUser() may recover via the cookie/localStorage even
+  // when getSession() came up empty.
   const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
   if (!user) return '';
-  const { data: { session: refreshed } } = await supabase.auth.getSession();
-  return refreshed?.access_token || '';
+  const { data: { session: recovered } } = await supabase.auth.getSession();
+  return recovered?.access_token || '';
 }
 
 async function clearLocalAuth() {

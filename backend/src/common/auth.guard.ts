@@ -18,11 +18,17 @@ export class AuthGuard implements CanActivate {
     try {
       const { data: { user }, error } = await this.supabase.auth.getUser(token);
       if (error || !user) {
-        throw new UnauthorizedException('Invalid or expired token');
+        // Surface the real reason (invalid, expired, network, etc.) instead of
+        // masking it behind a generic message.
+        throw new UnauthorizedException(
+          error?.message || 'Invalid or expired token',
+        );
       }
       request.user = user;
       return true;
-    } catch {
+    } catch (err) {
+      if (err instanceof UnauthorizedException) throw err;
+      // Non-HTTP errors (network/timeout) keep the generic message.
       throw new UnauthorizedException('Authentication failed');
     }
   }
