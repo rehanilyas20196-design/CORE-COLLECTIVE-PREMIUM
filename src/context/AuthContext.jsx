@@ -29,31 +29,65 @@ export function AuthProvider({ children }) {
     };
 
     if (supabase) {
-      supabase.auth.getUser().then(({ data: { user }, error }) => {
-        if (!error && user && !cancelled) {
-          onUserReady(user);
-        } else if (error && !cancelled) {
-          // Do NOT wipe the session here. A transient network blip (or an
-          // in-flight OTP/refresh) can produce an error that looks like an
-          // invalid session, which would auto-logout freshly signed-in users.
-          // Real session failures are handled when API calls 401 (lib/api.js).
-          console.warn('getUser() could not restore session:', error?.message);
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (cancelled) return;
+        if (!session) {
+          // No stored session at all — a plain anonymous visitor. Calling
+          // getUser() here would only report "Auth session missing!" and spam
+          // the console, so skip it entirely.
+          setLoading(false);
+          return;
         }
-        if (!cancelled) setLoading(false);
-      }).catch(() => { if (!cancelled) setLoading(false); });
+        supabase.auth.getUser().then(({ data: { user }, error }) => {
+          if (!error && user && !cancelled) {
+            onUserReady(user);
+          } else if (error && !cancelled) {
+            // Do NOT wipe the session here on transient failures. A network blip
+            // (or an in-flight OTP/refresh) can produce an error that looks like
+            // an invalid session, which would auto-logout freshly signed-in
+            // users. But when the server definitively rejects the stored session
+            // (Auth session missing / invalid JWT), purge it locally so it stops
+            // replaying SIGNED_IN events, 401-ing API calls, and spamming the
+            // console on every page load. Local-only cleanup: no server call.
+            const msg = (error?.message || '').toLowerCase();
+            const transient = /failed to fetch|network|timeout|too many requests|rate limit/i.test(msg);
+            const definitive = !transient && /session missing|invalid jwt|invalid token|refresh token not found|token has expired|access token has expired/i.test(msg);
+            console.warn('getUser() could not restore session:', error?.message);
+            if (definitive && typeof window !== 'undefined') {
+              try {
+                ['localStorage', 'sessionStorage'].forEach((store) => {
+                  const storage = window[store];
+                  const dead = [];
+                  for (let i = 0; i < storage.length; i++) {
+                    const key = storage.key(i);
+                    if (key && key.startsWith('sb-')) dead.push(key);
+                  }
+                  dead.forEach((key) => storage.removeItem(key));
+                });
+              } catch {}
+            }
+          }
+          if (!cancelled) setLoading(false);
+        }).catch(() => { if (!cancelled) setLoading(false); });
+      });
 
       const result = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session?.user && !cancelled) {
-          // Supabase replays the previously stored session as a SIGNED_IN
-          // event during page load. If that session's token is expired (or
-          // missing), accepting it would set a stale userProfile and trigger
-          // authenticated API calls that 401, which then run clearLocalAuth()
-          // and wipe the profile (the "icon disappearing" bug). Ignore it.
-          const expiresAtMs = (session.expires_at || 0) * 1000;
-          if (!session.access_token || expiresAtMs <= 0 || Date.now() >= expiresAtMs - 30_000) {
-            return;
-          }
-          onUserReady(session.user);
+          // Supabase replays the previously stored session as a SIGNED_IN event
+          // on every page load — even when that session is no longer valid
+          // server-side (e.g. the refresh token was rotated/invalidated, which
+          // getUser() surfaces as "Auth session missing!"). Accepting it here
+          // sets a stale userProfile, making the Cart/Favorites/Notifications
+          // contexts fire authenticated API calls that 401, which then run
+          // clearLocalAuth()/authExpired and wipe the profile icon. Authorita-
+          // tively confirm the session with getUser() before trusting it.
+          try {
+            supabase.auth.getUser().then(({ data: { user }, error }) => {
+              if (!error && user && !cancelled) {
+                onUserReady(user);
+              }
+            }).catch(() => {});
+          } catch {}
         }
         if (event === 'SIGNED_OUT' && !cancelled) {
           setUserProfile(null);
