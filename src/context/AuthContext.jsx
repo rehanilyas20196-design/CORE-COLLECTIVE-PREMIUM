@@ -44,6 +44,15 @@ export function AuthProvider({ children }) {
 
       const result = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session?.user && !cancelled) {
+          // Supabase replays the previously stored session as a SIGNED_IN
+          // event during page load. If that session's token is expired (or
+          // missing), accepting it would set a stale userProfile and trigger
+          // authenticated API calls that 401, which then run clearLocalAuth()
+          // and wipe the profile (the "icon disappearing" bug). Ignore it.
+          const expiresAtMs = (session.expires_at || 0) * 1000;
+          if (!session.access_token || expiresAtMs <= 0 || Date.now() >= expiresAtMs - 30_000) {
+            return;
+          }
           onUserReady(session.user);
         }
         if (event === 'SIGNED_OUT' && !cancelled) {

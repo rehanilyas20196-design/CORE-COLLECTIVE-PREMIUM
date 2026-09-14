@@ -61,7 +61,12 @@ async function throwErrorResponse(res) {
 async function clearLocalAuth() {
   const { supabase } = await import('./supabase');
   try {
-    await supabase.auth.signOut({ scope: 'local' });
+    // Only call the server when there's an actual session to revoke; otherwise
+    // supabase fires a pointless 403 to /logout and pumps noise into the console.
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.refresh_token) {
+      await supabase.auth.signOut({ scope: 'local' });
+    }
   } catch {}
   try {
     Object.keys(localStorage || {}).forEach(k => { if (k.startsWith('sb-')) localStorage.removeItem(k); });
