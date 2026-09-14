@@ -77,7 +77,7 @@ export default function ProfilePage() {
     });
 
     return () => { active = false; };
-  }, [authLoading, isAdmin, isSupplier, router]);
+  }, [authLoading, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
