@@ -22,6 +22,7 @@ export default function Navbar() {
   const { notifCount } = useNotif();
   const router = useRouter();
   const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) return null;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('/');

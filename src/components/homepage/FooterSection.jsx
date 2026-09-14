@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const footerColumns = [
   {
@@ -67,6 +68,9 @@ const socialLinks = [
 ];
 
 export default function FooterSection() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) return null;
+
   return (
     <footer className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#15100C_0%,#1F1811_100%)]">
       <div
