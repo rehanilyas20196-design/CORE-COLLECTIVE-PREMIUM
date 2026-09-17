@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Heart, Star, ShoppingCart, Check } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { useCart } from '../../context/CartContext';
+import ProductImageCarousel from '../products/ProductImageCarousel';
 
 const categoryBadges = {
   Electronics: 'bg-blue-100 text-blue-700',
@@ -37,7 +38,6 @@ function SkeletonCard() {
 function TrendingStyleCard({ product, index = 0 }) {
   const { addToCart } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
-  const [imgError, setImgError] = useState(false);
   const [added, setAdded] = useState(false);
 
   const p = product;
@@ -69,19 +69,11 @@ function TrendingStyleCard({ product, index = 0 }) {
       <div className="group relative flex flex-col h-full bg-[#FBF8F0] border border-[rgba(185,138,60,0.16)] rounded-[4px] overflow-hidden shadow-[0_2px_12px_rgba(42,35,24,0.06)] transition-shadow duration-300 hover:shadow-[0_10px_28px_-8px_rgba(42,35,24,0.14)]">
         <Link href={`/products/${p.id}`} className="block">
           <div className="relative aspect-[4/5] overflow-hidden bg-[#eee4d0]">
-            {!imgError && p.image_url ? (
-              <img
-                src={p.image_url}
-                alt={p.name}
-                className="w-full h-full object-cover"
-                onError={() => setImgError(true)}
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[#B98A3C]/40">
-                <ShoppingCart className="w-10 h-10" />
-              </div>
-            )}
+            <ProductImageCarousel
+              product={p}
+              iconSize="w-10 h-10"
+              arrowSize="w-3.5 h-3.5"
+            />
 
             <span
               className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${

@@ -9,6 +9,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import { api } from '../../../lib/api';
 import { supabase } from '../../../lib/supabase';
+import OptimizedProductImage from '../../../components/products/OptimizedProductImage';
 
 const creamBg = '#EFE3C8';
 const panelBg = '#F7EFDC';
@@ -258,11 +259,13 @@ return (
           <div className="gold-border-frame relative cursor-crosshair" onMouseMove={handleGlow} onMouseLeave={() => setGlow(g => ({ ...g, active: false }))}>
             <div className="relative aspect-square w-full overflow-hidden" style={{ backgroundColor: panelBg }}>
               {galleryImages.length > 0 ? (
-                <img
+                <OptimizedProductImage
                   src={galleryImages[activeImage % galleryImages.length]}
                   alt={product.name}
+                  sizes="(max-width: 720px) 100vw, 50vw"
+                  classN="object-cover"
+                  priority
                   onError={e => { if (e.currentTarget.src !== (product.image_url || '')) e.currentTarget.src = product.image_url || ''; }}
-                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-16 h-16" style={{ color: goldMid }} /></div>
@@ -328,7 +331,7 @@ return (
                   }}
                   aria-label={`Image ${i + 1}`}
                 >
-                  <img src={img} alt={`${product.name} - view ${i + 1}`} className="w-full h-full object-cover" />
+                  <OptimizedProductImage src={img} alt={`${product.name} - view ${i + 1}`} sizes="96px" classN="object-cover" />
                 </button>
               ))}
             </div>

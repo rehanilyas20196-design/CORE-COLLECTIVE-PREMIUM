@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Heart, Star, ShoppingCart, Check, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import ProductImageCarousel from './ProductImageCarousel';
 
 const categoryBadges = {
   Electronics: 'bg-blue-100 text-blue-700',
@@ -41,7 +42,6 @@ function Badge({ featured, isNew }) {
 export default function ProductCard({ product, index = 0, variant = 'grid' }) {
   const { addToCart } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
-  const [imgError, setImgError] = useState(false);
   const [added, setAdded] = useState(false);
 
   const p = product;
@@ -74,19 +74,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
     <div className={`group relative flex flex-col h-full ${cardShell}`}>
       <Link href={url} className="block">
         <div className="relative aspect-[3/4] overflow-hidden bg-[#eee4d0]">
-          {!imgError && p.image_url ? (
-            <img
-              src={p.image_url}
-              alt={p.name}
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#B98A3C]/40">
-              <ShoppingCart className="w-12 h-12" />
-            </div>
-          )}
+          <ProductImageCarousel product={p} />
 
           <span
             className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-medium ${
@@ -174,19 +162,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
     <div className={`group flex flex-col sm:flex-row h-full ${cardShell}`}>
       <Link href={url} className="block sm:w-48 lg:w-56 shrink-0">
         <div className="relative aspect-[3/4] sm:h-full bg-[#eee4d0] overflow-hidden">
-          {!imgError && p.image_url ? (
-            <img
-              src={p.image_url}
-              alt={p.name}
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#B98A3C]/40">
-              <ShoppingCart className="w-12 h-12" />
-            </div>
-          )}
+          <ProductImageCarousel product={p} />
 
           <span
             className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-medium ${
