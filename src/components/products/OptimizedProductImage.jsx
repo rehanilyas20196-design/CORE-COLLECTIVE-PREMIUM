@@ -13,7 +13,7 @@ export default function OptimizedProductImage({
   src,
   alt,
   sizes,
-  quality = 80,
+  quality = 100,
   classN,
   priority,
   ...rest
