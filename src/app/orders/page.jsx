@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Package, ChevronDown, Clock, CheckCircle, Truck, MapPin, PackageCheck, Loader, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import OptimizedProductImage from '../../components/products/OptimizedProductImage';
 
 const TRACKING_STAGES = [
   { key: 'confirmed', label: 'Confirmed', icon: CheckCircle, desc: 'Order confirmed & being prepared' },
@@ -89,9 +90,14 @@ function OrderCard({ order }) {
     >
       <div className="p-4 sm:p-5">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gray-50 border border-gray-200 overflow-hidden shrink-0">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gray-50 border border-gray-200 overflow-hidden shrink-0">
             {order.product_image ? (
-              <img src={order.product_image} alt={order.product_name} className="w-full h-full object-cover" />
+              <OptimizedProductImage
+                src={order.product_image}
+                alt={order.product_name}
+                sizes="(max-width: 640px) 64px, 80px"
+                classN="object-cover"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-300">
                 <ShoppingBag className="w-6 h-6" />

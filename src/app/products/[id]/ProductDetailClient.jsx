@@ -777,13 +777,13 @@ function RelatedCard({ product, index }) {
         style={{ borderColor: goldSoft, backgroundColor: cardBg }}
       >
         <div className="relative aspect-square overflow-hidden w-full" style={{ backgroundColor: panelBg }}>
-          {!imgError && p.image_url ? (
-            <img
+{!imgError && p.image_url ? (
+            <OptimizedProductImage
               src={p.image_url}
               alt={p.name}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              classN="object-cover transition-transform duration-500 group-hover:scale-105"
               onError={() => setImgError(true)}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
