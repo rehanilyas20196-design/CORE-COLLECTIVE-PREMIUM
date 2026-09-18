@@ -3,7 +3,10 @@ import { createHmac, timingSafeEqual } from 'crypto';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_SERVICE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
+  '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 // ---------------------------------------------------------------------------
@@ -11,8 +14,11 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 // ---------------------------------------------------------------------------
 
 export function getSupabaseAdmin() {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    throw new Error('Payment server is missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY');
+  const missing = [];
+  if (!SUPABASE_URL) missing.push('SUPABASE_URL (NEXT_PUBLIC_SUPABASE_URL)');
+  if (!SUPABASE_SERVICE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY (NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY)');
+  if (missing.length > 0) {
+    throw new Error(`Payment server is missing environment variables: ${missing.join(' + ')}`);
   }
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
 }
