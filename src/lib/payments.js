@@ -1,34 +1,42 @@
 import { createClient } from '@supabase/supabase-js';
 import { createHmac, timingSafeEqual } from 'crypto';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const SUPABASE_SERVICE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_SERVICE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
-  '';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Env values are read on every call (not captured at module load) so that
+// edits to .env.local are picked up without restarting the dev server and so a
+// stale module cache can never hide a newly-added variable.
+function supabaseConfig() {
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  return { url, serviceKey, anonKey };
+}
 
 // ---------------------------------------------------------------------------
 // Supabase
 // ---------------------------------------------------------------------------
 
 export function getSupabaseAdmin() {
+  const { url, serviceKey } = supabaseConfig();
   const missing = [];
-  if (!SUPABASE_URL) missing.push('SUPABASE_URL (NEXT_PUBLIC_SUPABASE_URL)');
-  if (!SUPABASE_SERVICE_KEY) missing.push('SUPABASE_SERVICE_ROLE_KEY (NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY)');
+  if (!url) missing.push('SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL)');
+  if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
   if (missing.length > 0) {
-    throw new Error(`Payment server is missing environment variables: ${missing.join(' + ')}`);
+    throw new Error(
+      `Payment server is missing environment variables: ${missing.join(' + ')}. ` +
+        'Set them in .env.local for local dev, and in your deployment platform ' +
+        '(e.g. Vercel project Settings > Environment Variables) for production.'
+    );
   }
-  return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
+  return createClient(url, serviceKey, { auth: { persistSession: false } });
 }
 
 export async function verifyUser(request) {
   const header = request.headers.get('authorization') || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return null;
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-  const anon = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+  const { url, anonKey } = supabaseConfig();
+  if (!url || !anonKey) return null;
+  const anon = createClient(url, anonKey, { auth: { persistSession: false } });
   const { data, error } = await anon.auth.getUser(token);
   if (error || !data?.user) return null;
   return {
