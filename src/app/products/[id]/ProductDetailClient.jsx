@@ -46,14 +46,9 @@ export default function ProductDetailPage({ params }) {
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
   const { userProfile } = useAuth();
-  const [buyModalOpen, setBuyModalOpen] = useState(false);
-  const [buyForm, setBuyForm] = useState({ quantity: 1, phone: '', message: '', address: '' });
+const [buyModalOpen, setBuyModalOpen] = useState(false);
+  const [buyForm, setBuyForm] = useState({ quantity: 1, message: '' });
   const [buyError, setBuyError] = useState('');
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentFile, setPaymentFile] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('easypaisa');
-  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
-  const [paymentDone, setPaymentDone] = useState(false);
 
   const [quoteForm, setQuoteForm] = useState({ name: '', business: '', phone: '', email: '', quantity: '', message: '' });
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
@@ -107,46 +102,12 @@ useEffect(() => {
     setGlow({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100, active: true });
   };
 
-  const handleBuySubmit = (e) => {
+const handleBuySubmit = (e) => {
     e.preventDefault();
-    if (!buyForm.phone) { setBuyError('Phone number is required'); return; }
-    if (!buyForm.address) { setBuyError('Delivery address is required'); return; }
+    const qty = Math.min(1000, Math.max(1, Math.floor(Number(buyForm.quantity) || 1)));
     setBuyError('');
-    setShowPayment(true);
-  };
-
-  const handlePaymentConfirm = async () => {
-    if (!paymentFile) { setBuyError('Please upload payment screenshot'); return; }
-    setPaymentSubmitting(true);
-    setBuyError('');
-    try {
-      const unitPrice = current;
-      const qty = Number(buyForm.quantity) || 1;
-
-      const uploadRes = await api.upload.paymentScreenshot(paymentFile);
-      const screenshotUrl = uploadRes.url || uploadRes;
-
-      await api.buyRequests.create({
-        product_id: product.id,
-        product_name: product.name,
-        product_image: product.image_url || '',
-        quantity: qty,
-        total_amount: qty * unitPrice,
-        phone: buyForm.phone,
-        address: buyForm.address,
-        message: buyForm.message || '',
-        user_name: userProfile?.name || '',
-        user_email: userProfile?.email || '',
-        payment_screenshot: screenshotUrl,
-        payment_method: paymentMethod,
-        payment_status: 'uploaded',
-      });
-      setPaymentDone(true);
-    } catch (err) {
-      setBuyError(err.message || 'Failed to submit payment');
-    } finally {
-      setPaymentSubmitting(false);
-    }
+    setBuyModalOpen(false);
+    router.push(`/checkout?product_id=${product.id}&qty=${qty}`);
   };
 
   const handleQuoteSubmit = async (e) => {
@@ -513,9 +474,9 @@ $${current.toFixed(2)}
                     <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: goldMid }} /> International shipping available on request</li>
                   </ul>
                 </div>
-                <div className="border p-6" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
+<div className="border p-6" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
                   <h4 className="font-semibold mb-2" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Payment Methods</h4>
-                  <p className="text-sm" style={{ color: tan }}>Bank Transfer, JazzCash, EasyPaisa, and Credit/Debit Cards</p>
+                  <p className="text-sm" style={{ color: tan }}>Secure international payments via Paddle — Visa, Mastercard, PayPal, Apple Pay, Google Pay and more.</p>
                 </div>
               </div>
             )}
@@ -621,22 +582,14 @@ $${current.toFixed(2)}
       {/* Buy modal */}
       <AnimatePresence>
         {buyModalOpen && (
-          <BuyRequestModal
+<BuyRequestModal
             product={product}
             form={buyForm}
             setForm={setBuyForm}
             error={buyError}
-            onClose={() => { setBuyModalOpen(false); setBuyError(''); setShowPayment(false); setPaymentFile(null); setPaymentDone(false); setBuyForm({ quantity: 1, phone: '', message: '', address: '' }); setPaymentMethod('easypaisa'); }}
+            onClose={() => { setBuyModalOpen(false); setBuyError(''); setBuyForm({ quantity: 1, message: '' }); }}
             onSubmit={handleBuySubmit}
             user={userProfile}
-            showPayment={showPayment}
-            paymentFile={paymentFile}
-            setPaymentFile={setPaymentFile}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            paymentSubmitting={paymentSubmitting}
-            paymentDone={paymentDone}
-            onPaymentConfirm={handlePaymentConfirm}
           />
         )}
       </AnimatePresence>
@@ -836,13 +789,11 @@ $${current.toFixed(2)}
     </motion.div>
   );
 }
-
-function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, user, showPayment, paymentFile, setPaymentFile, paymentMethod, setPaymentMethod, paymentSubmitting, paymentDone, onPaymentConfirm }) {
+function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, user }) {
   const update = (key) => (value) => setForm(p => ({ ...p, [key]: value }));
   const scrollRef = useRef(null);
   const [canScrollUp, setCanScrollUp] = useState(false);
   const [canScrollDown, setCanScrollDown] = useState(false);
-  const fileInputRef = useRef(null);
 
   const checkScroll = () => {
     const el = scrollRef.current;
@@ -873,147 +824,18 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
   const inputCls = "w-full px-3.5 py-2.5 bg-white border text-sm outline-none transition-colors focus:border-[#B8862E]";
   const inputStyle = { borderColor: goldSoft, color: ink };
 
-  const paymentOptions = [
-    { id: 'easypaisa', label: 'EasyPaisa', details: '+92 345 5900229', logo: 'https://static.cdnlogo.com/logos/e/80/easypaisa.svg' },
-    { id: 'jazzcash', label: 'JazzCash', details: '+92 345 5900229', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/41/JazzCash_logo_%282025%29.png' },
-    { id: 'hbl', label: 'HBL Bank', details: 'Account: 0012-3456789012\nIBAN: PK36 HABB 0012 3456 7890 1234', logo: 'https://static.cdnlogo.com/logos/h/55/hbl.svg' },
-  ];
-
   const panelCls = "bg-[#FBF5E8] border w-full max-w-md mx-4 shadow-2xl";
   const panelStyle = { borderColor: goldSoft };
+
+  const unit = Number(product.price_min || product.price || 0);
+  const qty = Math.min(1000, Math.max(1, Math.floor(Number(form.quantity) || 1)));
+  const total = Math.round(qty * unit * 100) / 100;
 
   const closeBtn = (
     <button onClick={onClose} className="p-1.5 transition-colors hover:bg-[#EFE3C8]" aria-label="Close">
       <X className="w-4 h-4" style={{ color: tan }} />
     </button>
   );
-
-  if (paymentDone) {
-    return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }}
-          onClick={e => e.stopPropagation()} className={`${panelCls} p-7 text-center`} style={panelStyle}>
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-16 h-16 mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: panelBg, color: '#B8862E' }}>
-            <Clock className="w-8 h-8" />
-          </motion.div>
-          <h3 className="text-lg font-bold mb-2" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Request Submitted!</h3>
-          <p className="text-sm mb-2" style={{ color: tan }}>Please wait for <span className="font-semibold" style={{ color: ink }}>5 hours</span> to confirm or reject your order.</p>
-          <p className="text-xs mb-6" style={{ color: tan }}>The admin will review your payment proof and update the status.</p>
-          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            onClick={onClose} className="gold-shimmer-btn px-8 py-2.5 font-semibold">
-            Done
-          </motion.button>
-        </motion.div>
-      </motion.div>
-    );
-  }
-
-  if (showPayment) {
-    return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }}
-          onClick={e => e.stopPropagation()} className={`${panelCls} p-7`} style={panelStyle}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 flex items-center justify-center border" style={{ borderColor: goldSoft, color: goldDeep, backgroundColor: panelBg }}>
-                <CheckCircle className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Make Payment</h3>
-                <p className="text-xs line-clamp-1" style={{ color: tan }}>{product.name}</p>
-              </div>
-            </div>
-            {closeBtn}
-          </div>
-
-          <div className="space-y-4">
-            <div className="border p-4 text-sm" style={{ borderColor: goldSoft, backgroundColor: panelBg }}>
-              <p className="font-semibold mb-2" style={{ color: goldDeep }}>
-                Total Amount: $${((Number(form.quantity) || 1) * (product.price_min || product.price || 0)).toFixed(2)}
-              </p>
-              <p className="text-xs" style={{ color: tan }}>Send payment to any of the options below and upload the screenshot.</p>
-            </div>
-
-            <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: tan }}>Payment Options</p>
-              {paymentOptions.map((opt) => (
-                <div key={opt.id}
-                  onClick={() => setPaymentMethod(opt.id)}
-                  className="flex items-center gap-3 p-3.5 border-2 cursor-pointer transition-all duration-200"
-                  style={{
-                    borderColor: paymentMethod === opt.id ? goldMid : goldSoft,
-                    backgroundColor: paymentMethod === opt.id ? panelBg : cardBg,
-                  }}>
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 flex items-center justify-center bg-white border p-1.5 overflow-hidden shrink-0" style={{ borderColor: goldSoft }}>
-                      <img src={opt.logo} alt={opt.label} className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold" style={{ color: ink }}>{opt.label}</p>
-                      <p className="text-xs whitespace-pre-line" style={{ color: tan }}>{opt.details}</p>
-                    </div>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200`}
-                    style={{ borderColor: paymentMethod === opt.id ? goldMid : '#C4B08A' }}>
-                    {paymentMethod === opt.id && <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: goldMid }} />}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: tan }}>Upload Payment Screenshot *</p>
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed p-6 text-center cursor-pointer transition-colors hover:border-[#B8862E]"
-                style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-                {paymentFile ? (
-                  <div className="space-y-2">
-                    <CheckCircle className="w-8 h-8 mx-auto" style={{ color: goldMid }} />
-                    <p className="text-sm font-medium" style={{ color: ink }}>{paymentFile.name}</p>
-                    <p className="text-xs" style={{ color: tan }}>{(paymentFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setPaymentFile(null); }}
-                      className="text-xs text-[#A12A2A] hover:underline">Remove</button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="w-10 h-10 mx-auto flex items-center justify-center" style={{ backgroundColor: panelBg, color: tan }}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                    </div>
-                    <p className="text-sm font-medium" style={{ color: ink }}>Click to upload</p>
-                    <p className="text-xs" style={{ color: tan }}>PNG, JPG up to 10MB</p>
-                  </div>
-                )}
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setPaymentFile(f); }} />
-              </div>
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 p-3 text-sm border" style={{ borderColor: 'rgba(161,42,42,0.4)', color: '#A12A2A', backgroundColor: '#F7E3DD' }}>
-                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
-              </div>
-            )}
-
-            <button
-              onClick={onPaymentConfirm} disabled={paymentSubmitting || !paymentFile}
-              className="gold-shimmer-btn w-full py-3.5 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-transform duration-200 active:scale-[0.99]">
-              {paymentSubmitting ? <Loader className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-              {paymentSubmitting ? 'Submitting...' : 'Confirm Payment'}
-            </button>
-
-            <button onClick={onClose} className="w-full py-2.5 text-sm transition-colors hover:underline" style={{ color: tan }}>
-              Cancel
-            </button>
-          </div>
-        </motion.div>
-      </motion.div>
-    );
-  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -1046,21 +868,11 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Your Name</label>
-                  <input type="text" value={user?.name || ''} disabled className={`${inputCls} bg-[#EFE3C8] cursor-not-allowed`} style={inputStyle} />
+                  <input type="text" value={user?.name || ''} disabled className={inputCls + ' bg-[#EFE3C8] cursor-not-allowed'} style={inputStyle} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Email</label>
-                  <input type="email" value={user?.email || ''} disabled className={`${inputCls} bg-[#EFE3C8] cursor-not-allowed`} style={inputStyle} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Phone *</label>
-                  <input type="tel" value={form.phone} onChange={e => update('phone')(e.target.value)} required
-                    placeholder="+92 300 000 0000" className={inputCls} style={inputStyle} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Delivery Address *</label>
-                  <textarea value={form.address} onChange={e => update('address')(e.target.value)} required rows={2}
-                    placeholder="Street, city, province..." className={`${inputCls} resize-none`} style={inputStyle} />
+                  <input type="email" value={user?.email || ''} disabled className={inputCls + ' bg-[#EFE3C8] cursor-not-allowed'} style={inputStyle} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -1069,22 +881,21 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
                   </div>
                   <div>
                     <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Unit Price</label>
-                    <input type="text" value={`$${(product.price_min || product.price || 0).toFixed(2)}`} disabled
-                      className={`${inputCls} bg-[#EFE3C8] cursor-not-allowed`} style={inputStyle} />
+                    <input type="text" value={'$' + unit.toFixed(2)} disabled className={inputCls + ' bg-[#EFE3C8] cursor-not-allowed'} style={inputStyle} />
                   </div>
                 </div>
-                {Number(form.quantity) > 0 && (
+                {total > 0 && (
                   <div className="flex items-center justify-between px-4 py-3 border" style={{ borderColor: goldSoft, backgroundColor: panelBg }}>
                     <span className="text-sm font-medium" style={{ color: ink }}>Total Amount</span>
                     <span className="text-lg font-bold text-gold-gradient" style={{ fontFamily: 'Fraunces, serif' }}>
-                      $${((Number(form.quantity) || 1) * (product.price_min || product.price || 0)).toFixed(2)}
+                      {'$' + total.toFixed(2)}
                     </span>
                   </div>
                 )}
                 <div>
                   <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Message (optional)</label>
                   <textarea rows={3} value={form.message} onChange={e => update('message')(e.target.value)}
-                    placeholder="Any specific requirements or notes..." className={`${inputCls} resize-none`} style={inputStyle} />
+                    placeholder="Any specific requirements or notes..." className={inputCls + ' resize-none'} style={inputStyle} />
                 </div>
 
                 {error && (
@@ -1095,14 +906,18 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
 
                 {!user && (
                   <div className="flex items-center gap-2 p-3 text-sm border" style={{ borderColor: goldSoft, color: '#93692A', backgroundColor: panelBg }}>
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" /> Please log in to submit a purchase request
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" /> Please log in to place an order
                   </div>
                 )}
+
+                <div className="border px-4 py-3 text-xs" style={{ borderColor: goldSoft, backgroundColor: panelBg, color: tan }}>
+                  Payment is handled securely by Paddle in the next step — Visa, Mastercard, PayPal, Apple Pay, Google Pay and more.
+                </div>
 
                 <button type="submit" disabled={!user}
                   className="gold-shimmer-btn w-full py-3.5 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-transform duration-200 active:scale-[0.99]">
                   <ShoppingCart className="w-4 h-4" />
-                  Submit Purchase Request
+                  Continue to Secure Checkout
                 </button>
               </div>
             </form>

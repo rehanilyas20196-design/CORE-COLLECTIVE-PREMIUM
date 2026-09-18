@@ -42,7 +42,7 @@ const testimonials = [
 const faqs = [
   { q: 'How long does verification take?', a: 'Most applications are reviewed within 48 hours. We\'ll notify you via email once your account is verified.' },
   { q: 'Are there any listing fees?', a: 'No. Creating an account and listing products is completely free. We only charge a small commission on completed orders.' },
-  { q: 'How do I get paid?', a: 'Payments are processed through our secure platform. You can choose bank transfer or PayPal. Payouts are released once the buyer confirms delivery.' },
+  { q: 'How do I get paid?', a: 'Payments are processed securely through Paddle (Visa, Mastercard, PayPal, Apple Pay, Google Pay and more). Payouts are released once the buyer confirms delivery.' },
   { q: 'Can I set my own prices?', a: 'Absolutely. You have full control over your pricing, MOQs, and shipping terms. We provide market insights to help you stay competitive.' },
 ];
 

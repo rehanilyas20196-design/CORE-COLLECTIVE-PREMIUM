@@ -288,7 +288,7 @@ export default function ContactPage() {
               { q: 'What is the minimum order quantity?', a: 'Minimum order quantities vary by supplier and product category. Each listing shows its MOQ clearly before you add it to your cart.' },
               { q: 'Do you offer international shipping?', a: 'Yes. Many of our suppliers ship internationally. Shipping cost and delivery time are calculated at checkout based on destination and order weight.' },
               { q: 'How can I become a supplier?', a: 'Click "Become a Supplier" in the navigation bar, complete your business verification, and list your first products. Our team reviews new suppliers within two business days.' },
-              { q: 'What payment methods are accepted?', a: 'We accept major credit and debit cards, bank transfers, and select regional payment methods. Enterprise buyers can also arrange net-30 invoicing.' }
+              { q: 'What payment methods are accepted?', a: 'We accept secure international payments via Paddle — Visa, Mastercard, PayPal, Apple Pay, Google Pay and more. Enterprise buyers can also arrange net-30 invoicing.' }
             ].map((faq, i) => (
               <div key={i} className="faq-item">
                 <button className="faq-q">
