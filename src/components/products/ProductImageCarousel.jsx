@@ -21,6 +21,7 @@ export default function ProductImageCarousel({
   iconSize = 'w-12 h-12',
   arrowSize = 'w-4 h-4',
   sizes = '(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw',
+  priority,
 }) {
   const images = getProductImages(product);
   const [errored, setErrored] = useState({});
@@ -59,6 +60,7 @@ export default function ProductImageCarousel({
           alt={product?.name || 'Product image'}
           sizes={sizes}
           classN="object-cover"
+          priority={priority}
           onError={() => handleError(safeActive)}
         />
       ) : (

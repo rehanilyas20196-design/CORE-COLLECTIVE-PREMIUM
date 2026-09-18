@@ -32,5 +32,14 @@ export default function OptimizedProductImage({
       />
     );
   }
-  return <img src={src} alt={alt} className={classN} loading="lazy" {...rest} />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={classN}
+      loading={priority ? 'eager' : 'lazy'}
+      fetchpriority={priority ? 'high' : 'auto'}
+      {...rest}
+    />
+  );
 }

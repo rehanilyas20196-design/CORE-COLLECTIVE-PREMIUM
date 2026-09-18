@@ -117,7 +117,7 @@ function TrendingProductCard({ product, index = 0 }) {
       <div className="group relative flex flex-col h-full bg-[#FBF8F0] border border-[rgba(185,138,60,0.16)] rounded-[4px] overflow-hidden shadow-[0_2px_12px_rgba(42,35,24,0.06)] transition-shadow duration-300 hover:shadow-[0_10px_28px_-8px_rgba(42,35,24,0.14)]">
         <Link href={`/products/${p.id}`} className="block">
           <div className="relative aspect-[3/4] overflow-hidden bg-[#eee4d0]">
-            <ProductImageCarousel product={p} />
+            <ProductImageCarousel product={p} priority={index < 4} />
 
             <span
               className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-medium ${

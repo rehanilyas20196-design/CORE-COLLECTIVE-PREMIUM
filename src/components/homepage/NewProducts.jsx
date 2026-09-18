@@ -73,6 +73,7 @@ function TrendingStyleCard({ product, index = 0 }) {
               product={p}
               iconSize="w-10 h-10"
               arrowSize="w-3.5 h-3.5"
+              priority={index < 6}
             />
 
             <span

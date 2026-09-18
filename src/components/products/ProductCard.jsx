@@ -45,6 +45,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
   const [added, setAdded] = useState(false);
 
   const p = product;
+  const eager = index < 4;
   const category = p.category || 'General';
   const current = Number(p.price_min || p.price || 0);
   const priceMax = Number(p.price_max || 0);
@@ -74,7 +75,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
     <div className={`group relative flex flex-col h-full ${cardShell}`}>
       <Link href={url} className="block">
         <div className="relative aspect-[3/4] overflow-hidden bg-[#eee4d0]">
-          <ProductImageCarousel product={p} />
+          <ProductImageCarousel product={p} priority={eager} />
 
           <span
             className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-medium ${
@@ -162,7 +163,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
     <div className={`group flex flex-col sm:flex-row h-full ${cardShell}`}>
       <Link href={url} className="block sm:w-48 lg:w-56 shrink-0">
         <div className="relative aspect-[3/4] sm:h-full bg-[#eee4d0] overflow-hidden">
-          <ProductImageCarousel product={p} />
+          <ProductImageCarousel product={p} priority={eager} />
 
           <span
             className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-medium ${
