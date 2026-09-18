@@ -46,7 +46,7 @@ const findMatchingProduct = (message, products) => {
 
 const buildProductAnswer = (product) => {
   const stockMessage = Number(product.stock) > 0 ? `It currently appears to be in stock with ${product.stock} unit${product.stock === 1 ? '' : 's'} available.` : 'It currently appears to be out of stock.';
-  return `${product.name} is listed in the ${product.category || 'product'} category for Rs. ${product.price}. ${stockMessage} You can open the product details page for images, description, ratings, and checkout options.`;
+  return `${product.name} is listed in the ${product.category || 'product'} category for $${Number(product.price).toFixed(2)}. ${stockMessage} You can open the product details page for images, description, ratings, and checkout options.`;
 };
 
 const buildOrderAnswer = (message) => {
@@ -159,7 +159,7 @@ export default function ChatbotWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [...recent, { role: 'user', parts: [{ text: message }] }],
-          systemInstruction: { parts: [{ text: `You are a customer support assistant for Core Collective, a B2B marketplace. Keep responses concise (2-4 sentences). Be warm and professional. Store name: Core Collective. Contact: rehanilyas20196@gmail.com, +92 345 5900229. Address: Mellinium Karachi, Pakistan. Ships to 100+ countries. Currencies: PKR. For returns: 30-day window. For shipping: Standard free 5-7 business days, Express Rs. 999 2-3 days, Next Day Rs. 1,999 1 day. Payment: Visa, Mastercard, JazzCash (+92 345 5900229), EasyPaisa (+92 345 5900229), Direct Bank Transfer (Faysal Bank IBAN PK63FAYS0000123456789). Categories: Electronics, Clothing, Home, Sports, Pet Supplies, Tools.` }] },
+          systemInstruction: { parts: [{ text: `You are a customer support assistant for Core Collective, a B2B marketplace. Keep responses concise (2-4 sentences). Be warm and professional. Store name: Core Collective. Contact: rehanilyas20196@gmail.com, +92 345 5900229. Address: Mellinium Karachi, Pakistan. Ships to 100+ countries. Currencies: USD ($). For returns: 30-day window. For shipping: Standard free 5-7 business days, Express $3.61 2-3 days, Next Day $7.22 1 day. Payment: Visa, Mastercard, JazzCash (+92 345 5900229), EasyPaisa (+92 345 5900229), Direct Bank Transfer (Faysal Bank IBAN PK63FAYS0000123456789). Categories: Electronics, Clothing, Home, Sports, Pet Supplies, Tools.` }] },
           generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
         }),
       });

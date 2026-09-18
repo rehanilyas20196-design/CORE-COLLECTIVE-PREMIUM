@@ -138,7 +138,7 @@ function ProductsPage() {
       </div>
       <div className="border-t border-gray-200" />
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Price Range (PKR)</h4>
+        <h4 className="text-sm font-semibold text-gray-700 mb-3">Price Range (USD)</h4>
         <div className="flex items-center gap-2">
           <input type="number" value={filters.minPrice} onChange={e => updateFilter('minPrice', e.target.value)} placeholder="Min" className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-primary" />
           <span className="text-gray-500">–</span>
@@ -340,13 +340,13 @@ function ProductsPage() {
                 )}
                 {filters.minPrice && (
                   <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs text-gray-700">
-                    Min: PKR {Number(filters.minPrice).toLocaleString()}
+                    Min: $${Number(filters.minPrice).toFixed(2)}
                     <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('minPrice', '')} />
                   </span>
                 )}
                 {filters.maxPrice && (
                   <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs text-gray-700">
-                    Max: PKR {Number(filters.maxPrice).toLocaleString()}
+                    Max: $${Number(filters.maxPrice).toFixed(2)}
                     <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('maxPrice', '')} />
                   </span>
                 )}

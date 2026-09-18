@@ -255,7 +255,7 @@ function DashboardTab({ orders, inquiries, discounts, notifications, products, u
     { label: 'Total Users', value: users.length, icon: Users, color: 'from-slate-500/20 to-slate-600/10', textColor: 'text-slate-500', change: `${users.filter(u => u.is_supplier).length} suppliers` },
     { label: 'Total Products', value: products.length, icon: Layers, color: 'from-teal-500/20 to-teal-600/10', textColor: 'text-teal-500', change: `${categories.length} categories` },
     { label: 'Categories', value: categories.length, icon: ListChecks, color: 'from-indigo-500/20 to-indigo-600/10', textColor: 'text-indigo-500', change: 'in catalog' },
-    { label: 'Revenue', value: `Rs. ${totalRevenue.toLocaleString()}`, icon: CreditCard, color: 'from-blue-500/20 to-blue-600/10', textColor: 'text-blue-400', change: 'total' },
+    { label: 'Revenue', value: `$${Number(totalRevenue).toFixed(2)}`, icon: CreditCard, color: 'from-blue-500/20 to-blue-600/10', textColor: 'text-blue-400', change: 'total' },
   ];
 
   return (
@@ -628,7 +628,7 @@ function OrdersTab({ orders, loadOrders, showToast }) {
                       <p className="text-gray-900 text-xs sm:text-sm font-medium truncate max-w-[120px] sm:max-w-none">{order.full_name || 'N/A'}</p>
                       <p className="text-gray-600 text-[10px] truncate max-w-[120px] sm:max-w-none">{order.user_email || ''}</p>
                     </td>
-                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs sm:text-sm whitespace-nowrap">Rs. {Number(order.total_amount || 0).toLocaleString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs sm:text-sm whitespace-nowrap">$${Number(order.total_amount || 0).toFixed(2)}</td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4">
                       <span className="text-xs text-gray-500 whitespace-nowrap">{order.payment_method || 'N/A'}</span>
                     </td>
@@ -675,7 +675,7 @@ function OrdersTab({ orders, loadOrders, showToast }) {
                 <DetailCard icon={Phone} label="Phone" value={order.phone_number} />
                 <DetailCard icon={MapPin} label="Address" value={`${order.address || ''}, ${order.city || ''}, ${order.province || ''}`} />
                 <DetailCard icon={CreditCard} label="Payment" value={order.payment_method} sub={order.payment_screenshot ? 'Screenshot uploaded' : ''} />
-                <DetailCard icon={Package} label="Items" value={`${order.items?.length || 0} items`} sub={`Total: Rs. ${Number(order.total_amount).toLocaleString()}`} />
+                <DetailCard icon={Package} label="Items" value={`${order.items?.length || 0} items`} sub={`Total: $${Number(order.total_amount).toFixed(2)}`} />
                 <DetailCard icon={FileText} label="Notes" value={order.admin_notes || 'No notes'} />
               </div>
             </motion.div>
@@ -1141,7 +1141,7 @@ function AllProductsTab({ products, loadProducts, showToast }) {
                   <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.supplier_name || 'N/A'}</td>
                   <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.category || 'Uncategorized'}</td>
                   <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs whitespace-nowrap">
-                    {p.price ? `Rs. ${Number(p.price).toLocaleString()}` : p.price_min ? `Rs. ${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'}
+                    {p.price ? `$${Number(p.price).toFixed(2)}` : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'}
                   </td>
                   <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.stock ?? 'N/A'}</td>
                   <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={p.status || 'active'} /></td>
@@ -1184,9 +1184,9 @@ function AddProductModal({ onClose, onConfirm, loading }) {
   const fields = [
     { key: 'name', label: 'Product Name', type: 'text', required: true, placeholder: 'e.g. Premium T-Shirt', span: true },
     { key: 'category', label: 'Category', type: 'text', required: true, placeholder: 'e.g. Clothing', span: true },
-    { key: 'price', label: 'Price (Rs.)', type: 'number', placeholder: '0' },
-    { key: 'price_min', label: 'Price Min (Rs.)', type: 'number', placeholder: 'optional' },
-    { key: 'price_max', label: 'Price Max (Rs.)', type: 'number', placeholder: 'optional' },
+    { key: 'price', label: 'Price ($)', type: 'number', placeholder: '0' },
+    { key: 'price_min', label: 'Price Min ($)', type: 'number', placeholder: 'optional' },
+    { key: 'price_max', label: 'Price Max ($)', type: 'number', placeholder: 'optional' },
     { key: 'stock', label: 'Stock', type: 'number', placeholder: '0' },
     { key: 'moq', label: 'MOQ', type: 'number', placeholder: '1' },
     { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Pcs' },
@@ -1326,7 +1326,7 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
                     </td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.category || 'Uncategorized'}</td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-900 font-semibold text-xs whitespace-nowrap">
-                      {p.price ? `Rs. ${Number(p.price).toLocaleString()}` : p.price_min ? `Rs. ${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'}
+                      {p.price ? `$${Number(p.price).toFixed(2)}` : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'}
                     </td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4 text-gray-500 text-xs">{p.stock ?? 'N/A'}</td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4"><StatusBadge status={p.status} /></td>
@@ -1379,7 +1379,7 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
                 } />
                 <DetailCard icon={Package} label="Category" value={p.category || 'Uncategorized'} />
                 <DetailCard icon={FileText} label="Description" value={p.description || 'No description'} />
-                <DetailCard icon={CreditCard} label="Price" value={p.price ? `Rs. ${Number(p.price).toLocaleString()}` : p.price_min ? `Rs. ${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'} />
+                <DetailCard icon={CreditCard} label="Price" value={p.price ? `$${Number(p.price).toFixed(2)}` : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'} />
                 <DetailCard icon={Package} label="Stock / MOQ" value={`${p.stock ?? 0} units / MOQ: ${p.moq ?? 1}`} sub={`Unit: ${p.unit || 'Pcs'} | Status: ${p.stock_status || 'in_stock'}`} />
                 <DetailCard icon={Phone} label="WhatsApp" value={p.whatsapp || 'Not provided'} />
                 <DetailCard icon={ListChecks} label="Specifications" value={
@@ -1392,7 +1392,7 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
                 <DetailCard icon={Layers} label="Pricing Tiers" value={
                   p.pricing_tiers && p.pricing_tiers.length > 0
                     ? <div className="text-xs space-y-0.5">{p.pricing_tiers.map((t, i) => (
-                        <div key={i} className="flex gap-2"><span className="text-gray-500">{t.min_qty}+:</span><span>Rs. {Number(t.price).toLocaleString()}/unit</span></div>
+                        <div key={i} className="flex gap-2"><span className="text-gray-500">{t.min_qty}+:</span><span>$${Number(t.price).toFixed(2)}/unit</span></div>
                       ))}</div>
                     : 'None'
                 } />
@@ -1563,7 +1563,7 @@ function BuyRequestsTab({ requests, loadRequests, showToast }) {
                 <DetailCard icon={ShoppingCart} label="Product" value={r.product_name} />
                 <DetailCard icon={User} label="Buyer" value={r.user_name} sub={r.user_email} />
                 <DetailCard icon={Package} label="Quantity" value={`${r.quantity || 1} units`} />
-                <DetailCard icon={CreditCard} label="Total Amount" value={`Rs. ${Number(r.total_amount || 0).toLocaleString()}`} />
+                <DetailCard icon={CreditCard} label="Total Amount" value={`$${Number(r.total_amount || 0).toFixed(2)}`} />
                 <DetailCard icon={Phone} label="Phone" value={r.phone || 'N/A'} />
                 <DetailCard icon={MapPin} label="Address" value={r.address || 'N/A'} />
                 <DetailCard icon={Image} label="Payment Screenshot" value={r.payment_screenshot ? <img src={r.payment_screenshot} alt="Payment" className="w-24 h-24 object-cover rounded-lg cursor-pointer" onClick={() => window.open(r.payment_screenshot, '_blank')} /> : 'Not uploaded'} />

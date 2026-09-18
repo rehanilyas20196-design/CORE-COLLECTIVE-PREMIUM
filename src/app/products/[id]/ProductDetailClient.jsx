@@ -212,8 +212,8 @@ useEffect(() => {
     offers: {
       '@type': 'Offer',
       url: `${origin}/products/${product.id}`,
-      priceCurrency: 'PKR',
-      price: current,
+priceCurrency: 'USD',
+      price: current.toFixed(2),
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       availability: stock === 'out_of_stock' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
@@ -377,11 +377,11 @@ return (
             <p className="text-xs uppercase tracking-widest" style={{ color: tan }}>Price</p>
             <div className="flex items-baseline gap-3 flex-wrap">
               <span className="text-gold-gradient text-4xl font-bold" style={{ fontFamily: 'Fraunces, serif' }}>
-                PKR {current.toLocaleString()}
+$${current.toFixed(2)}
               </span>
               {hasRange && (
                 <span className="text-xl font-semibold" style={{ color: '#93692A', fontFamily: 'Fraunces, serif' }}>
-                  – PKR {priceMax.toLocaleString()}
+                  – $${priceMax.toFixed(2)}
                 </span>
               )}
               <span className="text-sm" style={{ color: tan }}>/ unit</span>
@@ -419,7 +419,7 @@ return (
                       <tr key={i} className="border-t" style={{ borderColor: goldSoft }}>
                         <td className="py-2.5" style={{ color: ink }}>{tier.qty_from}–{tier.qty_to || '∞'} units</td>
                         <td className="py-2.5 font-semibold" style={{ color: goldDeep, fontFamily: 'Fraunces, serif' }}>
-                          PKR {Number(tier.price_per_unit || tier.price).toLocaleString()}
+                          $${Number(tier.price_per_unit || tier.price).toFixed(2)}
                         </td>
                       </tr>
                     ))}
@@ -813,7 +813,7 @@ function RelatedCard({ product, index }) {
 
           <div className="mt-2.5 flex-1">
             <span className="text-lg font-semibold text-gold-gradient" style={{ fontFamily: 'Fraunces, serif' }}>
-              PKR {current.toLocaleString()}
+$${current.toFixed(2)}
             </span>
           </div>
 
@@ -931,7 +931,7 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
           <div className="space-y-4">
             <div className="border p-4 text-sm" style={{ borderColor: goldSoft, backgroundColor: panelBg }}>
               <p className="font-semibold mb-2" style={{ color: goldDeep }}>
-                Total Amount: PKR {((Number(form.quantity) || 1) * (product.price_min || product.price || 0)).toLocaleString()}
+                Total Amount: $${((Number(form.quantity) || 1) * (product.price_min || product.price || 0)).toFixed(2)}
               </p>
               <p className="text-xs" style={{ color: tan }}>Send payment to any of the options below and upload the screenshot.</p>
             </div>
@@ -1069,7 +1069,7 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
                   </div>
                   <div>
                     <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Unit Price</label>
-                    <input type="text" value={`PKR ${(product.price_min || product.price || 0).toLocaleString()}`} disabled
+                    <input type="text" value={`$${(product.price_min || product.price || 0).toFixed(2)}`} disabled
                       className={`${inputCls} bg-[#EFE3C8] cursor-not-allowed`} style={inputStyle} />
                   </div>
                 </div>
@@ -1077,7 +1077,7 @@ function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, use
                   <div className="flex items-center justify-between px-4 py-3 border" style={{ borderColor: goldSoft, backgroundColor: panelBg }}>
                     <span className="text-sm font-medium" style={{ color: ink }}>Total Amount</span>
                     <span className="text-lg font-bold text-gold-gradient" style={{ fontFamily: 'Fraunces, serif' }}>
-                      PKR {((Number(form.quantity) || 1) * (product.price_min || product.price || 0)).toLocaleString()}
+                      $${((Number(form.quantity) || 1) * (product.price_min || product.price || 0)).toFixed(2)}
                     </span>
                   </div>
                 )}

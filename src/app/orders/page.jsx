@@ -119,7 +119,7 @@ function OrderCard({ order }) {
             </div>
 
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-lg font-bold text-gray-900">PKR {Number(order.total_amount || 0).toLocaleString()}</span>
+              <span className="text-lg font-bold text-gray-900">$${Number(order.total_amount || 0).toFixed(2)}</span>
             </div>
 
             <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">

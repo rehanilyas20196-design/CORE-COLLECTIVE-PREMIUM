@@ -463,7 +463,7 @@ function MyProductsTab({ showToast }) {
                   </td>
                   <td className="px-5 py-4 text-gray-400 text-xs">{p.category || 'Uncategorized'}</td>
                   <td className="px-5 py-4 text-white font-semibold text-xs">
-                    {p.price ? `Rs. ${Number(p.price).toLocaleString()}` : p.price_min ? `Rs. ${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'}
+                    {p.price ? `$${Number(p.price).toFixed(2)}` : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'}
                   </td>
                   <td className="px-5 py-4">
                     <StatusBadge2 status={p.status} />
@@ -514,7 +514,7 @@ function MyProductsTab({ showToast }) {
                 <DetailCard2 icon={FileText} label="Description" value={p.description || 'N/A'} />
                 <DetailCard2 icon={Package} label="Category" value={p.category || 'Uncategorized'} />
                 <DetailCard2 icon={Image} label="Image" value={p.image_url ? <img src={p.image_url} alt={p.name} className="w-20 h-20 object-cover rounded-lg border border-gray-200" /> : 'No image'} />
-                <DetailCard2 icon={ShoppingBag} label="Price / Stock" value={`Rs. ${p.price ? Number(p.price).toLocaleString() : p.price_min ? `${Number(p.price_min).toLocaleString()} - ${Number(p.price_max).toLocaleString()}` : 'N/A'} / Stock: ${p.stock ?? 0}`} />
+                <DetailCard2 icon={ShoppingBag} label="Price / Stock" value={`$${p.price ? Number(p.price).toFixed(2) : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'} / Stock: ${p.stock ?? 0}`} />
                 <DetailCard2 icon={ShoppingBag} label="WhatsApp" value={p.whatsapp || 'N/A'} />
                 <DetailCard2 icon={Package} label="Stock Status" value={p.stock_status ? p.stock_status.replace('_', ' ') : 'in stock'} />
                 <DetailCard2 icon={FileText} label="Unit" value={p.unit || 'Pcs'} />
@@ -540,7 +540,7 @@ function MyProductsTab({ showToast }) {
                       {p.pricing_tiers.map((t, i) => (
                         <div key={i} className="bg-white border border-gray-200 rounded-lg px-3 py-2">
                           <span className="text-[10px] text-gray-500">Min {t.min_qty} units</span>
-                          <p className="text-sm text-gray-900 font-medium">Rs. {Number(t.price).toLocaleString()}/unit</p>
+                          <p className="text-sm text-gray-900 font-medium">$${Number(t.price).toFixed(2)}/unit</p>
                         </div>
                       ))}
                     </div>

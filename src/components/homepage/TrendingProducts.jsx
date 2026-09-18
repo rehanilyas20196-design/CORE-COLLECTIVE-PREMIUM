@@ -169,11 +169,11 @@ function TrendingProductCard({ product, index = 0 }) {
 
               <div className="mt-2.5 flex items-baseline gap-2">
                 <span className="text-[18px] font-semibold text-[#B98A3C]">
-                  PKR {current.toLocaleString()}
+                  $${current.toFixed(2)}
                 </span>
                 {was && (
                   <span className="text-[13px] font-medium text-[#8C8271] line-through">
-                    PKR {was.toLocaleString()}
+                    $${was.toFixed(2)}
                   </span>
                 )}
               </div>
