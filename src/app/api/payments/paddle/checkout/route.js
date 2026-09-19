@@ -97,6 +97,13 @@ export async function POST(request) {
       itemsCount: lines.length,
     });
   } catch (err) {
-    return Response.json({ error: err.message || 'Could not start Paddle checkout.' }, { status: 500 });
+    // Surface Paddle's structured error (code/detail) instead of a bare 500 so
+    // the client can show the real reason a checkout could not be created.
+    const upstream = Number(err?.paddleStatus);
+    const status = upstream >= 400 && upstream < 600 ? 502 : 500;
+    return Response.json(
+      { error: err.message || 'Could not start Paddle checkout.', paddle: err?.paddleError || null },
+      { status }
+    );
   }
 }

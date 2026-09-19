@@ -1,5 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { createHmac, timingSafeEqual } from 'crypto';
+import {
+  resolvePaddleEnvironment,
+  pickApiKey,
+  validateApiKeyForEnvironment,
+  buildTransactionItems,
+  summarizePaddleError,
+} from './paddle.mjs';
 
 // Env values are read on every call (not captured at module load) so that
 // edits to .env.local are picked up without restarting the dev server and so a
@@ -101,12 +108,24 @@ export async function createLocalCartOrder({ user, lines, provider, notes }) {
 // Paddle (Billing API)
 // ---------------------------------------------------------------------------
 
+// A single PADDLE_ENV value switches the whole integration between sandbox and
+// production; the per-environment keys keep live credentials separate from
+// sandbox ones. PADDLE_API_KEY is still honoured as a fallback.
 export function paddleConfig() {
-  const key = process.env.PADDLE_API_KEY || '';
-  const sandbox = key.startsWith('pdl_sdbx_') || process.env.PADDLE_ENV === 'sandbox';
+  const environment = resolvePaddleEnvironment({
+    paddleEnv: process.env.PADDLE_ENV,
+    apiKey: process.env.PADDLE_API_KEY || process.env.PADDLE_SANDBOX_API_KEY || process.env.PADDLE_LIVE_API_KEY,
+  });
+  const key = pickApiKey({
+    environment,
+    sandboxKey: process.env.PADDLE_SANDBOX_API_KEY,
+    liveKey: process.env.PADDLE_LIVE_API_KEY,
+    fallbackKey: process.env.PADDLE_API_KEY,
+  });
+  validateApiKeyForEnvironment(key, environment);
   return {
-    base: sandbox ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com',
-    envName: sandbox ? 'sandbox' : 'production',
+    base: environment === 'production' ? 'https://api.paddle.com' : 'https://sandbox-api.paddle.com',
+    envName: environment,
     key,
   };
 }
@@ -128,7 +147,13 @@ async function paddleApi(path, options = {}) {
     json = JSON.parse(body);
   } catch {}
   if (!res.ok) {
-    throw new Error(`Paddle API ${options.method || 'GET'} ${path} failed (${res.status}): ${body.slice(0, 300)}`);
+    const summary = summarizePaddleError(json);
+    const err = new Error(
+      `Paddle API ${options.method || 'GET'} ${path} failed (${res.status})${summary ? ` — ${summary}` : ''}: ${body.slice(0, 300)}`
+    );
+    err.paddleStatus = res.status;
+    err.paddleError = json?.error || null;
+    throw err;
   }
   return json;
 }
@@ -140,29 +165,7 @@ async function paddleApi(path, options = {}) {
 // catalog. The transaction is created as a draft (no customer_id / address_id)
 // and then opened through Paddle Checkout, which captures buyer details.
 export async function createPaddleTransaction(order) {
-  const items = (order?.items || []).map((item) => {
-    const name = String(item.name || `Product ${item.product_id}`)
-      .trim()
-      .slice(0, 150) || 'Product';
-    const description = (name.length >= 2 ? name : `Product ${name}`).slice(0, 500);
-    const amountCents = String(Math.max(0, Math.round((Number(item.price) || 0) * 100)));
-    return {
-      quantity: Math.min(1000, Math.max(1, Math.floor(Number(item.quantity) || 1))),
-      price: {
-        description,
-        name,
-        unit_price: { amount: amountCents, currency_code: 'USD' },
-        product: {
-          name,
-          description: item.description ? String(item.description).slice(0, 2048) : null,
-          tax_category: 'standard',
-          image_url: item.image_url || '',
-        },
-      },
-    };
-  });
-
-  if (items.length === 0) throw new Error('Order has no items to charge for.');
+  const items = buildTransactionItems(order?.items || []);
   if (items.length > 100) throw new Error('Too many line items for one Paddle transaction.');
 
   const res = await paddleApi('/transactions', {

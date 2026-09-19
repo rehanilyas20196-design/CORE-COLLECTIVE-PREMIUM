@@ -45,7 +45,12 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
   const { userProfile } = useAuth();
   const { cartItems, updateQty, removeFromCart } = useCart();
 
-  const fromCart = cartItems.length > 0;
+  // Buy Now is an explicit single-product checkout (?product_id=...). It must
+  // take priority over the cart — otherwise a stale/default cart entry would be
+  // shown instead of the product the buyer actually clicked.
+  const buyNowId = Number(initialProductId);
+  const buyNow = Number.isInteger(buyNowId) && buyNowId > 0;
+  const fromCart = !buyNow && cartItems.length > 0;
 
   const [singleProduct, setSingleProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,24 +60,20 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
 
   // Buy Now mode: load the single product referenced by ?product_id.
   useEffect(() => {
-    if (fromCart) {
+    if (!buyNow) {
       setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
+    setLoadError('');
+    setSingleProduct(null);
     (async () => {
-      const id = Number(initialProductId);
-      if (!Number.isInteger(id) || id <= 0) {
-        setLoadError('You have no items to check out. Add products to your cart first.');
-        setLoading(false);
-        return;
-      }
       try {
         const { data, error } = await supabase
           .from('products')
           .select('id, name, description, image_url, price, price_min, price_max, category, slug')
-          .eq('id', id)
+          .eq('id', buyNowId)
           .single();
         if (error) throw error;
         if (!cancelled) setSingleProduct(data);
@@ -85,21 +86,11 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
     return () => {
       cancelled = true;
     };
-  }, [fromCart, initialProductId]);
+  }, [buyNow, buyNowId]);
 
   const lines = useMemo(() => {
-    if (fromCart) {
-      return cartItems
-        .map((item) => ({
-          product_id: item.id,
-          quantity: Math.min(1000, Math.max(1, Math.floor(Number(item.qty) || 1))),
-          name: item.name || item.title,
-          price: getUnit(item),
-          image: item.image || item.image_url || '',
-        }))
-        .filter((l) => Number.isInteger(Number(l.product_id)) && Number(l.product_id) > 0);
-    }
-    if (singleProduct) {
+    if (buyNow) {
+      if (!singleProduct) return [];
       return [
         {
           product_id: singleProduct.id,
@@ -110,8 +101,16 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
         },
       ];
     }
-    return [];
-  }, [fromCart, cartItems, singleProduct, quantity]);
+    return cartItems
+      .map((item) => ({
+        product_id: item.id,
+        quantity: Math.min(1000, Math.max(1, Math.floor(Number(item.qty) || 1))),
+        name: item.name || item.title,
+        price: getUnit(item),
+        image: item.image || item.image_url || '',
+      }))
+      .filter((l) => Number.isInteger(Number(l.product_id)) && Number(l.product_id) > 0);
+  }, [buyNow, cartItems, singleProduct, quantity]);
 
   const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
   const amount = Math.round(lines.reduce((sum, l) => sum + Number(l.price) * l.quantity, 0) * 100) / 100;
