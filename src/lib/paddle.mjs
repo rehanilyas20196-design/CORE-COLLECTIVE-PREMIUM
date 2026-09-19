@@ -142,6 +142,46 @@ export function buildTransactionItems(items = []) {
   });
 }
 
+/**
+ * Paddle's checkout service rejects `settings.successUrl` / `settings.failureUrl`
+ * with this error when the redirect domain is not approved for the account:
+ *
+ *   { name: 'checkout.error', type: 'api_error', code: 'validation',
+ *     detail: 'validation.no_validation_set' }
+ *
+ * Approve the domain in Paddle > Checkout > Website approval (and use the same
+ * domain as the default payment link) to use custom redirect URLs.
+ */
+export function isRedirectUrlConfigError(event) {
+  const detail = String(event?.detail ?? '').trim().toLowerCase();
+  return detail === 'validation.no_validation_set';
+}
+
+/** Actionable explanation for `validation.no_validation_set`. */
+export function redirectUrlConfigMessage() {
+  return (
+    'Paddle rejected the checkout redirect URLs (validation.no_validation_set because the ' +
+    'domain serving successUrl/failureUrl is not approved for this Paddle account). ' +
+    'Approve it in Paddle > Checkout > Website approval and set the same domain as the ' +
+    'default payment link. Checkout was reopened without custom redirect URLs so the ' +
+    'purchase can still complete.'
+  );
+}
+
+/**
+ * Normalize a Paddle.js checkout error event into a stable shape. Kept separate
+ * from presentation so the console log and the UI show identical fields.
+ */
+export function describeCheckoutError(event) {
+  return {
+    name: event?.name ? String(event.name) : null,
+    type: event?.type ? String(event.type) : null,
+    code: event?.code ? String(event.code) : null,
+    detail: event?.detail ? String(event.detail) : null,
+    documentation_url: event?.documentation_url ? String(event.documentation_url) : null,
+  };
+}
+
 /** Turn a Paddle API error payload into a single developer-friendly line. */
 export function summarizePaddleError(payload) {
   const error = payload?.error;

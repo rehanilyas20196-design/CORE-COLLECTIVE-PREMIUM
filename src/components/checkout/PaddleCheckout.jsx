@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader, AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { clientTokenForEnvironment, validateClientToken } from '../../lib/paddle.mjs';
+import {
+  clientTokenForEnvironment,
+  validateClientToken,
+  describeCheckoutError,
+  isRedirectUrlConfigError,
+  redirectUrlConfigMessage,
+} from '../../lib/paddle.mjs';
 
 // Public, build-time configuration. Sandbox and live client-side tokens are
 // kept separate so a single PADDLE_ENV switch on the server is mirrored here by
@@ -55,9 +61,9 @@ function ensurePaddle(environment, token) {
 }
 
 function formatCheckoutEvent(event) {
-  const code = event?.code || event?.type || 'checkout_error';
-  const detail = event?.detail || 'Paddle could not open the checkout.';
-  return `Paddle checkout error (${code}): ${detail}`;
+  const { type, code, detail } = describeCheckoutError(event);
+  const label = [type, code].filter(Boolean).join(' ') || 'checkout_error';
+  return `Paddle checkout error (${label}): ${detail || 'Paddle could not open the checkout.'}`;
 }
 
 async function getAccessToken() {
@@ -69,16 +75,34 @@ export default function PaddleCheckout({ lines, disabled, onOpened, onError, onP
   const [opening, setOpening] = useState(false);
   const [error, setError] = useState('');
   const [errorInfo, setErrorInfo] = useState(null);
+  const [notice, setNotice] = useState('');
+  // The most recent Checkout.open() call, so an error event can be retried
+  // without the redirect URLs that Paddle rejected.
+  const lastOpenRef = useRef(null);
 
   // Receive Paddle.js checkout.error/warning events (including the 400 from the
   // checkout service, which is emitted as an event and never rejects the
   // Checkout.open() promise).
   useEffect(() => {
     const handler = (event) => {
+      // Log real JSON (not an object the console renders as `Object`) so the
+      // error can be copied straight out of the console.
+      console.error('[paddle] checkout error event', JSON.stringify(describeCheckoutError(event)));
+
+      // successUrl/failureUrl on a non-approved domain fail here. Paddle uses
+      // the account's default payment link when no redirect URLs are given, so
+      // reopen once without them rather than losing the sale.
+      const pending = lastOpenRef.current;
+      if (isRedirectUrlConfigError(event) && pending && !pending.retried) {
+        pending.retried = true;
+        setNotice(redirectUrlConfigMessage());
+        setError('');
+        setErrorInfo(null);
+        pending.paddle.Checkout.open({ transactionId: pending.transactionId });
+        return;
+      }
+
       const message = formatCheckoutEvent(event);
-      // Keep the raw payload in the console for debugging; it never contains
-      // secrets (it mirrors a Paddle API error: code/detail/documentation_url).
-      console.error('[paddle] checkout error event', event);
       setError(message);
       setErrorInfo({
         code: event?.code || event?.type || null,
@@ -102,6 +126,7 @@ export default function PaddleCheckout({ lines, disabled, onOpened, onError, onP
   const start = async () => {
     setError('');
     setErrorInfo(null);
+    setNotice('');
 
     if (disabled) {
       fail('You need to be signed in to place an order.');
@@ -155,6 +180,7 @@ export default function PaddleCheckout({ lines, disabled, onOpened, onError, onP
       // collects email/address and handles Visa, Mastercard, PayPal, Apple Pay,
       // Google Pay etc. We never touch raw card data, and we never mark the
       // order paid — only the verified /api/webhooks/paddle event does that.
+      lastOpenRef.current = { paddle, transactionId: data.transactionId, retried: false };
       paddle.Checkout.open({
         transactionId: data.transactionId,
         settings: {
@@ -189,6 +215,12 @@ export default function PaddleCheckout({ lines, disabled, onOpened, onError, onP
         {opening ? <Loader className="w-4 h-4 animate-spin" /> : <LockIcon />}
         {opening ? 'Preparing Paddle...' : 'Pay Securely with Paddle'}
       </button>
+      {notice && (
+        <div className="flex items-start gap-2 p-3 text-sm border border-amber-300 bg-amber-50 text-amber-800">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <p>{notice}</p>
+        </div>
+      )}
       {error && (
         <div className="flex items-start gap-2 p-3 text-sm border border-red-300 bg-red-50 text-red-700">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />

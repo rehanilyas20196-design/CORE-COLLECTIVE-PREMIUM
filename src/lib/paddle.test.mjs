@@ -8,6 +8,9 @@ import {
   clientTokenForEnvironment,
   buildTransactionItems,
   summarizePaddleError,
+  isRedirectUrlConfigError,
+  redirectUrlConfigMessage,
+  describeCheckoutError,
 } from './paddle.mjs';
 
 const SANDBOX_KEY = 'pdl_sdbx_' + 'a'.repeat(60);
@@ -112,6 +115,60 @@ test('buildTransactionItems rejects empty orders and invalid prices', () => {
   assert.throws(() => buildTransactionItems([]), /no items/i);
   assert.throws(() => buildTransactionItems([{ product_id: 1, name: 'Free', price: 0, quantity: 1 }]), /no valid price/i);
   assert.throws(() => buildTransactionItems([{ product_id: 1, name: 'Bad', price: 'abc', quantity: 1 }]), /no valid price/i);
+});
+
+// Regression test for the sandbox 400 from
+// sandbox-checkout-service.paddle.com/transaction-checkout: Paddle emits it as a
+// `checkout.error` event (never a rejected Checkout.open() promise) with
+// detail `validation.no_validation_set` when successUrl/failureUrl point at a
+// domain that has not been approved for the account.
+test('isRedirectUrlConfigError detects Paddle validation.no_validation_set', () => {
+  const event = {
+    name: 'checkout.error',
+    type: 'api_error',
+    code: 'validation',
+    detail: 'validation.no_validation_set',
+    documentation_url: 'https://developer.paddle.com/api-reference',
+  };
+  assert.equal(isRedirectUrlConfigError(event), true);
+  assert.equal(isRedirectUrlConfigError({ ...event, detail: 'Validation.No_Validation_Set' }), true);
+  assert.equal(isRedirectUrlConfigError({ code: 'validation', detail: 'validation.invalid_url' }), false);
+  assert.equal(isRedirectUrlConfigError({ name: 'checkout.loaded' }), false);
+  assert.equal(isRedirectUrlConfigError(undefined), false);
+});
+
+test('redirectUrlConfigMessage names the dashboard step that fixes it', () => {
+  const message = redirectUrlConfigMessage();
+  assert.match(message, /no_validation_set/);
+  assert.match(message, /Website approval/);
+  assert.match(message, /default payment link/);
+});
+
+test('describeCheckoutError normalizes an event to copy-pasteable fields', () => {
+  assert.deepEqual(
+    describeCheckoutError({
+      name: 'checkout.error',
+      type: 'api_error',
+      code: 'validation',
+      detail: 'validation.no_validation_set',
+      documentation_url: 'https://developer.paddle.com/api-reference',
+      extra: 'ignored',
+    }),
+    {
+      name: 'checkout.error',
+      type: 'api_error',
+      code: 'validation',
+      detail: 'validation.no_validation_set',
+      documentation_url: 'https://developer.paddle.com/api-reference',
+    }
+  );
+  assert.deepEqual(describeCheckoutError(undefined), {
+    name: null,
+    type: null,
+    code: null,
+    detail: null,
+    documentation_url: null,
+  });
 });
 
 test('summarizePaddleError formats code and detail', () => {

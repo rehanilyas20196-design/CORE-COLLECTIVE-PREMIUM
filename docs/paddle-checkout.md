@@ -47,10 +47,43 @@ API keys are **never** sent to the browser. Only client-side tokens are public.
 2. **Developer tools → Authentication → Client-side tokens → New client-side token.**
    Copy the `test_...` value into `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`.
    (The API key cannot manage client tokens; this step is dashboard-only.)
-3. **Checkout → Checkout settings → Default payment link**: set a sandbox URL
-   (e.g. `https://buy-allproduts-corecollective.vercel.app`). Sandbox allows any
-   domain; production requires an **approved** domain.
-4. Finish onboarding so checkouts are enabled for the account.
+3. **Checkout → Website approval**: add the exact domain that serves checkout
+   and receives the redirect (e.g. `buy-allproduts-corecollective.vercel.app`)
+   and submit it for approval. **This is required in sandbox too** — see
+   `validation.no_validation_set` below.
+4. **Checkout → Checkout settings → Default payment link**: set the same
+   approved domain (e.g. `https://buy-allproduts-corecollective.vercel.app`).
+   Prefer the stable production domain over a Vercel preview URL.
+5. Finish onboarding so checkouts are enabled for the account.
+
+## Troubleshooting: `validation.no_validation_set`
+
+Symptom: the browser logs `Failed to load resource: ... 400` for
+`sandbox-checkout-service.paddle.com/transaction-checkout`, and Paddle.js emits
+
+```json
+{"name":"checkout.error","type":"api_error","code":"validation","detail":"validation.no_validation_set"}
+```
+
+Root cause: Paddle refuses the `settings.successUrl` / `settings.failureUrl`
+passed to `Paddle.Checkout.open()` when the **redirect domain is not approved for
+the account** (`Paddle > Checkout > Website approval`). This happens in sandbox
+too. Omitting both URLs — which makes Paddle use the default payment link —
+opens the checkout successfully, which is what isolates the cause.
+
+Handling in code:
+
+- `PaddleCheckout.jsx` catches this event and reopens checkout **once without the
+  redirect URLs**, so the purchase can still complete, and shows an amber notice.
+- Add the domain under **Website approval** to restore the redirect to
+  `/success`.
+
+Reproduce / verify with the headless harness:
+
+```bash
+node scripts/paddle-checkout-e2e.mjs --settings none  # control: loads
+node scripts/paddle-checkout-e2e.mjs --settings full  # error, then recovers
+```
 
 Sandbox test card: `4242 4242 4242 4242`, any future expiry, CVC `100`.
 
@@ -59,6 +92,7 @@ Sandbox test card: `4242 4242 4242 4242`, any future expiry, CVC `100`.
 ```bash
 npm test                          # unit tests for src/lib/paddle.mjs
 node scripts/paddle-diagnose.mjs  # config + real sandbox transaction probe (no secrets printed)
+node scripts/paddle-checkout-e2e.mjs  # headless Paddle.js checkout against sandbox
 node scripts/paddle-sandbox-setup.mjs  # store a sandbox client token in .env.local (needs client_token permission)
 ```
 
