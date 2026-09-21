@@ -23,12 +23,9 @@ const itemVariants = {
 
 export default function HeroSection() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef(null);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -48,8 +45,6 @@ export default function HeroSection() {
       setSearchQuery('');
     }
   };
-
-  if (!mounted) return null;
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-[#F5F1EA] pt-32 sm:pt-36 pb-28 sm:pb-36">

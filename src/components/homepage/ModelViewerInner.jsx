@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 function loadScript() {
   return new Promise((resolve, reject) => {
-    if (customElements.get('model-viewer')) return resolve();
+    if (!customElements || customElements.get('model-viewer')) return resolve();
     const script = document.createElement('script');
     script.type = 'module';
     script.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js';
@@ -22,47 +22,68 @@ export default function ModelViewerInner({ src }) {
   useEffect(() => {
     let viewer = null;
     let cancelled = false;
+    const host = containerRef.current;
+    if (!host) return;
 
-    loadScript().then(() => {
-      if (cancelled || !containerRef.current) return;
+    const buildViewer = () => {
+      loadScript().then(() => {
+        if (cancelled || !containerRef.current) return;
 
-      viewer = document.createElement('model-viewer');
-      viewer.setAttribute('src', src);
-      viewer.setAttribute('alt', '3D Product Model');
-      viewer.setAttribute('auto-rotate', '');
-      viewer.setAttribute('auto-rotate-delay', '500');
-      viewer.setAttribute('rotation-per-second', '24deg');
-      viewer.setAttribute('camera-controls', '');
-      viewer.setAttribute('ar', '');
-      viewer.setAttribute('camera-orbit', 'auto auto auto ');
-      viewer.setAttribute('camera-target', 'auto');
-      viewer.setAttribute('field-of-view', '45deg')
-      viewer.setAttribute('interaction-prompt', 'none');
-      viewer.setAttribute('loading', 'eager');
-      viewer.setAttribute('framing', 'center');
+        viewer = document.createElement('model-viewer');
+        viewer.setAttribute('src', src);
+        viewer.setAttribute('alt', '3D Product Model');
+        viewer.setAttribute('auto-rotate', '');
+        viewer.setAttribute('auto-rotate-delay', '500');
+        viewer.setAttribute('rotation-per-second', '24deg');
+        viewer.setAttribute('camera-controls', '');
+        viewer.setAttribute('ar', '');
+        viewer.setAttribute('camera-orbit', 'auto auto auto ');
+        viewer.setAttribute('camera-target', 'auto');
+        viewer.setAttribute('field-of-view', '45deg')
+        viewer.setAttribute('interaction-prompt', 'none');
+        viewer.setAttribute('loading', 'eager');
+        viewer.setAttribute('framing', 'center');
 
-      viewer.setAttribute('reveal', 'auto');
-      viewer.setAttribute('poster', '/placeholder.png');
-      viewer.setAttribute('shadow-intensity', '0.4');
-      viewer.setAttribute('shadow-softness', '0.6');
-      viewer.setAttribute('exposure', '1');
-      viewer.setAttribute('environment-image', 'neutral');
-      viewer.style.width = '100%';
-      viewer.style.height = '100%';
-      viewer.style.setProperty('--poster-color', 'transparent');
+        viewer.setAttribute('reveal', 'auto');
+        viewer.setAttribute('poster', '/placeholder.png');
+        viewer.setAttribute('shadow-intensity', '0.4');
+        viewer.setAttribute('shadow-softness', '0.6');
+        viewer.setAttribute('exposure', '1');
+        viewer.setAttribute('environment-image', 'neutral');
+        viewer.style.width = '100%';
+        viewer.style.height = '100%';
+        viewer.style.setProperty('--poster-color', 'transparent');
 
-      viewer.addEventListener('load', () => { if (!cancelled) setLoaded(true); });
-      viewer.addEventListener('error', (e) => console.error('Model load error:', e));
+        viewer.addEventListener('load', () => { if (!cancelled) setLoaded(true); });
+        viewer.addEventListener('error', (e) => console.error('Model load error:', e));
 
-      containerRef.current.appendChild(viewer);
-    }).catch((err) => console.error('Failed to load model-viewer:', err));
-
-    return () => {
-      cancelled = true;
-      if (viewer && containerRef.current?.contains(viewer)) {
-        containerRef.current.removeChild(viewer);
-      }
+        containerRef.current.appendChild(viewer);
+      }).catch((err) => console.error('Failed to load model-viewer:', err));
     };
+
+    // Load model-viewer only once the container is near the viewport, so the
+    // ~2.2s of script evaluation no longer blocks the main thread on page load.
+    if (typeof IntersectionObserver === 'undefined') {
+      buildViewer();
+    } else {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            observer.disconnect();
+            buildViewer();
+          }
+        },
+        { rootMargin: '400px 0px' }
+      );
+      observer.observe(host);
+      return () => {
+        cancelled = true;
+        observer.disconnect();
+        if (viewer && containerRef.current?.contains(viewer)) {
+          containerRef.current.removeChild(viewer);
+        }
+      };
+    }
   }, [src]);
 
   return (

@@ -8,6 +8,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://buy-allproduts-cor
 const SITE_NAME = 'Core Collective';
 const OG_IMAGE = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/SEO/og-banner.jpg';
 const FALLBACK_OG = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/Logo/Core%20Collective%20(1).png';
+const GOOGLE_FONTS_HREF =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&family=Work+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap';
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -143,11 +145,21 @@ export default function RootLayout({ children }) {
     <html lang="en-PK">
       <head>
         <link rel="preconnect" href="https://izqxsfuyibbzwdxdcmev.supabase.co" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://core-backend-collect.vercel.app" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://challenges.cloudflare.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://ajax.googleapis.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://izqxsfuyibbzwdxdcmev.supabase.co" />
-        <link rel="dns-prefetch" href="https://core-backend-collect.vercel.app" />
-        <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
+        <link rel="preload" as="style" href={GOOGLE_FONTS_HREF} />
+        <link rel="stylesheet" href={GOOGLE_FONTS_HREF} media="print" id="cc-google-fonts" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var l=document.getElementById('cc-google-fonts');if(!l)return;var a=function(){l.media='all'};if(l.sheet)a();else l.addEventListener('load',a);})();",
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href={GOOGLE_FONTS_HREF} />
+        </noscript>
         <link rel="canonical" href={SITE_URL} />
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
         <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />

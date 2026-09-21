@@ -284,12 +284,14 @@ export default function SupplierSpotlight() {
   };
 
   useEffect(() => {
-    updateArrows();
+    let raf = 0;
+    raf = requestAnimationFrame(updateArrows);
     const el = scrollRef.current;
     el?.addEventListener('scroll', updateArrows, { passive: true });
     window.addEventListener('resize', updateArrows);
     const timeout = setTimeout(updateArrows, 600);
     return () => {
+      cancelAnimationFrame(raf);
       el?.removeEventListener('scroll', updateArrows);
       window.removeEventListener('resize', updateArrows);
       clearTimeout(timeout);
