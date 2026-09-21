@@ -8,9 +8,6 @@ import { Mail, Lock, Loader, ArrowRight, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 
-const ADMIN_EMAIL = 'hinata4020196@gmail.com';
-const ADMIN_PASSWORD = 'pak@2233';
-
 const creamBg = '#EFE3C8';
 const cardBg = '#FBF5E8';
 const ink = '#2B2013';
@@ -22,8 +19,8 @@ const inputBg = '#FFFCF4';
 
 export default function AdminLoginCard() {
   const router = useRouter();
-  const [email, setEmail] = useState(ADMIN_EMAIL);
-  const [password, setPassword] = useState(ADMIN_PASSWORD);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [focusedField, setFocusedField] = useState(null);
@@ -151,7 +148,7 @@ export default function AdminLoginCard() {
                   </div>
                 </div>
                 <p className="mt-3 text-[0.95rem]" style={{ color: tan }}>
-                  Sign in with the admin account to manage the marketplace.
+                  Enter your admin credentials to manage the marketplace.
                 </p>
               </div>
 
@@ -229,7 +226,7 @@ export default function AdminLoginCard() {
 
               <div className="mt-6 text-center">
                 <p className="text-[0.8rem]" style={{ color: tan }}>
-                  Admin credentials are pre-filled below &middot; just click login
+                  Restricted access &mdash; only authorized admins can sign in.
                 </p>
                 <Link href="/login" className="inline-flex items-center gap-1.5 mt-3 text-[0.82rem]" style={{ color: tan }}>
                   <span className="w-2 h-2" style={{ backgroundColor: goldMid, transform: 'rotate(45deg)' }} />

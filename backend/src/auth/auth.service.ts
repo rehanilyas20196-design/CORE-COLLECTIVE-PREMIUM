@@ -1,33 +1,55 @@
 import { Injectable, UnauthorizedException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class AuthService {
-  private readonly adminEmail = 'hinata4020196@gmail.com';
-  private readonly adminPassword = 'pak@2233';
-
   constructor(
     private supabase: SupabaseService,
+    private configService: ConfigService,
   ) {}
+
+  private get adminEmail(): string {
+    return (this.configService.get<string>('ADMIN_EMAIL') || 'hinata4020196@gmail.com').toLowerCase();
+  }
+
+  private get adminPassword(): string | undefined {
+    return this.configService.get<string>('ADMIN_PASSWORD');
+  }
 
   async ensureAdmin() {
     const adminClient = this.supabase.admin;
     if (!adminClient) throw new InternalServerErrorException('Server not configured for admin operations');
 
+    const adminEmail = this.adminEmail;
+    const adminPassword = this.adminPassword;
+
     const { data: { users }, error: listError } = await (adminClient.auth as any).admin.listUsers({});
     if (listError) throw new InternalServerErrorException(listError.message);
 
-    const existing = (users || []).find((u: any) => u.email?.toLowerCase() === this.adminEmail);
+    const existing = (users || []).find((u: any) => u.email?.toLowerCase() === adminEmail);
     if (existing) {
-      if (existing.email_confirmed_at) return { exists: true, confirmed: true };
-      const { error: confirmError } = await (adminClient.auth as any).admin.updateUserById(existing.id, { email_confirm: true });
-      if (confirmError) throw new InternalServerErrorException(confirmError.message);
+      const updates: Record<string, any> = {};
+      if (!existing.email_confirmed_at) updates.email_confirm = true;
+      // Keep the stored admin password in lockstep with ADMIN_PASSWORD (the
+      // environment variable is the source of truth, not source code).
+      if (adminPassword) updates.password = adminPassword;
+      if (Object.keys(updates).length > 0) {
+        const { error: updateError } = await (adminClient.auth as any).admin.updateUserById(existing.id, updates);
+        if (updateError) throw new InternalServerErrorException(updateError.message);
+      }
       return { exists: true, confirmed: true };
     }
 
+    if (!adminPassword) {
+      throw new InternalServerErrorException(
+        'ADMIN_PASSWORD environment variable is not set — configure ADMIN_EMAIL and ADMIN_PASSWORD to bootstrap the admin account',
+      );
+    }
+
     const { data, error } = await (adminClient.auth as any).admin.createUser({
-      email: this.adminEmail,
-      password: this.adminPassword,
+      email: adminEmail,
+      password: adminPassword,
       email_confirm: true,
       user_metadata: { full_name: 'Admin', role: 'admin', is_admin: true },
       app_metadata: { role: 'admin' },
@@ -42,7 +64,7 @@ export class AuthService {
     try {
       await this.supabase.from('profiles').upsert({
         id: data.user.id,
-        email: this.adminEmail,
+        email: adminEmail,
         full_name: 'Admin',
         role: 'admin',
         status: 'active',
