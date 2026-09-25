@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import AdminLoginCard from '../../components/admin/AdminLoginCard';
 import {
@@ -67,7 +68,20 @@ export default function AdminPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Users DIRECTLY from profiles with the admin's own session (no backend).
   const loadUsers = useCallback(async () => {
+    if (supabase) {
+      const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        setUsers(data.map(u => ({
+          ...u,
+          is_admin: u.role === 'admin',
+          is_supplier: u.role === 'supplier',
+        })));
+        return;
+      }
+      if (error) console.error('Direct profiles load failed, using backend:', error.message);
+    }
     try { const d = await api.auth.getUsers(); setUsers(Array.isArray(d) ? d : []); }
     catch (e) { console.error(e); }
   }, []);
@@ -92,7 +106,20 @@ export default function AdminPage() {
     catch (e) { console.error(e); }
   }, []);
 
+  // Load submissions DIRECTLY from Supabase with the admin's own session —
+  // independent of the backend deployment. Falls back to the backend API.
   const loadSupplierProducts = useCallback(async () => {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('supplier_products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        setSupplierProducts(data);
+        return;
+      }
+      if (error) console.error('Direct load failed, using backend:', error.message);
+    }
     try { const d = await api.supplierProducts.getAll(); setSupplierProducts(Array.isArray(d) ? d : []); }
     catch (e) { console.error(e); }
   }, []);
@@ -102,7 +129,20 @@ export default function AdminPage() {
     catch (e) { console.error(e); }
   }, []);
 
+  // Marketplace products DIRECTLY from Supabase (no backend) — avoids the
+  // proxy entirely, so ERR_CONTENT_DECODING_FAILED cannot occur here.
   const loadMarketplaceProducts = useCallback(async () => {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        setMarketplaceProducts(data);
+        return;
+      }
+      if (error) console.error('Direct products load failed, using backend:', error.message);
+    }
     try { const d = await api.products.getAll(); setMarketplaceProducts(Array.isArray(d) ? d : []); }
     catch (e) { console.error(e); }
   }, []);
@@ -1305,7 +1345,60 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
   const handleAction = async (id, status, notes) => {
     setActionLoading(true);
     try {
-      await api.supplierProducts.updateStatus(id, status, notes || undefined);
+      // Approve/reject DIRECTLY via Supabase with the admin's session,
+      // including the copy into products. Falls back to the backend API.
+      let done = false;
+      if (supabase) {
+        const { data: products } = await supabase.from('supplier_products').select('*').eq('id', id).single();
+        if (products) {
+          const { error: upErr } = await supabase
+            .from('supplier_products')
+            .update({ status, reviewed_at: new Date().toISOString(), ...(notes !== undefined ? { admin_notes: notes } : {}) })
+            .eq('id', id);
+          if (!upErr) {
+            done = true;
+            if (status === 'approved') {
+              const { error: insErr } = await supabase.from('products').insert([{
+                name: products.name,
+                description: products.description || '',
+                category: products.category || '',
+                image_url: products.image_url || '',
+                images: products.images || [],
+                price: products.price ?? null,
+                price_min: products.price_min ?? null,
+                price_max: products.price_max ?? null,
+                stock: products.stock ?? 0,
+                moq: products.moq ?? 1,
+                unit: products.unit || 'Pcs',
+                whatsapp: products.whatsapp || '',
+                stock_status: products.stock_status || 'in_stock',
+                specifications: products.specifications || {},
+                pricing_tiers: products.pricing_tiers || [],
+                supplier_name: products.supplier_name || 'Supplier',
+                is_verified: true,
+                is_active: true,
+                status: 'active',
+                rating: 0,
+                review_count: 0,
+              }]);
+              if (insErr) {
+                showToast('Approved, but copy to website failed: ' + insErr.message, 'error');
+              }
+            }
+            if (products.supplier_id) {
+              const type = status === 'approved' ? 'success' : 'error';
+              const title = status === 'approved' ? 'Product Approved' : 'Product Rejected';
+              const msg = status === 'approved'
+                ? `Your product "${products.name}" has been approved and is now live on the marketplace!`
+                : `Your product "${products.name}" has been rejected.${notes ? ` Reason: ${notes}` : ''}`;
+              await supabase.from('notifications').insert([{ user_id: products.supplier_id, type, title, message: msg, data: { supplier_product_id: id } }]);
+            }
+          }
+        }
+      }
+      if (!done) {
+        await api.supplierProducts.updateStatus(id, status, notes || undefined);
+      }
       showToast(status === 'approved' ? 'Product approved and added to marketplace' : 'Product rejected');
       setShowModal(null);
       await loadProducts();
@@ -1372,7 +1465,15 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
                         )}
                         <button onClick={async () => {
                           if (!confirm('Delete this product submission?')) return;
-                          try { await api.supplierProducts.delete(p.id); showToast('Deleted'); await loadProducts(); }
+                          try {
+                            if (supabase) {
+                              const { error } = await supabase.from('supplier_products').delete().eq('id', p.id);
+                              if (error) throw error;
+                            } else {
+                              await api.supplierProducts.delete(p.id);
+                            }
+                            showToast('Deleted'); await loadProducts();
+                          }
                           catch (e) { showToast(e.message, 'error'); }
                         }} className="p-1.5 text-gray-600 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10" title="Delete">
                           <Trash2 className="w-3.5 h-3.5" />

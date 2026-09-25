@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../lib/api';
+import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../../context/AuthContext';
 import {
   Plus, Package, Clock, CheckCircle, XCircle, Loader2, Send,
@@ -133,6 +134,7 @@ function AddProductTab({ showToast, userProfile }) {
   const [specs, setSpecs] = useState([{ key: '', value: '' }]);
   const [tiers, setTiers] = useState([{ min_qty: '', price: '' }]);
   const [submitting, setSubmitting] = useState(false);
+  const [brokenImgs, setBrokenImgs] = useState({});
 
   const imageFields = [
     { key: 'image_url', label: 'Main Image', required: true },
@@ -146,7 +148,14 @@ function AddProductTab({ showToast, userProfile }) {
 
     setSubmitting(true);
     try {
-      const images = [form.image_url, form.image2, form.image3].map(s => (s || '').trim()).filter(Boolean);
+      const images = [form.image_url, form.image2, form.image3]
+        .map(s => {
+          const v = (s || '').trim();
+          if (!v) return '';
+          // Accept links pasted without a protocol (e.g. "ibb.co/xyz.jpg").
+          return /^https?:\/\//i.test(v) ? v : `https://${v}`;
+        })
+        .filter(Boolean);
       const specifications = {};
       specs.forEach(s => { if (s.key.trim()) specifications[s.key.trim()] = s.value.trim(); });
       const pricing_tiers = tiers
@@ -159,7 +168,8 @@ function AddProductTab({ showToast, userProfile }) {
         category: form.category || undefined,
         image_url: images[0] || undefined,
         images: images.length > 0 ? images : undefined,
-        price: form.price ? parseFloat(form.price) : undefined,
+        price: form.price ? parseFloat(form.price)
+          : (form.price_min ? parseFloat(form.price_min) : undefined),
         price_min: form.price_min ? parseFloat(form.price_min) : undefined,
         price_max: form.price_max ? parseFloat(form.price_max) : undefined,
         stock: form.stock ? parseInt(form.stock) : 0,
@@ -170,7 +180,42 @@ function AddProductTab({ showToast, userProfile }) {
         specifications: Object.keys(specifications).length > 0 ? specifications : undefined,
         pricing_tiers: pricing_tiers.length > 0 ? pricing_tiers : undefined,
       };
-      await api.supplierProducts.create(payload);
+      // Submit DIRECTLY to Supabase with the supplier's own session — no
+      // dependency on the backend deployment. Falls back to the backend API
+      // if the direct insert is blocked (e.g. older RLS policies).
+      let submitted = false;
+      if (supabase) {
+        const { data: userData } = await supabase.auth.getUser();
+        const user = userData?.user;
+        if (user) {
+          const { error } = await supabase.from('supplier_products').insert([{
+            supplier_id: user.id,
+            supplier_email: user.email,
+            supplier_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Supplier',
+            name: payload.name,
+            description: payload.description || '',
+            category: payload.category || '',
+            image_url: payload.image_url || '',
+            images: payload.images || [],
+            price: payload.price ?? null,
+            price_min: payload.price_min ?? null,
+            price_max: payload.price_max ?? null,
+            stock: payload.stock ?? 0,
+            moq: payload.moq ?? 1,
+            unit: payload.unit || 'Pcs',
+            whatsapp: payload.whatsapp || '',
+            stock_status: payload.stock_status || 'in_stock',
+            specifications: payload.specifications || {},
+            pricing_tiers: payload.pricing_tiers || [],
+            status: 'pending',
+          }]);
+          if (!error) submitted = true;
+          else console.error('Direct Supabase insert failed, using backend:', error.message);
+        }
+      }
+      if (!submitted) {
+        await api.supplierProducts.create(payload);   // backend fallback
+      }
       showToast('Product submitted for admin review!');
       setForm({
         name: '', description: '', category: '',
@@ -282,31 +327,35 @@ function AddProductTab({ showToast, userProfile }) {
           {/* Images — main + 2 additional, saved to database and shown on product cards/detail */}
           <div className="border-t border-gray-200 pt-5">
             <label className="block text-xs text-gray-600 mb-2 font-medium">Product Images (up to 3)</label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {imageFields.map(({ key, label, required }) => (
                 <div key={key}>
+                  {/* Label sits ABOVE the input so it is always visible */}
+                  <label className="block text-xs text-gray-700 mb-1.5 font-semibold">
+                    {label}{required && <span className="text-red-400"> *</span>}
+                  </label>
                   <div className="relative aspect-square rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
-                    {form[key] ? (
+                    {form[key] && !brokenImgs[key] ? (
                       <img src={form[key]} alt={`${label} preview`}
                         className="w-full h-full object-cover"
-                        onError={e => { e.currentTarget.style.display = 'none'; }} />
+                        onError={() => setBrokenImgs(p => ({ ...p, [key]: true }))} />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
                         <Image className="w-8 h-8" strokeWidth={1.25} />
-                        {required && <span className="mt-1 text-[10px] font-medium text-gray-400">Required</span>}
+                        <span className="mt-1 text-[10px] font-medium text-gray-400 text-center px-2">
+                          {form[key] && brokenImgs[key] ? 'Link broken — check the URL' : required ? 'Required' : 'Optional'}
+                        </span>
                       </div>
                     )}
-                    <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-white/95 text-[9px] font-bold uppercase tracking-wider text-gray-600 shadow-sm">
-                      {label}
-                    </span>
                   </div>
-                  <input type="url" value={form[key]} onChange={e => update(key)(e.target.value)}
-                    placeholder="https://image-url..." required={required}
+                  <input type="text" value={form[key]}
+                    onChange={e => { setBrokenImgs(p => ({ ...p, [key]: false })); update(key)(e.target.value); }}
+                    placeholder="https://image-link..." required={required}
                     className="mt-2 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 transition-colors" />
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-gray-400">First image is the main thumbnail. All images appear on the product page and cards.</p>
+            <p className="mt-2 text-[11px] text-gray-400">Paste the image link (must start with https://). First image is the main thumbnail. All images appear on the product page and cards.</p>
           </div>
 
           {/* Specifications */}
