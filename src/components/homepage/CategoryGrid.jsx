@@ -1,56 +1,72 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowUpRight, Package } from 'lucide-react';
 import { useScrollReveal, AnimatedSection } from '../../hooks/useScrollReveal';
+import { api } from '../../lib/api';
 
-const categories = [
-  {
-    name: 'Electronics',
-    href: '/products?category=Electronics',
-    count: { value: 2400, suffix: '+' },
-    description: 'Latest gadgets, smart devices and electronics for a smarter you.',
-    image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    name: 'Clothing & Apparel',
-    href: '/products?category=Clothing%20%26%20Apparel',
-    count: { value: 1800, suffix: '+' },
-    description: 'Premium fashion, apparel and everyday essentials for every wardrobe.',
-    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    name: 'Home & Furniture',
-    href: '/products?category=Home%20%26%20Furniture',
-    count: { value: 1200, suffix: '+' },
-    description: 'Stylish furniture, décor and home upgrades for every living space.',
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    name: 'Sports Equipment',
-    href: '/products?category=Sports%20Equipment',
-    count: { value: 850, suffix: '+' },
-    description: 'High-performance gear, fitness tools and athletic essentials.',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    name: 'Health & Beauty',
-    href: '/products?category=Health%20%26%20Beauty',
-    count: { value: 950, suffix: '+' },
-    description: 'Skincare, wellness and beauty products that care for you.',
-    image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    name: 'View All Categories',
-    href: '/products',
-    count: null,
-    description: 'Browse the complete range across every category in one place.',
-  },
+const CATEGORY_IMAGES = {
+  electronics: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=800&auto=format&fit=crop',
+  'clothing & apparel': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
+  'home & furniture': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop',
+  'sports equipment': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop',
+  sports: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800&auto=format&fit=crop',
+  'health & beauty': 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800&auto=format&fit=crop',
+  'pet supplies': 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=800&auto=format&fit=crop',
+  tools: 'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=800&auto=format&fit=crop',
+  'modern tech': 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop',
+  furniture: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop',
+  clothing: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
+};
+
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=800&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=800&auto=format&fit=crop',
 ];
 
-function formatCount(category) {
-  return category.count ? `${category.count.value.toLocaleString()}${category.count.suffix}` : '';
+const FALLBACK_CATEGORIES = [
+  'Electronics',
+  'Clothing',
+  'Furniture',
+  'Tools',
+  'Sports',
+  'Pet Supplies',
+  'Modern Tech',
+];
+
+function imageForCategory(name, index = 0) {
+  const key = (name || '').trim().toLowerCase();
+  return CATEGORY_IMAGES[key] || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+}
+
+const CATEGORY_DESCRIPTIONS = {
+  electronics: 'Latest gadgets, smart devices and electronics for a smarter you.',
+  clothing: 'Premium fashion, apparel and everyday essentials for every wardrobe.',
+  furniture: 'Stylish furniture, décor and home upgrades for every living space.',
+  'home & furniture': 'Stylish furniture, décor and home upgrades for every living space.',
+  sports: 'High-performance gear, fitness tools and athletic essentials.',
+  'sports equipment': 'High-performance gear, fitness tools and athletic essentials.',
+  'health & beauty': 'Skincare, wellness and beauty products that care for you.',
+  'pet supplies': 'Food, toys and care essentials for your furry friends.',
+  tools: 'Durable hand and power tools for every job, big or small.',
+  'modern tech': 'Cutting-edge tech and modern innovations for work and play.',
+};
+
+function descriptionForCategory(name) {
+  const key = (name || '').trim().toLowerCase();
+  return CATEGORY_DESCRIPTIONS[key] || `Browse our range of ${name}.`;
+}
+
+function formatCount(count) {
+  return count.toLocaleString();
 }
 
 function CategoryImage({ category, className, priority = false }) {
@@ -120,7 +136,7 @@ function CategoryCard({ category, index, featured = false }) {
             <div className="absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-5 p-6 sm:p-8 lg:p-9">
               <div className="min-w-0 max-w-[80%]">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
-                  {formatCount(category)} products
+                  {formatCount(category.count)} products
                 </p>
                 <h3 className="mt-2 font-volkhov text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
                   {category.name}
@@ -139,7 +155,7 @@ function CategoryCard({ category, index, featured = false }) {
               className="absolute inset-x-0 bottom-[38%] top-0 z-10 overflow-hidden bg-[#F4F4F6]"
             />
             <span className="absolute left-4 top-4 z-30 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm backdrop-blur">
-              {formatCount(category)} products
+              {formatCount(category.count)} products
             </span>
             <div className="absolute inset-x-0 bottom-0 z-30 flex min-h-[38%] items-end justify-between gap-3 border-t border-gray-100 bg-white p-5 sm:p-6">
               <div className="min-w-0">
@@ -159,12 +175,77 @@ function CategoryCard({ category, index, featured = false }) {
   );
 }
 
+function CategoryGridSkeleton() {
+  return (
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div className="min-h-[500px] animate-pulse rounded-2xl bg-gray-100 sm:min-h-[560px] lg:min-h-[680px]" />
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="min-h-[280px] animate-pulse rounded-2xl bg-gray-100 sm:min-h-[300px]" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function CategoryGrid() {
   const { ref } = useScrollReveal({ threshold: 0.05 });
-  const browseCategories = categories.filter((category) => category.image);
-  const featuredCategory = browseCategories.find((category) => category.name === 'Home & Furniture') || browseCategories[0];
-  const smallCategories = browseCategories.filter((category) => category.name !== featuredCategory?.name);
-  const viewAllCategory = categories.find((category) => !category.image);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadCategories() {
+      try {
+        const names = await api.products.getCategories();
+        const categoryNames = (Array.isArray(names) ? names : []).filter(Boolean);
+
+        // Categories always render, even if the count lookup below fails.
+        // Counts are best-effort: product counting uses the minimal endpoint.
+        const minimal = await api.products.getMinimal(1000).catch(() => []);
+        const counts = {};
+        for (const item of Array.isArray(minimal) ? minimal : []) {
+          const cat = (item?.category || '').trim();
+          if (!cat) continue;
+          counts[cat] = (counts[cat] || 0) + 1;
+        }
+
+        if (!active) return;
+
+        const mapped = categoryNames.map((name, index) => ({
+          name,
+          count: counts[name] || 0,
+          href: `/products?category=${encodeURIComponent(name)}`,
+          description: descriptionForCategory(name),
+          image: imageForCategory(name, index),
+        }));
+
+        setCategories(mapped);
+      } catch (err) {
+        // API unreachable — fall back to the site's standard category list so
+        // the section never shows empty on the homepage.
+        console.error('Failed to load categories:', err);
+        if (!active) return;
+        setCategories(FALLBACK_CATEGORIES.map((name, index) => ({
+          name,
+          count: 0,
+          href: `/products?category=${encodeURIComponent(name)}`,
+          description: descriptionForCategory(name),
+          image: imageForCategory(name, index),
+        })));
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    loadCategories();
+    return () => { active = false; };
+  }, []);
+
+  const browseCategories = categories;
+  const featuredCategory = browseCategories.find((category) => /furniture/i.test(category.name)) || browseCategories[0];
+  const smallCategories = browseCategories.filter((category) => category !== featuredCategory);
 
   return (
     <section ref={ref} className="overflow-hidden bg-white py-16 font-jost sm:py-24">
@@ -181,34 +262,40 @@ export default function CategoryGrid() {
           </p>
         </AnimatedSection>
 
-        {featuredCategory ? (
+        {loading ? (
+          <CategoryGridSkeleton />
+        ) : browseCategories.length === 0 ? (
+          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center">
+            <Package className="mx-auto h-10 w-10 text-gray-400" strokeWidth={1.5} />
+            <p className="mt-4 font-semibold text-black">No categories available yet.</p>
+          </div>
+        ) : browseCategories.length < 3 ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {browseCategories.map((category, index) => (
+              <CategoryCard key={category.name} category={category} index={index} />
+            ))}
+          </div>
+        ) : (
           <>
             <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-              <CategoryCard category={featuredCategory} index={0} featured />
+              {featuredCategory && <CategoryCard category={featuredCategory} index={0} featured />}
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:min-h-[680px] lg:grid-rows-2">
-                {smallCategories.map((category, index) => (
+                {smallCategories.slice(0, 4).map((category, index) => (
                   <CategoryCard key={category.name} category={category} index={index + 1} />
                 ))}
               </div>
             </div>
 
-            {viewAllCategory && (
-              <div className="mt-10 text-center sm:mt-12">
-                <Link
-                  href={viewAllCategory.href}
-                  className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm transition-all duration-300 hover:bg-neutral-800 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
-                >
-                  {viewAllCategory.name}
-                  <ArrowUpRight className="h-4 w-4" />
-                </Link>
-              </div>
-            )}
+            <div className="mt-10 text-center sm:mt-12">
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm transition-all duration-300 hover:bg-neutral-800 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+              >
+                View All Categories
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
           </>
-        ) : (
-          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center">
-            <Package className="mx-auto h-10 w-10 text-gray-400" strokeWidth={1.5} />
-            <p className="mt-4 font-semibold text-black">No categories available yet.</p>
-          </div>
         )}
       </div>
     </section>

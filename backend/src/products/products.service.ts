@@ -58,7 +58,7 @@ export class ProductsService {
     const { data, error } = await this.supabase
       .from('products')
       .select('id, name, category, price, stock')
-      .limit(limit);
+      .limit(Math.min(Math.max(limit, 1), 1000));
     if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }

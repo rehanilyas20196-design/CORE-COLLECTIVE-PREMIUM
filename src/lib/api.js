@@ -149,7 +149,7 @@ export const api = {
     getSellerProducts: (limit = 12) =>
       request(`/products/seller?limit=${limit}`),
     getMinimal: (limit = 200) =>
-      request(`/products/minimal?limit=${limit}`),
+      request(`/products/minimal${limit ? `?limit=${limit}` : ''}`),
     create: (productData) =>
       request('/products', { method: 'POST', body: productData }),
     delete: (id) =>
