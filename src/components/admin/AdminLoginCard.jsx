@@ -1,242 +1,412 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Mail, Lock, Loader, ArrowRight, ShieldCheck } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import {
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader,
+  Lock,
+  Mail,
+  PackageCheck,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
+import {
+  isValidEmail,
+  loginErrorMessage,
+  passwordIssues,
+  signupErrorMessage,
+  validatePassword,
+} from '../../lib/auth';
 
-const creamBg = '#EFE3C8';
-const cardBg = '#FBF5E8';
-const ink = '#2B2013';
-const tan = '#7A6A4C';
-const goldSoft = 'rgba(140,105,40,0.28)';
-const goldMid = '#D9A63C';
-const goldDark = '#8A6A1E';
-const inputBg = '#FFFCF4';
+const ADMIN_EMAIL = 'hinata4020196@gmail.com';
+const ADMIN_ACCESS_ERROR = 'This account does not have administrator access.';
 
-export default function AdminLoginCard() {
+function normalizeEmail(value) {
+  return value.trim().toLowerCase();
+}
+
+function isAdminAccount(user) {
+  return normalizeEmail(user?.email || '') === ADMIN_EMAIL;
+}
+
+function adminLoginErrorMessage(error) {
+  if (error?.message === ADMIN_ACCESS_ERROR) return error.message;
+  const message = error?.message || '';
+  if (/ADMIN_PASSWORD|Server not configured for admin operations/i.test(message)) {
+    return 'Admin access is not configured yet. Initialize the admin account first.';
+  }
+  return loginErrorMessage(error);
+}
+
+function adminSignupErrorMessage(error) {
+  const message = error?.message || '';
+  if (/ADMIN_PASSWORD|Server not configured for admin operations/i.test(message)) {
+    return 'Admin signup is not configured on the server yet.';
+  }
+  return signupErrorMessage(error);
+}
+
+function AuthField({ id, label, icon: Icon, error, action, ...inputProps }) {
+  return (
+    <div>
+      <label htmlFor={id} className="auth-label">{label}</label>
+      <div className="relative">
+        <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+        <input
+          id={id}
+          className={`auth-input pl-12 ${error ? 'border-red-300 focus:border-red-500' : ''} ${action ? 'pr-12' : ''}`}
+          aria-invalid={error ? 'true' : undefined}
+          {...inputProps}
+        />
+        {action}
+      </div>
+    </div>
+  );
+}
+
+function PasswordField({ id, label, value, onChange, visible, onToggle, autoComplete, error }) {
+  return (
+    <AuthField
+      id={id}
+      label={label}
+      icon={Lock}
+      type={visible ? 'text' : 'password'}
+      value={value}
+      onChange={onChange}
+      autoComplete={autoComplete}
+      required
+      error={error}
+      action={(
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 transition-colors hover:text-black focus-visible:text-black"
+          aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+        >
+          {visible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+        </button>
+      )}
+    />
+  );
+}
+
+function AdminAuthPanel({ mode }) {
+  const features = [
+    { icon: BarChart3, text: 'Monitor marketplace performance' },
+    { icon: PackageCheck, text: 'Review products and supplier requests' },
+    { icon: Users, text: 'Manage customers, orders, and inquiries' },
+  ];
+
+  return (
+    <aside className="relative hidden overflow-hidden bg-black px-12 py-14 text-white lg:col-span-5 lg:flex lg:flex-col lg:justify-between xl:px-16">
+      <div className="absolute -left-24 top-20 h-80 w-80 rounded-full bg-white/[0.06] blur-[90px]" />
+      <div className="absolute -right-24 bottom-10 h-96 w-96 rounded-full bg-white/[0.04] blur-[110px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:56px_56px]" />
+
+      <div className="relative z-10">
+        <span className="font-volkhov text-[22px] font-bold uppercase leading-[1.15] tracking-[0.13em] text-white">
+          Core Collective
+        </span>
+      </div>
+
+      <div className="relative z-10 max-w-lg">
+        <span className="mb-7 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/[0.06]">
+          <ShieldCheck className="h-7 w-7 text-white" strokeWidth={1.6} />
+        </span>
+        <span className="auth-image-kicker">Protected administration</span>
+        <h2 className="auth-image-title max-w-md">
+          {mode === 'signup' ? 'Initialize your admin workspace.' : 'Run the marketplace with clarity.'}
+        </h2>
+        <p className="mt-6 max-w-md text-sm leading-7 text-neutral-400">
+          A focused workspace for the people, products, and operations that keep Core Collective moving.
+        </p>
+
+        <div className="mt-10 space-y-4">
+          {features.map(({ icon: Icon, text }) => (
+            <div key={text} className="flex items-center gap-3 text-sm text-neutral-300">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-white" />
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative z-10 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        Secure admin workspace
+      </div>
+    </aside>
+  );
+}
+
+export default function AdminLoginCard({ initialMode = 'login' }) {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const reducedMotion = useReducedMotion();
+  const mode = initialMode === 'signup' ? 'signup' : 'login';
+  const [login, setLogin] = useState({ email: '', password: '' });
+  const [signup, setSignup] = useState({ email: '', password: '', confirmPassword: '' });
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [focusedField, setFocusedField] = useState(null);
 
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springX = useSpring(rotateX, { stiffness: 120, damping: 18, mass: 0.4 });
-  const springY = useSpring(rotateY, { stiffness: 120, damping: 18, mass: 0.4 });
-  const tiltX = useTransform(springX, [8, -8], [8, -8]);
-  const tiltY = useTransform(springY, [8, -8], [8, -8]);
-  const frameRef = useRef(null);
-
-  const handleMouseMove = useCallback(
-    (e) => {
-      const rect = frameRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const px = Math.min(1, Math.max(-1, (e.clientX - cx) / (rect.width / 2)));
-      const py = Math.min(1, Math.max(-1, (e.clientY - cy) / (rect.height / 2)));
-      rotateY.set(px * 8);
-      rotateX.set(-py * 8);
-    },
-    [rotateX, rotateY]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    rotateX.set(0);
-    rotateY.set(0);
-  }, [rotateX, rotateY]);
-
-  const doSignIn = async () => {
-    const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) throw authError;
-    return user;
+  const completeSignIn = async (user) => {
+    if (!isAdminAccount(user)) {
+      await supabase.auth.signOut({ scope: 'local' });
+      throw new Error(ADMIN_ACCESS_ERROR);
+    }
+    window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
+    router.replace('/admin');
+    router.refresh();
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const signIn = async (email, password) => {
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) throw authError;
+    return data.user;
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
     setError('');
+
+    const email = normalizeEmail(login.email);
+    const password = login.password;
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     setLoading(true);
     try {
       let user;
       try {
-        user = await doSignIn();
-      } catch (err) {
-        if (!/invalid.*credential|email not confirmed/i.test(err.message || '')) throw err;
+        user = await signIn(email, password);
+      } catch (authError) {
+        if (!/invalid.*credential|email not confirmed/i.test(authError.message || '')) throw authError;
         await api.auth.ensureAdmin();
-        user = await doSignIn();
+        user = await signIn(email, password);
       }
-      if (user) {
-        window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
-        router.refresh();
-      }
-    } catch (err) {
-      setError(err.message === 'Invalid login credentials' ? 'Invalid admin credentials' : err.message);
+      await completeSignIn(user);
+    } catch (authError) {
+      setError(adminLoginErrorMessage(authError));
     } finally {
       setLoading(false);
     }
   };
 
-  const fieldBase = {
-    width: '100%',
-    paddingLeft: '2.75rem',
-    paddingRight: '2.75rem',
-    paddingTop: '0.85rem',
-    paddingBottom: '0.85rem',
-    backgroundColor: inputBg,
-    border: `1px solid ${goldSoft}`,
-    color: ink,
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
+  const handleSignup = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    const email = normalizeEmail(signup.email);
+    const password = signup.password;
+    if (!email || !password || !signup.confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+    if (password !== signup.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.auth.ensureAdmin();
+      const user = await signIn(email, password);
+      await completeSignIn(user);
+    } catch (signupError) {
+      if (signupError.message === ADMIN_ACCESS_ERROR) {
+        setError(ADMIN_ACCESS_ERROR);
+      } else if (/Invalid login credentials|user not found|email not confirmed/i.test(signupError.message || '')) {
+        setError('Use the administrator email and password configured on the server.');
+      } else {
+        setError(adminSignupErrorMessage(signupError));
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const signupPasswordIssues = signup.password ? passwordIssues(signup.password) : [];
+
   return (
-    <div
-      className="relative w-full overflow-hidden flex items-center justify-center min-h-screen pt-[84px] sm:pt-[96px] md:pt-[100px] pb-12"
-      style={{ backgroundColor: creamBg }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div
-        className="absolute pointer-events-none"
-        style={{ top: '-180px', right: '-160px', width: '640px', height: '640px', background: 'radial-gradient(circle at 70% 30%, rgba(217,166,60,0.22) 0%, transparent 62%)' }}
-      />
-      <div
-        className="absolute pointer-events-none"
-        style={{ bottom: '-200px', left: '-180px', width: '680px', height: '680px', background: 'radial-gradient(circle at 30% 70%, rgba(184,134,46,0.18) 0%, transparent 60%)' }}
-      />
-      <div
-        className="absolute pointer-events-none"
-        style={{ top: '30%', left: '8%', width: '420px', height: '420px', background: 'radial-gradient(circle at 50% 50%, rgba(255,230,160,0.16) 0%, transparent 60%)' }}
-      />
+    <div className="auth-shell flex min-h-screen items-center bg-white pt-24 sm:pt-28">
+      <div className="grid min-h-[calc(100vh-7rem)] w-full items-stretch lg:grid-cols-12">
+        <AdminAuthPanel mode={mode} />
 
-      <motion.div
-        ref={frameRef}
-        initial={{ opacity: 0, y: 46, rotateX: -14, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-        className="relative w-full max-w-[440px]"
-        style={{ perspective: 1200 }}
-      >
-        <motion.div className="relative" style={{ transformStyle: 'preserve-3d', rotateX: tiltX, rotateY: tiltY }}>
-          <div style={{ backgroundColor: cardBg, border: `1px solid ${goldSoft}` }}>
-            <div className="login-gold-line" />
-            <div className="absolute pointer-events-none" style={{ top: 0, right: 0, width: 26, height: 26, borderTop: `2.5px solid ${goldMid}`, borderRight: `2.5px solid ${goldMid}` }} />
-            <div className="absolute pointer-events-none" style={{ bottom: 0, left: 0, width: 26, height: 26, borderBottom: `2.5px solid ${goldMid}`, borderLeft: `2.5px solid ${goldMid}` }} />
-
-            <div className="p-7 sm:p-10 sm:pt-9">
-              <div className="mb-8">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E8C04A] to-[#a67c2e] flex items-center justify-center shadow-md">
-                    <ShieldCheck className="w-6 h-6 text-white" />
+        <main className={`mx-auto flex w-full flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 ${mode === 'signup' ? 'max-w-2xl lg:col-span-7' : 'max-w-xl lg:col-span-7'}`}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={mode}
+              initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {mode === 'login' ? (
+                <>
+                  <div className="mb-8 text-center sm:text-left">
+                    <span className="auth-brand">Core Collective</span>
+                    <span className="auth-eyebrow">Admin workspace</span>
+                    <h1 className="auth-title">Admin sign in</h1>
+                    <p className="auth-subtitle">Access the protected marketplace administration dashboard.</p>
                   </div>
-                  <div>
-                    <h1 className="font-fraunces text-[1.9rem] sm:text-[2.2rem] font-semibold leading-tight" style={{ color: ink }}>
-                      Admin Panel
-                    </h1>
-                    <p className="text-[0.85rem]" style={{ color: goldMid }}>Restricted access</p>
-                  </div>
-                </div>
-                <p className="mt-3 text-[0.95rem]" style={{ color: tan }}>
-                  Enter your admin credentials to manage the marketplace.
-                </p>
-              </div>
 
-              <form onSubmit={handleLogin} className="space-y-5" noValidate>
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'email' ? goldMid : tan }} />
-                    <input
+                  <form onSubmit={handleLogin} className="space-y-5" noValidate>
+                    <AuthField
+                      id="admin-email"
+                      label="Email address"
+                      icon={Mail}
                       type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
+                      value={login.email}
+                      onChange={(event) => setLogin((current) => ({ ...current, email: event.target.value }))}
+                      placeholder="admin@company.com"
                       autoComplete="email"
                       required
-                      onFocus={() => setFocusedField('email')}
-                      onBlur={() => setFocusedField(null)}
-                      style={{
-                        ...fieldBase,
-                        borderColor: focusedField === 'email' ? goldMid : goldSoft,
-                        boxShadow: focusedField === 'email' ? '0 0 0 3px rgba(217,166,60,0.16), 0 0 20px rgba(217,166,60,0.12)' : 'none',
-                      }}
                     />
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'password' ? goldMid : tan }} />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
+                    <PasswordField
+                      id="admin-password"
+                      label="Password"
+                      value={login.password}
+                      onChange={(event) => setLogin((current) => ({ ...current, password: event.target.value }))}
+                      visible={showLoginPassword}
+                      onToggle={() => setShowLoginPassword((current) => !current)}
                       autoComplete="current-password"
-                      required
-                      onFocus={() => setFocusedField('password')}
-                      onBlur={() => setFocusedField(null)}
-                      style={{
-                        ...fieldBase,
-                        borderColor: focusedField === 'password' ? goldMid : goldSoft,
-                        boxShadow: focusedField === 'password' ? '0 0 0 3px rgba(217,166,60,0.16), 0 0 20px rgba(217,166,60,0.12)' : 'none',
-                      }}
                     />
+
+                    {error && <div className="auth-error" role="alert">{error}</div>}
+
+                    <button type="submit" disabled={loading} className="auth-button mt-1" aria-busy={loading}>
+                      {loading ? <Loader className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                      {loading ? 'Signing in…' : 'Sign in to admin panel'}
+                    </button>
+                  </form>
+
+                  <div className="auth-navigation">
+                    <p>
+                      Need to initialize admin access?{' '}
+                      <Link href="/admin/signup" className="font-semibold text-black hover:underline">
+                        Admin signup
+                      </Link>
+                    </p>
+                    <p>
+                      Looking for customer access?{' '}
+                      <Link href="/login" className="font-semibold text-black hover:underline">
+                        Back to user login
+                      </Link>
+                    </p>
                   </div>
-                </div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-8 text-center sm:text-left">
+                    <span className="auth-brand">Core Collective</span>
+                    <span className="auth-eyebrow">Initial admin setup</span>
+                    <h1 className="auth-title">Create admin access</h1>
+                    <p className="auth-subtitle">Initialize the administrator account configured by the backend.</p>
+                  </div>
 
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[0.85rem] px-3 py-2"
-                    style={{ color: '#9B2C2C', backgroundColor: 'rgba(170,60,40,0.08)', border: '1px solid rgba(155,44,44,0.25)' }}
-                  >
-                    {error}
-                  </motion.p>
-                )}
+                  <div className="mb-6 rounded-xl border border-gray-200 bg-[#FAF9F6] p-4 text-sm leading-6 text-gray-600">
+                    <span className="font-semibold text-black">Protected setup.</span>{' '}
+                    This activates only the server-configured administrator. It does not create additional privileged accounts.
+                  </div>
 
-                <motion.button
-                  type="submit"
-                  disabled={loading}
-                  whileHover={loading ? {} : { y: -2, boxShadow: '0 14px 34px -10px rgba(122,86,38,0.55)' }}
-                  whileTap={loading ? {} : { y: 1, scale: 0.985, boxShadow: 'inset 0 4px 10px rgba(58,38,10,0.35)' }}
-                  className="login-gold-btn w-full py-3.5 text-[1rem] font-semibold tracking-wide inline-flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                      <Loader className="w-5 h-5" />
-                    </motion.span>
-                  ) : (
-                    <ArrowRight className="w-5 h-5" />
-                  )}
-                  {loading ? 'Signing in...' : 'Login to Admin Panel'}
-                </motion.button>
-              </form>
+                  <form onSubmit={handleSignup} className="space-y-5" noValidate>
+                    <AuthField
+                      id="admin-signup-email"
+                      label="Administrator email"
+                      icon={Mail}
+                      type="email"
+                      value={signup.email}
+                      onChange={(event) => setSignup((current) => ({ ...current, email: event.target.value }))}
+                      placeholder="admin@company.com"
+                      autoComplete="email"
+                      required
+                    />
 
-              <div className="mt-6 text-center">
-                <p className="text-[0.8rem]" style={{ color: tan }}>
-                  Restricted access &mdash; only authorized admins can sign in.
-                </p>
-                <Link href="/login" className="inline-flex items-center gap-1.5 mt-3 text-[0.82rem]" style={{ color: tan }}>
-                  <span className="w-2 h-2" style={{ backgroundColor: goldMid, transform: 'rotate(45deg)' }} />
-                  Back to user login
-                </Link>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <PasswordField
+                        id="admin-signup-password"
+                        label="Password"
+                        value={signup.password}
+                        onChange={(event) => setSignup((current) => ({ ...current, password: event.target.value }))}
+                        visible={showSignupPassword}
+                        onToggle={() => setShowSignupPassword((current) => !current)}
+                        autoComplete="new-password"
+                      />
+
+                      <PasswordField
+                        id="admin-signup-confirm-password"
+                        label="Confirm password"
+                        value={signup.confirmPassword}
+                        onChange={(event) => setSignup((current) => ({ ...current, confirmPassword: event.target.value }))}
+                        visible={showConfirmPassword}
+                        onToggle={() => setShowConfirmPassword((current) => !current)}
+                        autoComplete="new-password"
+                      />
+                    </div>
+
+                    {signupPasswordIssues.length > 0 && (
+                      <p className="text-[13px] leading-5 text-red-600">
+                        Password must include {signupPasswordIssues.join(', ')}.
+                      </p>
+                    )}
+
+                    {error && <div className="auth-error" role="alert">{error}</div>}
+
+                    <button type="submit" disabled={loading} className="auth-button mt-1" aria-busy={loading}>
+                      {loading ? <Loader className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                      {loading ? 'Creating admin access…' : 'Create admin access'}
+                    </button>
+                  </form>
+
+                  <div className="auth-navigation">
+                    <p>
+                      Already initialized?{' '}
+                      <Link href="/admin" className="font-semibold text-black hover:underline">
+                        Admin login
+                      </Link>
+                    </p>
+                    <p>
+                      Customer account?{' '}
+                      <Link href="/login" className="font-semibold text-black hover:underline">
+                        Back to user login
+                      </Link>
+                    </p>
+                  </div>
+                </>
+              )}
+
+              <div className="auth-footer">Restricted administrator workspace</div>
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 }

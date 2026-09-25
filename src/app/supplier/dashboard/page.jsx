@@ -42,7 +42,7 @@ export default function SupplierDashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
@@ -50,7 +50,7 @@ export default function SupplierDashboardPage() {
   if (!userProfile || !isSupplier) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -67,7 +67,7 @@ export default function SupplierDashboardPage() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 pt-24">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 pt-24 sm:pt-28">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link href="/" className="p-2 text-gray-500 hover:text-white hover:bg-gray-100 rounded-xl transition-all">

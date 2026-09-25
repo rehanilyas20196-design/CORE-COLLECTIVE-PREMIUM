@@ -20,7 +20,7 @@ export default function ProductImageCarousel({
   product,
   iconSize = 'w-12 h-12',
   arrowSize = 'w-4 h-4',
-  sizes = '(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 25vw',
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw',
   priority,
 }) {
   const images = getProductImages(product);

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send } from 'lucide-react';
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
@@ -10,7 +9,7 @@ export default function NewsletterSection() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email) {
+    if (email.trim()) {
       setSubscribed(true);
       setEmail('');
       setTimeout(() => setSubscribed(false), 3000);
@@ -18,127 +17,86 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="py-16 sm:py-20 bg-white border-t border-gray-200">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <div className="relative isolate max-w-[1040px] mx-auto flex flex-col md:flex-row rounded-3xl overflow-hidden bg-[#D9C7A0] shadow-[0_28px_70px_-28px_rgba(43,32,19,0.4)] rotate-[-0.6deg] transition-transform duration-500 hover:rotate-0">
-            {/* Stub — torn-ticket left column (stacked on top on small screens) */}
-            <div className="relative flex md:flex-col items-center justify-between md:justify-center gap-x-4 gap-y-2 md:gap-y-0 px-5 md:px-3 py-5 md:py-10 shrink-0 md:w-[230px] bg-[#C4AF80] border-b-2 md:border-b-0 md:border-r-2 border-dashed border-[#2B2013]/30">
-              {/* Perforation notches: mobile = bottom edge, desktop = right edge */}
-              <span aria-hidden="true" className="md:hidden absolute z-10 -bottom-5 left-6 w-10 h-10 rounded-full bg-white" />
-              <span aria-hidden="true" className="md:hidden absolute z-10 -bottom-5 right-6 w-10 h-10 rounded-full bg-white" />
-              <span aria-hidden="true" className="hidden md:block absolute z-10 top-6 left-[210px] w-10 h-10 rounded-full bg-white" />
-              <span aria-hidden="true" className="hidden md:block absolute z-10 bottom-6 left-[210px] w-10 h-10 rounded-full bg-white" />
+    <section className="py-16 sm:py-24 bg-[#FAF9F6] border-t border-gray-100 font-jost overflow-hidden relative">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 relative z-10">
+        <div className="grid lg:grid-cols-12 items-center gap-8">
+          {/* Left Stand-Up Model Photo (FASCO Style: Yellow Coat Model) */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-3 hidden lg:block"
+          >
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-neutral-200 shadow-md">
+              <img
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop"
+                alt="FASCO Newsletter Model Left"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </motion.div>
 
-              <span className="w-7 h-7 shrink-0 rounded-full border-2 border-[#2B2013]/45 inline-flex items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2B2013]/70" />
-              </span>
+          {/* Center Subscription Form Box */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-6 flex flex-col items-center text-center px-4"
+          >
+            <h2 className="font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
+              Subscribe To Our Newsletter
+            </h2>
 
-              <div className="flex md:block items-baseline gap-2">
-                <p className="font-spacemono text-[9px] tracking-[0.22em] uppercase text-[#2B2013]/55">
-                  Member Rate
-                </p>
-                <p className="font-fraunces font-semibold text-[34px] leading-none text-[#C6962F]">
-                  −12%
-                </p>
+            <p className="mt-4 text-gray-600 text-xs sm:text-sm max-w-md leading-relaxed">
+              Receive weekly digests on price drops, verified supplier arrivals, and wholesale deals tailored to your business needs.
+            </p>
+
+            <form onSubmit={handleSubmit} className="mt-8 w-full max-w-md space-y-4">
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  required
+                  className="w-full px-6 py-4 bg-white border border-gray-300 rounded-lg text-xs sm:text-sm text-black outline-none focus:border-black focus:ring-2 focus:ring-black/10 shadow-sm transition-all"
+                />
               </div>
 
-              <p className="font-spacemono text-[8px] tracking-[0.14em] uppercase leading-relaxed text-[#2B2013]/50 text-right md:text-center md:max-w-[16ch] max-w-[15ch]">
-                Avg. saved per subscriber order
-              </p>
-            </div>
-
-            {/* Main kraft-paper panel */}
-            <div className="relative flex-1 overflow-hidden bg-[linear-gradient(145deg,#D9C7A0_0%,#C4AF80_100%)] px-6 sm:px-10 py-8 sm:py-10">
-              <div aria-hidden="true" className="noise-bg absolute inset-0 mix-blend-multiply opacity-30 pointer-events-none" />
-
-              {/* Ink stamp */}
-              <div
-                aria-hidden="true"
-                className="hidden md:block absolute top-[22px] right-[22px] w-[92px] h-[92px] rounded-full border-2 border-[#2B2013]/45 rotate-[9deg] flex items-center justify-center"
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-10 py-3.5 bg-black text-white text-xs font-semibold uppercase tracking-[0.2em] rounded-md hover:bg-neutral-800 transition-all shadow-md active:scale-[0.98]"
               >
-                <div className="w-[80px] h-[80px] rounded-full border border-[#2B2013]/25 flex items-center justify-center px-1">
-                  <p className="font-spacemono text-[8px] leading-[1.6] uppercase tracking-[0.06em] text-[#2B2013]/60 text-center">
-                    Verified<br />Wholesale<br />Network
-                  </p>
-                </div>
-              </div>
+                {subscribed ? 'Subscribed!' : 'Subscribe'}
+              </button>
+            </form>
 
-              <div className="relative z-10 max-w-[540px] font-worksans">
-                <p className="flex items-center gap-2 font-spacemono text-[10px] tracking-[0.25em] uppercase text-[#2B2013]/60">
-                  <span className="w-2 h-2 rounded-full bg-[#C6962F]" />
-                  Price Alert Manifest
-                </p>
+            {subscribed && (
+              <p className="mt-3 text-xs text-green-700 font-semibold">
+                &check; Thank you for subscribing to Core Collective alerts!
+              </p>
+            )}
+          </motion.div>
 
-                <h3 className="mt-3 font-fraunces italic text-[28px] sm:text-[34px] leading-[1.1] tracking-[-0.01em] text-[#2B2013]">
-                  Know the moment a price moves.
-                </h3>
-
-                <p className="mt-3 text-[15px] leading-relaxed text-[#2B2013]/70">
-                  One short digest when a wholesale price drops or a fresh verified supplier
-                  lists stock in your categories.
-                </p>
-
-                <div className="mt-6 flex gap-8">
-                  {[
-                    ['15,200+', 'Subscribers'],
-                    ['2,400', 'Suppliers tracked'],
-                    ['Daily', 'Digest cadence'],
-                  ].map(([num, label]) => (
-                    <div key={label}>
-                      <p className="font-spacemono text-lg font-medium text-[#2B2013]">{num}</p>
-                      <p className="mt-1 font-spacemono text-[9px] tracking-[0.18em] uppercase text-[#2B2013]/55">
-                        {label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-end gap-4">
-                  <div className="flex-1 border-b-2 border-[#2B2013]/35 focus-within:border-[#2B2013] pb-1">
-                    <label
-                      htmlFor="wholesale-email"
-                      className="block font-spacemono text-[9px] tracking-[0.22em] uppercase text-[#2B2013]/50"
-                    >
-                      Work email
-                    </label>
-                    <input
-                      id="wholesale-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@company.com"
-                      required
-                      className="w-full bg-transparent text-[#2B2013] placeholder:text-[#2B2013]/35 outline-none py-2 text-[15px]"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 shrink-0 px-6 py-3.5 bg-[#2B2013] text-[#F1E7D3] font-worksans text-sm font-semibold rounded-md hover:bg-[#3E2D16] active:scale-[0.98] transition-all duration-300"
-                  >
-                    {subscribed ? 'Subscribed!' : 'Subscribe'}
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-
-                {subscribed ? (
-                  <p className="mt-3 font-spacemono text-[11px] text-[#2B2013]/70">
-                    ✓ You&apos;re on the list. First alert arrives soon.
-                  </p>
-                ) : (
-                  <p className="mt-3 font-spacemono text-[11px] tracking-[0.02em] text-[#2B2013]/45">
-                    No spam. Unsubscribe anytime.
-                  </p>
-                )}
-              </div>
+          {/* Right Stand-Up Model Photo (FASCO Style: Dark Blazer Model) */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-3 hidden lg:block"
+          >
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-neutral-200 shadow-md">
+              <img
+                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=600&auto=format&fit=crop"
+                alt="FASCO Newsletter Model Right"
+                className="w-full h-full object-cover"
+              />
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

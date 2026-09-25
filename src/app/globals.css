@@ -4,27 +4,29 @@
 
 @layer base {
   :root {
-    --bg-page: #F8F9FA;
+    --bg-page: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-surface: #F1F3F5;
+    --bg-surface: #FAF9F6;
     --bg-input: #FFFFFF;
-    --border-subtle: #E9ECEF;
-    --border-default: #DEE2E6;
-    --text-primary: #212529;
-    --text-secondary: #495057;
-    --text-muted: #868E96;
+    --border-subtle: #F3F4F6;
+    --border-default: #E5E7EB;
+    --text-primary: #111111;
+    --text-secondary: #555555;
+    --text-muted: #888888;
     --text-inverse: #FFFFFF;
-    --accent-gold: #C9974B;
-    --accent-gold-light: #D4A853;
+    --accent-gold: #FFB800;
+    --accent-gold-light: #FFD055;
+    --accent-black: #000000;
   }
 
   html {
     overflow-x: hidden;
     scroll-behavior: smooth;
+    background-color: #FFFFFF;
   }
 
   body {
-    @apply font-inter antialiased;
+    @apply font-jost antialiased;
     background-color: var(--bg-page);
     color: var(--text-primary);
     min-height: 100%;
@@ -37,12 +39,12 @@
   }
 
   ::selection {
-    background-color: rgba(201, 151, 75, 0.2);
-    color: #5C411E;
+    background-color: rgba(0, 0, 0, 0.15);
+    color: #000000;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary/50;
+    @apply outline-2 outline-offset-2 outline-black/50;
   }
 }
 
@@ -56,22 +58,27 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-white px-5 py-2.5 rounded-lg font-semibold
-           hover:bg-primary-700 active:bg-primary-800
+    @apply bg-black text-white px-6 py-3 rounded-lg font-medium
+           hover:bg-neutral-800 active:scale-[0.98]
            transition-all duration-200 shadow-sm
-           hover:shadow-md active:scale-[0.97]
            disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
   }
 
+  .btn-pill {
+    @apply bg-black text-white px-6 py-2.5 rounded-full font-medium
+           hover:bg-neutral-800 active:scale-[0.98]
+           transition-all duration-200 shadow-sm;
+  }
+
   .btn-outline {
-    @apply border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg font-semibold
-           hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100
+    @apply border border-black text-black px-6 py-3 rounded-lg font-medium
+           hover:bg-black hover:text-white active:scale-[0.98]
            transition-all duration-200
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-ghost {
-    @apply text-gray-600 px-3 py-2 rounded-lg font-medium
+    @apply text-gray-700 px-3 py-2 rounded-lg font-medium
            hover:bg-gray-100 active:bg-gray-200
            transition-all duration-200;
   }
@@ -91,21 +98,77 @@
   }
 
   .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg text-sm
            outline-none transition-all duration-200
-           focus:border-primary focus:ring-2 focus:ring-primary/20
+           focus:border-black focus:ring-2 focus:ring-black/10
            placeholder:text-gray-400 bg-white text-gray-900;
   }
   select.input-field option {
     @apply bg-white text-gray-900;
   }
 
+  .auth-shell {
+    @apply font-worksans text-neutral-900 antialiased;
+  }
+
+  .auth-brand {
+    @apply block font-volkhov text-[22px] font-bold uppercase leading-[1.15] tracking-[0.13em] text-black;
+  }
+
+  .auth-eyebrow {
+    @apply mt-2 block text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-500;
+  }
+
+  .auth-title {
+    @apply mt-7 font-volkhov text-[32px] font-bold leading-tight tracking-normal text-black sm:text-[38px];
+  }
+
+  .auth-subtitle {
+    @apply mt-2 text-[15px] leading-6 text-gray-500;
+  }
+
+  .auth-label {
+    @apply mb-2 block text-[13px] font-semibold tracking-[0.01em] text-gray-700;
+  }
+
+  .auth-input {
+    @apply w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[15px] leading-6 text-black outline-none transition-all placeholder:text-gray-400 focus:border-black focus:bg-white;
+  }
+
+  .auth-button {
+    @apply flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-black px-5 py-3.5 text-[13px] font-semibold tracking-[0.02em] text-white shadow-md transition-all hover:bg-neutral-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .auth-error {
+    @apply rounded-lg border border-red-200 bg-red-50 p-3.5 text-sm leading-5 text-red-600;
+  }
+
+  .auth-navigation {
+    @apply mt-7 space-y-3 text-center text-sm leading-6 text-gray-600;
+  }
+
+  .auth-footer {
+    @apply mt-10 text-center text-[11px] font-medium uppercase tracking-[0.14em] text-gray-500;
+  }
+
+  .auth-section-label {
+    @apply text-[13px] font-bold uppercase tracking-[0.14em] text-black;
+  }
+
+  .auth-image-kicker {
+    @apply text-[11px] font-semibold uppercase tracking-[0.24em] text-white/75;
+  }
+
+  .auth-image-title {
+    @apply mt-3 font-volkhov text-[34px] font-bold leading-[1.08] tracking-normal text-white sm:text-[42px];
+  }
+
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
   .badge-primary {
-    @apply badge bg-primary/10 text-primary;
+    @apply badge bg-black text-white;
   }
 
   .badge-success {

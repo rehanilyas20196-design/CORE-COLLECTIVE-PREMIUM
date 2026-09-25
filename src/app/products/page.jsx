@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, X, ChevronDown, LayoutGrid, List, Star, Loader, Sparkles, TrendingUp, Shield } from 'lucide-react';
+import { Search, SlidersHorizontal, X, ChevronDown, LayoutGrid, List, Star, Loader, Sparkles, Shield } from 'lucide-react';
 import ProductCard from '../../components/products/ProductCard';
 import ProductCardSkeleton from '../../components/products/ProductCardSkeleton';
 import { supabase } from '../../lib/supabase';
@@ -39,7 +39,6 @@ function ProductsPage() {
     featuredOnly: false, sort: 'relevance',
   });
 
-  // Read search from URL on mount and changes
   useEffect(() => {
     const q = searchParams.get('search') || '';
     const cat = searchParams.get('category') || '';
@@ -120,35 +119,35 @@ function ProductsPage() {
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
 
   const FilterSidebar = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 font-jost">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900">Filters</h3>
-        {activeFilterCount > 0 && <button onClick={clearFilters} className="text-sm text-primary hover:text-primary-700 transition-colors">Clear All</button>}
+        <h3 className="font-volkhov font-bold text-lg text-black">Filters</h3>
+        {activeFilterCount > 0 && <button onClick={clearFilters} className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">Clear All</button>}
       </div>
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Category</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Category</h4>
         <div className="space-y-1">
           <button onClick={() => updateFilter('category', '')}
-            className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!filters.category ? 'bg-primary/20 text-primary font-medium' : 'text-gray-600 hover:bg-gray-100'}`}>All Categories</button>
+            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${!filters.category ? 'bg-black text-white font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}>All Categories</button>
           {categoryList.map(cat => (
             <button key={cat} onClick={() => updateFilter('category', cat)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filters.category === cat ? 'bg-primary/20 text-primary font-medium' : 'text-gray-600 hover:bg-gray-100'}`}>{cat}</button>
+              className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${filters.category === cat ? 'bg-black text-white font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}>{cat}</button>
           ))}
         </div>
       </div>
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-gray-100" />
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Price Range (USD)</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Price Range ($)</h4>
         <div className="flex items-center gap-2">
-          <input type="number" value={filters.minPrice} onChange={e => updateFilter('minPrice', e.target.value)} placeholder="Min" className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-primary" />
-          <span className="text-gray-500">–</span>
-          <input type="number" value={filters.maxPrice} onChange={e => updateFilter('maxPrice', e.target.value)} placeholder="Max" className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-primary" />
+          <input type="number" value={filters.minPrice} onChange={e => updateFilter('minPrice', e.target.value)} placeholder="Min" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-black outline-none focus:border-black" />
+          <span className="text-gray-400">–</span>
+          <input type="number" value={filters.maxPrice} onChange={e => updateFilter('maxPrice', e.target.value)} placeholder="Max" className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-black outline-none focus:border-black" />
         </div>
       </div>
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-gray-100" />
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Min. Order Qty</h4>
-        <select value={filters.moq} onChange={e => updateFilter('moq', e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-900 outline-none focus:border-primary">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Min. Order Qty</h4>
+        <select value={filters.moq} onChange={e => updateFilter('moq', e.target.value)} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs text-black outline-none focus:border-black">
           <option value="">Any</option>
           <option value="1-10">1–10</option>
           <option value="11-50">11–50</option>
@@ -156,111 +155,91 @@ function ProductsPage() {
           <option value="200+">200+</option>
         </select>
       </div>
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-gray-100" />
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Supplier City</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Supplier City</h4>
         <div className="space-y-2 max-h-40 overflow-y-auto">
           {cities.map(city => (
-            <label key={city} className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={filters.cities.includes(city)} onChange={e => updateFilter('cities', e.target.checked ? [...filters.cities, city] : filters.cities.filter(c => c !== city))} className="w-4 h-4 rounded border-gray-300 bg-white text-primary focus:ring-primary" />
-              <span className="text-sm text-gray-700">{city}</span>
+            <label key={city} className="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" checked={filters.cities.includes(city)} onChange={e => updateFilter('cities', e.target.checked ? [...filters.cities, city] : filters.cities.filter(c => c !== city))} className="w-4 h-4 rounded border-gray-300 text-black accent-black" />
+              <span className="text-xs text-gray-700">{city}</span>
             </label>
           ))}
         </div>
       </div>
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-gray-100" />
       <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Minimum Rating</h4>
+        <h4 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-3">Minimum Rating</h4>
         <div className="flex items-center gap-1">
           {[1, 2, 3, 4, 5].map(star => (
             <button key={star} onClick={() => updateFilter('minRating', filters.minRating === star ? 0 : star)}
-              className={`p-1 rounded transition-colors ${star <= filters.minRating ? 'text-amber-400' : 'text-gray-400 hover:text-gray-600'}`}>
-              <Star className={`w-5 h-5 ${star <= filters.minRating ? 'fill-amber-400' : ''}`} />
+              className={`p-1 rounded transition-colors ${star <= filters.minRating ? 'text-[#FFB800]' : 'text-gray-300 hover:text-gray-500'}`}>
+              <Star className={`w-4 h-4 ${star <= filters.minRating ? 'fill-[#FFB800]' : ''}`} />
             </button>
           ))}
           {filters.minRating > 0 && <span className="text-xs text-gray-500 ml-2">& up</span>}
         </div>
       </div>
-      <div className="border-t border-gray-200" />
+      <div className="border-t border-gray-100" />
       <div className="space-y-3">
         <label className="flex items-center justify-between cursor-pointer">
-          <span className="text-sm text-gray-700">Verified Suppliers Only</span>
+          <span className="text-xs text-gray-700 font-medium">Verified Only</span>
           <button onClick={() => updateFilter('verifiedOnly', !filters.verifiedOnly)}
-            className={`w-10 h-5 rounded-full transition-colors relative ${filters.verifiedOnly ? 'bg-primary' : 'bg-gray-300'}`}>
-            <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${filters.verifiedOnly ? 'translate-x-5' : 'translate-x-0.5'}`} />
+            className={`w-9 h-5 rounded-full transition-colors relative ${filters.verifiedOnly ? 'bg-black' : 'bg-gray-300'}`}>
+            <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${filters.verifiedOnly ? 'translate-x-4' : 'translate-x-0.5'}`} />
           </button>
         </label>
         <label className="flex items-center justify-between cursor-pointer">
-          <span className="text-sm text-gray-700">Featured Only</span>
+          <span className="text-xs text-gray-700 font-medium">Featured Only</span>
           <button onClick={() => updateFilter('featuredOnly', !filters.featuredOnly)}
-            className={`w-10 h-5 rounded-full transition-colors relative ${filters.featuredOnly ? 'bg-primary' : 'bg-gray-300'}`}>
-            <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${filters.featuredOnly ? 'translate-x-5' : 'translate-x-0.5'}`} />
+            className={`w-9 h-5 rounded-full transition-colors relative ${filters.featuredOnly ? 'bg-black' : 'bg-gray-300'}`}>
+            <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${filters.featuredOnly ? 'translate-x-4' : 'translate-x-0.5'}`} />
           </button>
         </label>
       </div>
     </div>
   );
 
-  const breadcrumbJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: '/' },
-      { '@type': 'ListItem', position: 2, name: 'Products', item: '/products' },
-    ],
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 py-14 sm:py-20">
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] bg-gold/5 rounded-full blur-[100px]" />
+    <div className="min-h-screen bg-white font-jost pt-24 sm:pt-28">
+      {/* Header Banner */}
+      <section className="relative overflow-hidden bg-[#FAF9F6] py-14 sm:py-20 border-b border-gray-100">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <a href="/" className="hover:text-primary transition-colors">Home</a>
+            <nav className="flex items-center gap-2 text-xs text-gray-500 mb-4">
+              <a href="/" className="hover:text-black transition-colors">Home</a>
               <ChevronDown className="w-3 h-3 -rotate-90" />
-              <span className="text-primary">Products</span>
+              <span className="text-black font-semibold">Products</span>
             </nav>
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
               <div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-500">
-                  Wholesale Marketplace
+                <h1 className="font-volkhov font-bold text-4xl sm:text-5xl text-black">
+                  Wholesale Products
                 </h1>
-                <p className="text-gray-700 text-lg flex items-center gap-2">
-                  <span>{totalCount.toLocaleString()} products</span>
+                <p className="text-gray-500 text-sm mt-2 flex items-center gap-2">
+                  <span>{totalCount.toLocaleString()} products listed</span>
                   <span className="w-1 h-1 rounded-full bg-gray-400" />
                   <span>Verified suppliers</span>
-                  <span className="w-1 h-1 rounded-full bg-gray-400" />
-                  <span>Bulk pricing</span>
                 </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl">
-                  <Shield className="w-4 h-4 text-green-600" />
-                  <span className="text-xs text-gray-600">Trusted by 50,000+ buyers</span>
-                </div>
               </div>
             </div>
           </motion.div>
 
           {/* Search + Category Pills */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-6">
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-6">
             <div className="relative max-w-2xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input type="text" value={filters.search} onChange={e => updateFilter('search', e.target.value)}
                 placeholder="Search by product name, category, or supplier..."
-                className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base" />
+                className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-full text-black placeholder-gray-400 outline-none focus:border-black focus:ring-2 focus:ring-black/10 transition-all text-xs sm:text-sm shadow-sm" />
             </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-2 mt-4">
-            <span className="text-xs text-gray-500 font-medium self-center mr-1">Categories:</span>
+            <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider self-center mr-1">Categories:</span>
             {categoryList.map(cat => (
               <button key={cat} onClick={() => updateFilter('category', filters.category === cat ? '' : cat)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${filters.category === cat ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900'}`}>
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider transition-all ${filters.category === cat ? 'bg-black text-white shadow' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-black'}`}>
                 {cat}
               </button>
             ))}
@@ -268,141 +247,76 @@ function ProductsPage() {
         </div>
       </section>
 
-      {/* Featured Products */}
-      {!filters.category && !filters.search && featuredProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 mb-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">Featured Products</h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {featuredProducts.map((product, idx) => (
-                <ProductCard key={product.id} product={product} index={idx} />
-              ))}
-            </div>
-          </motion.div>
-        </section>
-      )}
-
       {/* Main Content */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex gap-8">
           {/* Desktop Sidebar */}
-          <motion.aside initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-            className="hidden lg:block w-[280px] flex-shrink-0">
-            <div className="sticky top-24 space-y-6 bg-white border border-gray-200 rounded-2xl p-6 max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-thin">
+          <aside className="hidden lg:block w-[260px] shrink-0">
+            <div className="sticky top-24 space-y-6 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <FilterSidebar />
             </div>
-          </motion.aside>
+          </aside>
 
-          {/* Main */}
+          {/* Main List Grid */}
           <div className="flex-1 min-w-0">
             {/* Top Bar */}
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3 pb-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <button onClick={() => setMobileFiltersOpen(true)}
-                  className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                  className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs text-black font-semibold hover:bg-gray-100">
                   <SlidersHorizontal className="w-4 h-4" />
                   Filters
-                  {activeFilterCount > 0 && <span className="w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-bold">{activeFilterCount}</span>}
+                  {activeFilterCount > 0 && <span className="w-4 h-4 bg-black text-white text-[10px] rounded-full flex items-center justify-center font-bold">{activeFilterCount}</span>}
                 </button>
-                <p className="text-sm text-gray-600">
-                  {loading ? 'Loading...' : <><span className="text-gray-900 font-semibold">{totalCount.toLocaleString()}</span> results</>}
+                <p className="text-xs text-gray-500">
+                  {loading ? 'Loading...' : <><span className="text-black font-bold">{totalCount.toLocaleString()}</span> items found</>}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <select value={filters.sort} onChange={e => updateFilter('sort', e.target.value)}
-                  className="px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary">
+                  className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-black outline-none focus:border-black font-medium">
                   {sortOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
-                <div className="hidden sm:flex bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="hidden sm:flex bg-white border border-gray-200 rounded-lg overflow-hidden">
                   <button onClick={() => setViewMode('grid')}
-                    className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-primary text-white' : 'text-gray-500 hover:text-gray-900'}`}>
+                    className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}>
                     <LayoutGrid className="w-4 h-4" />
                   </button>
                   <button onClick={() => setViewMode('list')}
-                    className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-primary text-white' : 'text-gray-500 hover:text-gray-900'}`}>
+                    className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-black text-white' : 'text-gray-500 hover:text-black'}`}>
                     <List className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Active Filter Chips */}
-            {activeFilterCount > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
-                {filters.category && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg text-xs text-primary">
-                    {filters.category}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('category', '')} />
-                  </span>
-                )}
-                {filters.minPrice && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs text-gray-700">
-                    Min: $${Number(filters.minPrice).toFixed(2)}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('minPrice', '')} />
-                  </span>
-                )}
-                {filters.maxPrice && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs text-gray-700">
-                    Max: $${Number(filters.maxPrice).toFixed(2)}
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('maxPrice', '')} />
-                  </span>
-                )}
-                {filters.minRating > 0 && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs text-gray-700">
-                    {filters.minRating}+ Stars
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('minRating', 0)} />
-                  </span>
-                )}
-                {filters.verifiedOnly && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-lg text-xs text-green-700">
-                    Verified Only
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('verifiedOnly', false)} />
-                  </span>
-                )}
-                {filters.search && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-700">
-                    Search: &ldquo;{filters.search}&rdquo;
-                    <X className="w-3 h-3 cursor-pointer" onClick={() => updateFilter('search', '')} />
-                  </span>
-                )}
-                <button onClick={clearFilters} className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-900 transition-colors">Clear all</button>
-              </div>
-            )}
-
             {/* Product Grid */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)}
               </div>
             ) : products.length === 0 ? (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                className="text-center py-20">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Search className="w-10 h-10 text-gray-400" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No products found</h3>
-                <p className="text-gray-600 mb-6">Try adjusting your filters or search terms</p>
-                <button onClick={clearFilters}
-                  className="px-6 py-3 bg-gradient-to-r from-primary to-primary-700 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all">
+              <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-200">
+                <Search className="w-10 h-10 mx-auto text-gray-400 mb-3" />
+                <h3 className="font-volkhov font-bold text-lg text-black mb-1">No products found</h3>
+                <p className="text-xs text-gray-500 mb-4">Try clearing filters or searching for another item</p>
+                <button onClick={clearFilters} className="px-6 py-2.5 bg-black text-white text-xs uppercase tracking-wider font-semibold rounded-md hover:bg-neutral-800">
                   Clear All Filters
                 </button>
-              </motion.div>
+              </div>
             ) : (
               <>
-                <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
+                <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
                   {products.map((product, idx) => (
                     <ProductCard key={product.id} product={product} index={idx} variant={viewMode} />
                   ))}
                 </div>
 
                 {hasMore && (
-                  <div className="text-center mt-10">
+                  <div className="text-center mt-12">
                     <button onClick={() => setPage(p => p + 1)} disabled={loadingMore}
-                      className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white rounded-xl font-semibold transition-all hover:shadow-lg hover:shadow-primary/20 disabled:opacity-50 inline-flex items-center gap-2">
-                      {loadingMore ? <Loader className="w-5 h-5 animate-spin" /> : null}
+                      className="px-10 py-3.5 bg-black text-white text-xs uppercase tracking-widest font-semibold rounded-full hover:bg-neutral-800 transition-all shadow disabled:opacity-50 inline-flex items-center gap-2">
+                      {loadingMore ? <Loader className="w-4 h-4 animate-spin" /> : null}
                       {loadingMore ? 'Loading...' : 'Load More Products'}
                     </button>
                   </div>
@@ -412,29 +326,6 @@ function ProductsPage() {
           </div>
         </div>
       </section>
-
-      {/* Mobile Filter Drawer */}
-      <AnimatePresence>
-        {mobileFiltersOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileFiltersOpen(false)} />
-              <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-white border-t border-gray-200 rounded-t-3xl overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between z-10">
-                <h3 className="text-lg font-bold text-gray-900">Filters</h3>
-                <button onClick={() => setMobileFiltersOpen(false)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                  <X className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
-              <div className="p-4 pb-24"><FilterSidebar /></div>
-              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
-                <button onClick={() => setMobileFiltersOpen(false)}
-                  className="w-full py-3 bg-gradient-to-r from-primary to-primary-700 text-white rounded-xl font-semibold">Apply Filters</button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -442,10 +333,10 @@ function ProductsPage() {
 export default function ProductsPageWrapper() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Loading products...</p>
+      <div className="min-h-screen bg-white flex items-center justify-center font-jost">
+        <div className="flex flex-col items-center gap-3">
+          <Loader className="w-8 h-8 text-black animate-spin" />
+          <p className="text-xs text-gray-500">Loading catalog...</p>
         </div>
       </div>
     }>

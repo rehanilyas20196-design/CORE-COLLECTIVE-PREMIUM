@@ -3,68 +3,72 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const footerColumns = [
-  {
-    title: 'For Buyers',
-    links: [
-      { label: 'Browse Products', href: '/products' },
-      { label: 'Browse Suppliers', href: '/suppliers' },
-      { label: 'Request Custom Quote', href: '/contact-us' },
-      { label: 'Buyer Protection', href: '/faq' },
-      { label: 'FAQ', href: '/faq' },
-    ],
-  },
-  {
-    title: 'Support',
-    links: [
-      { label: 'Help Center', href: '/faq' },
-      { label: 'Contact Support', href: '/contact-us' },
-      { label: 'Shipping Info', href: '/faq' },
-      { label: 'Returns', href: '/faq' },
-      { label: 'Report Issue', href: '/contact-us' },
-    ],
-  },
-  {
-    title: 'Categories',
-    links: [
-      { label: 'Electronics', href: '/products?category=Electronics' },
-      { label: 'Clothing', href: '/products?category=Clothing' },
-      { label: 'Home Goods', href: '/products?category=Home Goods' },
-      { label: 'Sports Equipment', href: '/products?category=Sports Equipment' },
-      { label: 'View All', href: '/products' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'About Us', href: '/about' },
-      { label: 'How It Works', href: '/about' },
-      { label: 'Careers', href: '/about' },
-      { label: 'Press & Media', href: '/about' },
-      { label: 'Contact Us', href: '/contact-us' },
-    ],
-  },
+function IconFacebook({ className = 'w-5 h-5' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M13.5 22v-8h2.7l.4-3.1h-3.1V8.9c0-.9.3-1.5 1.6-1.5h1.6V4.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.4-4 4v2.4H7.6V14h2.7v8h3.2Z" />
+    </svg>
+  );
+}
+
+function IconInstagram({ className = 'w-5 h-5' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+      <circle cx="12" cy="12" r="3.8" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function IconX({ className = 'w-5 h-5' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 3l7.3 9.6L3.3 21h2.6l5.5-6.5L16.5 21H21l-7.6-10L20.4 3h-2.6l-5 6-4.8-6H3Z" />
+    </svg>
+  );
+}
+
+function IconLinkedIn({ className = 'w-5 h-5' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5ZM.2 8.1h4.6V23H.2V8.1Zm7.5 0h4.4v2h.1c.6-1.2 2.1-2.4 4.4-2.4 4.7 0 5.6 3.1 5.6 7.1V23h-4.6v-7.3c0-1.7 0-4-2.4-4s-2.8 1.9-2.8 3.8V23H7.7V8.1Z" />
+    </svg>
+  );
+}
+
+const shopLinks = [
+  { label: 'Electronics', href: '/products?category=Electronics' },
+  { label: 'Clothing & Apparel', href: '/products?category=Clothing%20%26%20Apparel' },
+  { label: 'Home & Furniture', href: '/products?category=Home%20%26%20Furniture' },
+  { label: 'Sports Equipment', href: '/products?category=Sports%20Equipment' },
+  { label: 'Health & Beauty', href: '/products?category=Health%20%26%20Beauty' },
+  { label: 'View All Products', href: '/products' },
 ];
 
-const socialLinks = [
-  {
-    name: 'WhatsApp',
-    href: 'https://wa.me/03455900229',
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-      </svg>
-    ),
-  },
-  {
-    name: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/rehan-ilyas-6976793a7',
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-      </svg>
-    ),
-  },
+const companyLinks = [
+  { label: 'About Us', href: '/about' },
+  { label: 'Contact', href: '/contact-us' },
+  { label: 'Suppliers', href: '/suppliers' },
+  { label: 'Become a Supplier', href: '/supplier/signup' },
+  { label: 'Supplier Login', href: '/supplier/login' },
+  { label: 'Seller Dashboard', href: '/supplier/dashboard' },
+];
+
+const supportLinks = [
+  { label: 'My Orders', href: '/orders' },
+  { label: 'Notifications', href: '/notifications' },
+  { label: 'My Profile', href: '/profile' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms of Use', href: '/terms' },
+  { label: 'Cookie Policy', href: '/cookies' },
+];
+
+const socials = [
+  { label: 'Facebook', href: 'https://facebook.com/corecollective', icon: IconFacebook },
+  { label: 'Instagram', href: 'https://instagram.com/corecollective', icon: IconInstagram },
+  { label: 'X (Twitter)', href: 'https://twitter.com/corecollective', icon: IconX },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/core-collective', icon: IconLinkedIn },
 ];
 
 export default function FooterSection() {
@@ -72,81 +76,170 @@ export default function FooterSection() {
   if (pathname?.startsWith('/admin')) return null;
 
   return (
-    <footer className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#15100C_0%,#1F1811_100%)]">
-      <div
-        aria-hidden="true"
-        className="noise-bg absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent_0%,#B98A3C_28%,#E9C766_50%,#B98A3C_72%,transparent_100%)]"
-      />
-
-      <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 pt-14 pb-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-x-8 gap-y-12">
-          <div className="lg:col-span-3">
-            <p className="font-fraunces text-[26px] sm:text-[28px] font-medium tracking-[-0.01em] text-[#F5EEDD]">
-              Core Collective
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-[#E8DFCF]/65 max-w-[22ch]">
-              The B2B wholesale marketplace connecting distributors and retail buyers with verified suppliers.
+    <footer className="bg-[#0B0B0B] text-white/70 font-jost">
+      {/* Newsletter strip */}
+      <div className="border-b border-white/10">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 py-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div>
+            <h3 className="font-volkhov font-bold text-xl sm:text-2xl text-white">
+              Stay Updated With Wholesale Deals
+            </h3>
+            <p className="text-sm text-white/50 mt-1">
+              Weekly digests on price drops, verified supplier arrivals and exclusive B2B offers.
             </p>
           </div>
+          <form
+            action="/"
+            method="get"
+            onSubmit={(e) => {
+              e.preventDefault();
+              window.location.href = '/products';
+            }}
+            className="relative w-full max-w-md"
+          >
+              <input
+                type="email"
+                aria-label="Email address"
+              placeholder="you@company.com"
+              className="w-full pl-5 pr-36 py-3.5 bg-white/5 border border-white/15 rounded-full text-sm text-white outline-none focus:border-white/50 focus:ring-2 focus:ring-white/10 transition-all"
+            />
+            <button
+              type="submit"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 px-6 py-2.5 bg-white text-black rounded-full text-xs font-semibold uppercase tracking-wider hover:bg-neutral-200 transition-all"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
 
-          {footerColumns.map((col) => (
-            <div key={col.title} className="lg:col-span-2">
-              <h4 className="font-spacemono text-[11px] uppercase tracking-[0.22em] text-[#E9C766]">
-                {col.title}
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-[#E8DFCF]/60 hover:text-[#E9C766] transition-colors duration-200"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+      {/* Main columns */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 py-14 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          {/* Brand */}
+          <div className="lg:col-span-4">
+            <Link href="/" className="inline-flex flex-col leading-tight group">
+              <span className="font-volkhov font-bold text-white text-3xl tracking-[0.12em] uppercase">
+                Core Collective
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.3em] font-semibold text-white/40 mt-1">
+                B2B Wholesale Marketplace
+              </span>
+            </Link>
+
+            <p className="mt-6 text-sm leading-relaxed text-white/50 max-w-sm">
+              Pakistan&apos;s #1 B2B marketplace connecting retailers with verified global suppliers —
+              competitive bulk pricing, secure payments and fast nationwide delivery.
+            </p>
+
+            <div className="mt-7 space-y-3 text-sm">
+              <a
+                href="mailto:ecommerce_corecollective@gmail.com"
+                className="flex items-center gap-3 hover:text-white transition-colors"
+              >
+                <span className="w-2 h-2 rounded-full bg-white/40" />
+                ecommerce_corecollective@gmail.com
+              </a>
+              <a
+                href="tel:+923455900229"
+                className="flex items-center gap-3 hover:text-white transition-colors"
+              >
+                <span className="w-2 h-2 rounded-full bg-white/40" />
+                +92 345 5900229
+              </a>
+              <span className="flex items-center gap-3">
+                <span className="w-2 h-2 rounded-full bg-white/40" />
+                Karachi, Pakistan
+              </span>
             </div>
-          ))}
 
-          <div className="lg:col-span-1">
-            <h4 className="font-spacemono text-[11px] uppercase tracking-[0.22em] text-[#E9C766]">
-              Follow Us
+            <div className="flex items-center gap-3 mt-8">
+              {socials.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={s.label}
+                    className="w-10 h-10 rounded-full border border-white/15 text-white/60 flex items-center justify-center hover:bg-white hover:text-black hover:border-white transition-all duration-300"
+                  >
+                    <Icon />
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Shop */}
+          <div className="lg:col-span-2">
+            <h4 className="text-xs font-bold uppercase tracking-[0.25em] text-white mb-6">
+              Shop
             </h4>
-            <div className="mt-4 flex gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  aria-label={social.name}
-                  className="w-9 h-9 rounded-[10px] bg-[linear-gradient(145deg,#2B241B_0%,#181310_100%)] flex items-center justify-center text-[#E8DFCF]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),inset_0_-1px_0_rgba(0,0,0,0.5),0_4px_8px_-2px_rgba(0,0,0,0.5)] hover:text-[#E9C766] hover:-translate-y-[3px] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.45),0_9px_16px_-4px_rgba(233,199,102,0.35)] transition-[transform,box-shadow,color] duration-200"
-                >
-                  {social.icon}
-                </a>
+            <ul className="space-y-3">
+              {shopLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-sm hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div className="lg:col-span-3">
+            <h4 className="text-xs font-bold uppercase tracking-[0.25em] text-white mb-6">
+              Company
+            </h4>
+            <ul className="space-y-3">
+              {companyLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-sm hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div className="lg:col-span-3">
+            <h4 className="text-xs font-bold uppercase tracking-[0.25em] text-white mb-6">
+              Support
+            </h4>
+            <ul className="space-y-3">
+              {supportLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-sm hover:text-white transition-colors">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
 
-      <div className="relative border-t border-[#E8DFCF]/10">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sm text-[#E8DFCF]/60">
-            &copy; {new Date().getFullYear()} Core Collective. All rights reserved.
+      {/* Bottom bar */}
+      <div className="border-t border-white/10">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 py-7 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/40 font-normal">
+            Copyright &copy; {new Date().getFullYear()} Core Collective. All Rights Reserved.
           </p>
-          <div className="flex items-center gap-6 text-sm text-[#E8DFCF]/60">
-            <Link href="/privacy" className="hover:text-[#E9C766] transition-colors duration-200">
-              Privacy Policy
+
+          <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wider">
+            <Link href="/login" className="hover:text-white transition-colors">
+              Sign In
             </Link>
-            <Link href="/terms" className="hover:text-[#E9C766] transition-colors duration-200">
-              Terms of Use
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <Link href="/signup" className="hover:text-white transition-colors">
+              Create Account
             </Link>
-            <Link href="/cookies" className="hover:text-[#E9C766] transition-colors duration-200">
-              Cookie Policy
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <Link href="/contact-us" className="hover:text-white transition-colors">
+              Help Center
             </Link>
           </div>
         </div>

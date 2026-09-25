@@ -1,23 +1,11 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { User, Mail, Phone, Lock, Eye, EyeOff, Loader, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Loader } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { signupErrorMessage, validatePassword, passwordIssues } from '../../lib/auth';
+import { signupErrorMessage, validatePassword, passwordIssues, isValidEmail } from '../../lib/auth';
 import OtpVerificationCard from './OtpVerificationCard';
-
-const creamBg = '#EFE3C8';
-const cardBg = '#FBF5E8';
-const ink = '#2B2013';
-const tan = '#7A6A4C';
-const goldSoft = 'rgba(140,105,40,0.28)';
-const goldMid = '#B8862E';
-const goldDark = '#8A6A1E';
-const inputBg = '#FFFCF4';
-
-const glowIn = '0 0 0 3px rgba(217,166,60,0.16), 0 0 20px rgba(217,166,60,0.12)';
 
 function SignupCard() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
@@ -26,35 +14,6 @@ function SignupCard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [otpStep, setOtpStep] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
-
-  // --- 3D tilt toward the cursor (same treatment as LoginCard) ---
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springX = useSpring(rotateX, { stiffness: 120, damping: 18, mass: 0.4 });
-  const springY = useSpring(rotateY, { stiffness: 120, damping: 18, mass: 0.4 });
-  const tiltX = useTransform(springX, [8, -8], [8, -8]);
-  const tiltY = useTransform(springY, [8, -8], [8, -8]);
-  const frameRef = useRef(null);
-
-  const handleMouseMove = useCallback(
-    (e) => {
-      const rect = frameRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const px = Math.min(1, Math.max(-1, (e.clientX - cx) / (rect.width / 2)));
-      const py = Math.min(1, Math.max(-1, (e.clientY - cy) / (rect.height / 2)));
-      rotateY.set(px * 8);
-      rotateX.set(-py * 8);
-    },
-    [rotateX, rotateY]
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    rotateX.set(0);
-    rotateY.set(0);
-  }, [rotateX, rotateY]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -63,7 +22,7 @@ function SignupCard() {
       setError('Please fill in all required fields');
       return;
     }
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    if (form.email && !isValidEmail(form.email)) {
       setError('Please enter a valid email address');
       return;
     }
@@ -94,7 +53,6 @@ function SignupCard() {
         setError('An account with this email already exists');
         return;
       }
-      // Account created — move to the OTP verification step
       setOtpStep(true);
     } catch (err) {
       setError(signupErrorMessage(err));
@@ -102,27 +60,6 @@ function SignupCard() {
       setLoading(false);
     }
   };
-
-  const fieldBase = {
-    width: '100%',
-    paddingLeft: '2.75rem',
-    paddingRight: '2.75rem',
-    paddingTop: '0.85rem',
-    paddingBottom: '0.85rem',
-    backgroundColor: inputBg,
-    border: `1px solid ${goldSoft}`,
-    color: ink,
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
-  };
-
-  const fieldStyle = (field, extra = {}) => ({
-    ...fieldBase,
-    ...extra,
-    borderColor: focusedField === field ? goldMid : goldSoft,
-    boxShadow: focusedField === field ? glowIn : 'none',
-  });
 
   const pwdIssues = form.password ? passwordIssues(form.password) : [];
 
@@ -138,271 +75,148 @@ function SignupCard() {
   }
 
   return (
-    <div
-      className="relative w-full overflow-hidden flex items-center justify-center min-h-screen pt-[84px] sm:pt-[96px] md:pt-[100px] pb-12"
-      style={{ backgroundColor: creamBg }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* soft radial gold-tinted glows in the corners */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          top: '-180px', right: '-160px', width: '640px', height: '640px',
-          background: 'radial-gradient(circle at 70% 30%, rgba(217,166,60,0.22) 0%, transparent 62%)',
-        }}
-      />
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          bottom: '-200px', left: '-180px', width: '680px', height: '680px',
-          background: 'radial-gradient(circle at 30% 70%, rgba(184,134,46,0.18) 0%, transparent 60%)',
-        }}
-      />
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          top: '30%', left: '8%', width: '420px', height: '420px',
-          background: 'radial-gradient(circle at 50% 50%, rgba(255,230,160,0.16) 0%, transparent 60%)',
-        }}
-      />
+    <div className="auth-shell flex min-h-screen items-center bg-white pt-24 sm:pt-28">
+      <div className="grid min-h-[calc(100vh-7rem)] w-full items-stretch lg:grid-cols-12">
+        <div className="relative hidden overflow-hidden bg-neutral-100 lg:col-span-5 lg:block">
+          <img
+            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop"
+            alt="Customer creating a Core Collective account"
+            className="h-full w-full object-cover"
+          />
+        </div>
 
-      {/* entrance: fade + slide up + subtle 3D rotate settling to flat */}
-      <motion.div
-        initial={{ opacity: 0, y: 46, rotateX: -14, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-        className="relative w-full max-w-[440px] px-4"
-        style={{ perspective: 1200 }}
-      >
-        <motion.div
-          className="relative"
-          style={{ transformStyle: 'preserve-3d', rotateX: tiltX, rotateY: tiltY }}
-        >
-          {/* card — square corners everywhere, thin warm 1px border */}
-          <div style={{ backgroundColor: cardBg, border: `1px solid ${goldSoft}` }}>
-            {/* animated gold gradient line across the top edge */}
-            <div className="login-gold-line" />
+        <div className="mx-auto flex w-full max-w-2xl flex-col justify-center px-6 py-12 sm:px-12 lg:col-span-7 lg:px-16">
+          <div className="mb-8 text-center sm:text-left">
+            <span className="auth-brand">Core Collective</span>
+            <span className="auth-eyebrow">B2B Wholesale Marketplace</span>
+            <h1 className="auth-title">Create your account</h1>
+            <p className="auth-subtitle">Access wholesale pricing and manage your business purchases.</p>
+          </div>
 
-            {/* gold corner-bracket accents at two opposite corners */}
-            <div
-              className="absolute pointer-events-none"
-              style={{ top: 0, right: 0, width: 26, height: 26, borderTop: `2.5px solid ${goldMid}`, borderRight: `2.5px solid ${goldMid}` }}
-            />
-            <div
-              className="absolute pointer-events-none"
-              style={{ bottom: 0, left: 0, width: 26, height: 26, borderBottom: `2.5px solid ${goldMid}`, borderLeft: `2.5px solid ${goldMid}` }}
-            />
-
-            <div className="p-7 sm:p-10 sm:pt-9">
-              {/* wordmark heading block — text only, nothing decorative above */}
-              <div className="mb-8">
-                <h1
-                  className="font-fraunces text-[1.9rem] sm:text-[2.2rem] font-semibold leading-tight"
-                  style={{ color: ink }}
-                >
-                  Create your account
-                </h1>
-                <p className="mt-2 text-[0.95rem]" style={{ color: tan }}>
-                  Join Core Collective as a buyer
-                </p>
+          <form onSubmit={handleSignup} className="space-y-5" noValidate>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="name" className="auth-label">Full name</label>
+                <input
+                  id="name"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                  placeholder="First and last name"
+                  autoComplete="name"
+                  required
+                  className="auth-input"
+                />
               </div>
 
-              <form onSubmit={handleSignup} className="space-y-5" noValidate>
-                {/* Full Name */}
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>
-                    Full Name <span style={{ color: goldMid }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'name' ? goldMid : tan }} />
-                    <input
-                      type="text"
-                      value={form.name}
-                      onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                      placeholder="John Doe"
-                      autoComplete="name"
-                      required
-                      onFocus={() => setFocusedField('name')}
-                      onBlur={() => setFocusedField(null)}
-                      style={fieldStyle('name', { paddingRight: '2.75rem' })}
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>
-                    Email <span style={{ color: goldMid }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'email' ? goldMid : tan }} />
-                    <input
-                      type="email"
-                      value={form.email}
-                      onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      required
-                      onFocus={() => setFocusedField('email')}
-                      onBlur={() => setFocusedField(null)}
-                      style={fieldStyle('email', { paddingRight: '2.75rem' })}
-                    />
-                  </div>
-                </div>
-
-                {/* Phone (optional) */}
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>
-                    Phone <span className="text-[0.72rem] font-normal opacity-80">(optional)</span>
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'phone' ? goldMid : tan }} />
-                    <input
-                      type="tel"
-                      value={form.phone}
-                      onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                      placeholder="+92 300 000 0000"
-                      autoComplete="tel"
-                      onFocus={() => setFocusedField('phone')}
-                      onBlur={() => setFocusedField(null)}
-                      style={fieldStyle('phone', { paddingRight: '2.75rem' })}
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>
-                    Password <span style={{ color: goldMid }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'password' ? goldMid : tan }} />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-                      placeholder="Min. 8 characters with A-Z, a-z, 0-9"
-                      autoComplete="new-password"
-                      required
-                      onFocus={() => setFocusedField('password')}
-                      onBlur={() => setFocusedField(null)}
-                      style={fieldStyle('password', { paddingRight: '3.4rem' })}
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer"
-                      style={{ color: tan }}
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
-                    </button>
-                  </div>
-                  {pwdIssues.length > 0 && (
-                    <p className="mt-1.5 text-[0.75rem] leading-relaxed" style={{ color: '#9B2C2C' }}>
-                      Needs {pwdIssues.join(', ')}.
-                    </p>
-                  )}
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                  <label className="block text-[0.82rem] font-medium mb-1.5 tracking-wide" style={{ color: tan }}>
-                    Confirm Password <span style={{ color: goldMid }}>*</span>
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: focusedField === 'confirmPassword' ? goldMid : tan }} />
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      value={form.confirmPassword}
-                      onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
-                      placeholder="Repeat your password"
-                      autoComplete="new-password"
-                      required
-                      onFocus={() => setFocusedField('confirmPassword')}
-                      onBlur={() => setFocusedField(null)}
-                      style={fieldStyle('confirmPassword', { paddingRight: '3.4rem' })}
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 cursor-pointer"
-                      style={{ color: tan }}
-                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
-                    </button>
-                  </div>
-                </div>
-
-                {error && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-[0.85rem] px-3 py-2"
-                    style={{ color: '#9B2C2C', backgroundColor: 'rgba(170,60,40,0.08)', border: '1px solid rgba(155,44,44,0.25)' }}
-                  >
-                    {error}
-                  </motion.p>
-                )}
-
-                {/* terms agreement */}
-                <p className="text-[0.78rem] leading-relaxed" style={{ color: tan }}>
-                  By creating an account, you agree to our{' '}
-                  <Link href="/terms" className="underline underline-offset-2" style={{ color: goldDark }}>
-                    Terms of Service
-                  </Link>{' '}
-                  and{' '}
-                  <Link href="/privacy" className="underline underline-offset-2" style={{ color: goldDark }}>
-                    Privacy Policy
-                  </Link>
-                  .
-                </p>
-
-                {/* Create Account */}
-                <motion.button
-                  type="submit"
-                  disabled={loading}
-                  whileHover={loading ? {} : { y: -2, boxShadow: '0 14px 34px -10px rgba(122,86,38,0.55)' }}
-                  whileTap={loading ? {} : { y: 1, scale: 0.985, boxShadow: 'inset 0 4px 10px rgba(58,38,10,0.35)' }}
-                  className="login-gold-btn w-full py-3.5 text-[1rem] font-semibold tracking-wide inline-flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                      <Loader className="w-5 h-5" />
-                    </motion.span>
-                  ) : (
-                    <ArrowRight className="w-5 h-5" />
-                  )}
-                  {loading ? 'Creating account...' : 'Create Account'}
-                </motion.button>
-              </form>
-
-              {/* sign in link */}
-              <div className="mt-7 text-center">
-                <p className="text-[0.9rem]" style={{ color: tan }}>
-                  Already have an account?{' '}
-                  <Link href="/login" className="font-semibold" style={{ color: goldDark }}>
-                    Sign in
-                  </Link>
-                </p>
-              </div>
-
-              {/* supplier signup */}
-              <div className="mt-5 text-center pt-5" style={{ borderTop: `1px solid ${goldSoft}` }}>
-                <Link href="/supplier/signup" className="inline-flex items-center gap-1.5 text-[0.82rem]" style={{ color: tan }}>
-                  <span className="w-2 h-2" style={{ backgroundColor: goldMid, transform: 'rotate(45deg)' }} />
-                  Register as a supplier
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+              <div>
+                <label htmlFor="phone" className="auth-label">Phone number <span className="font-normal text-gray-400">(optional)</span></label>
+                <input
+                  id="phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                  placeholder="+92 300 0000000"
+                  autoComplete="tel"
+                  className="auth-input"
+                />
               </div>
             </div>
+
+            <div>
+              <label htmlFor="email" className="auth-label">Email address</label>
+              <input
+                id="email"
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="you@company.com"
+                autoComplete="email"
+                required
+                className="auth-input"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="password" className="auth-label">Password</label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+                    placeholder="Minimum 8 characters"
+                    autoComplete="new-password"
+                    required
+                    className="auth-input pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 transition-colors hover:text-black"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="auth-label">Confirm password</label>
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={form.confirmPassword}
+                    onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                    placeholder="Repeat your password"
+                    autoComplete="new-password"
+                    required
+                    className="auth-input pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 transition-colors hover:text-black"
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {pwdIssues.length > 0 && (
+              <p className="text-[13px] leading-5 text-red-600">Password must include {pwdIssues.join(', ')}.</p>
+            )}
+
+            {error && <div className="auth-error" role="alert">{error}</div>}
+
+            <button type="submit" disabled={loading} className="auth-button mt-1">
+              {loading && <Loader className="h-4 w-4 animate-spin" />}
+              {loading ? 'Creating account…' : 'Create account'}
+            </button>
+          </form>
+
+          <div className="auth-navigation">
+            <p>
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold text-black hover:underline">
+                Sign in
+              </Link>
+            </p>
+            <p>
+              Are you a supplier?{' '}
+              <Link href="/supplier/signup" className="font-semibold text-black hover:underline">
+                Register your business
+              </Link>
+            </p>
           </div>
-        </motion.div>
-      </motion.div>
+
+          <div className="auth-footer">By continuing, you agree to our terms and privacy policy</div>
+        </div>
+      </div>
     </div>
   );
 }

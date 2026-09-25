@@ -1,21 +1,14 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { ChevronDown, Globe, Shield, TrendingUp, Users, Award, Zap } from 'lucide-react';
+import { ChevronRight, Globe, Shield, TrendingUp, Users, Award, Zap, Quote } from 'lucide-react';
+import Link from 'next/link';
 import ScrollProgress from '../../components/b2b/ScrollProgress';
-import SectionHeading from '../../components/b2b/SectionHeading';
-import ShimmerButton from '../../components/b2b/ShimmerButton';
-import TiltCard from '../../components/b2b/TiltCard';
-import GoldSweep from '../../components/b2b/GoldSweep';
+import ModelViewer3D from '../../components/homepage/ModelViewer3D';
+import WhyCoreCollective from '../../components/homepage/WhyCoreCollective';
 
 const EASE = [0.16, 1, 0.3, 1];
-
-const stats = [
-  { label: 'Products Listed', value: '10,000+' },
-  { label: 'Verified Suppliers', value: '500+' },
-  { label: 'Countries Served', value: '30+' },
-  { label: 'Years in Business', value: '5+' },
-];
+const CAP_MODEL_SRC = 'https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/3d%20models/free_hat.glb';
 
 const values = [
   { icon: Shield, title: 'Trust & Transparency', desc: 'Every supplier is verified. Every transaction is tracked. We build trust through transparency.' },
@@ -26,54 +19,54 @@ const values = [
   { icon: Zap, title: 'Fast & Efficient', desc: 'Streamlined ordering, instant quotes, and dedicated support to keep your business moving.' },
 ];
 
+const journey = [
+  { year: '2019', title: 'The Idea', desc: 'Core Collective started with a simple belief — wholesale sourcing should be simple, fair, and transparent.' },
+  { year: '2021', title: 'Verified Network', desc: 'We launched supplier verification and trusted storefronts, building buyer confidence from day one.' },
+  { year: '2023', title: 'Going Global', desc: 'Cross-border logistics opened the marketplace to 30+ countries with currency-safe Paddle payments.' },
+  { year: '2026', title: '10,000+ Products', desc: 'Today we power thousands of B2B deals every month across electronics, apparel, home, and more.' },
+];
+
 function HeroSection() {
   const reduced = useReducedMotion();
-  const headline = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.16, delayChildren: 0.05 } },
-  };
-  const line = {
-    hidden: { y: '112%' },
-    visible: { y: 0, transition: { duration: 0.85, ease: EASE } },
-  };
-
   return (
-    <section className="relative overflow-hidden bg-[#FBF7EE] pb-16 pt-28 sm:pb-24 sm:pt-36 lg:pb-28">
-      <div className="absolute inset-0 bg-grid-pattern opacity-50" />
-      <div className="absolute -right-24 -top-24 h-[480px] w-[480px] rounded-full bg-[#C08A2E]/15 blur-[120px]" />
-      <div className="absolute -left-24 bottom-0 h-[420px] w-[420px] rounded-full bg-[#E9C04D]/10 blur-[110px]" />
-      <div className="absolute left-1/2 top-1/3 h-[300px] w-[520px] -translate-x-1/2 rounded-full bg-gradient-to-r from-transparent via-[#C08A2E]/10 to-transparent blur-[90px]" />
+    <section className="relative overflow-hidden bg-[#FAF9F6] border-b border-gray-100 pb-16 pt-24 sm:pb-24 sm:pt-[9rem]">
+      <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-black via-neutral-300 to-black" />
+      <span aria-hidden className="pointer-events-none absolute -top-10 right-0 sm:right-10 font-volkhov italic font-bold text-[10rem] sm:text-[20rem] leading-none text-black/[0.04] select-none">
+        Est. 2019
+      </span>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <nav className="mb-8 flex items-center gap-2 text-sm text-[#5C5344]">
-          <a href="/" className="transition-colors hover:text-[#A9762A]">Home</a>
-          <ChevronDown className="h-3 w-3 -rotate-90 text-[#C08A2E]/60" />
-          <span className="text-[#A9762A]">About</span>
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 sm:px-6 md:px-8">
+        <nav className="mb-8 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
+          <Link href="/" className="transition-colors hover:text-black">Home</Link>
+          <ChevronRight className="h-3 w-3 text-gray-400" />
+          <span className="text-black">About Us</span>
         </nav>
 
+        <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-gray-200 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-600">
+          <Quote className="w-3.5 h-3.5 text-black" />
+          Our Story
+        </span>
+
         <motion.h1
-          initial={reduced ? false : 'hidden'}
-          animate="visible"
-          variants={headline}
-          className="max-w-4xl font-fraunces text-[40px] font-semibold leading-[1.06] tracking-[-0.02em] text-[#1D1911] sm:text-6xl lg:text-7xl"
+          initial={reduced ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.8, ease: EASE }}
+          className="mt-6 max-w-4xl font-volkhov font-bold text-4xl leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-7xl"
         >
-          <span className="block overflow-hidden pb-1">
-            <motion.span variants={line} className="block">About Core</motion.span>
-          </span>
-          <span className="block overflow-hidden pb-3">
-            <motion.span variants={line} className="block bg-gradient-to-r from-[#9C6A26] via-[#D9A648] to-[#C08A2E] bg-clip-text pr-4 italic text-transparent">
-              Collective
-            </motion.span>
-          </span>
+          The marketplace built
+          <span className="block italic text-neutral-500">for serious business</span>
         </motion.h1>
 
         <motion.p
-          initial={reduced ? false : { opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.7, ease: EASE }}
-          className="mt-5 max-w-2xl text-lg leading-relaxed text-[#5C5344] sm:text-xl"
+          initial={reduced ? false : { opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ delay: 0.15, duration: 0.7, ease: EASE }}
+          className="mt-6 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-lg"
         >
-          We connect verified suppliers with businesses worldwide to make wholesale sourcing simple, transparent, and efficient.
+          We connect verified suppliers with businesses worldwide to make wholesale sourcing simple,
+          transparent, and efficient — one trusted deal at a time.
         </motion.p>
       </div>
     </section>
@@ -83,27 +76,33 @@ function HeroSection() {
 function MissionSection() {
   const reduced = useReducedMotion();
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+    <section className="mx-auto max-w-[1400px] px-4 py-16 sm:px-6 sm:py-24 md:px-8">
+      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.7, ease: EASE }}
         >
-          <span className="inline-flex items-center rounded-full border border-[rgba(192,138,46,0.4)] px-4 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#9C6A26]">
-            Our Mission
-          </span>
-          <h2 className="mt-5 font-fraunces text-[28px] font-semibold tracking-[-0.01em] text-[#1D1911] sm:text-4xl">
-            Empowering businesses with seamless wholesale sourcing
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Our Mission</span>
+          <h2 className="mt-4 font-volkhov text-3xl font-bold leading-tight text-black sm:text-4xl">
+            Empowering businesses with
+            <span className="italic text-neutral-500"> seamless wholesale sourcing</span>
           </h2>
-          <p className="mt-6 leading-relaxed text-[#5C5344]">
-            Core Collective was founded to solve the biggest challenges in B2B commerce — finding reliable suppliers, negotiating fair prices, and managing bulk orders across borders. We combine technology with deep industry expertise to create a marketplace where businesses can source with confidence.
+          <div className="mt-6 h-[2px] w-16 bg-black" />
+          <p className="mt-6 leading-relaxed text-gray-600">
+            Core Collective was founded to solve the biggest challenges in B2B commerce — finding reliable
+            suppliers, negotiating fair prices, and managing bulk orders across borders. We combine
+            technology with deep industry expertise to create a marketplace where businesses can source
+            with confidence.
           </p>
-          <p className="mt-4 leading-relaxed text-[#5C5344]">
-            Whether you're a small retailer or a large distributor, our platform gives you access to vetted suppliers, competitive wholesale pricing, and the tools you need to grow your business.
+          <p className="mt-4 leading-relaxed text-gray-600">
+            Whether you&rsquo;re a small retailer or a large distributor, our platform gives you access to
+            vetted suppliers, competitive wholesale pricing, and the tools you need to grow your business.
           </p>
-          <div className="mt-8 h-px w-24 bg-gradient-to-r from-[#C08A2E]/70 to-transparent" aria-hidden="true" />
+          <blockquote className="mt-8 border-l-2 border-black pl-6 font-volkhov italic text-xl text-neutral-700">
+            &ldquo;Trust is our product. Every verification, every order, every payout is built on it.&rdquo;
+          </blockquote>
         </motion.div>
 
         <motion.div
@@ -111,74 +110,90 @@ function MissionSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ delay: 0.15, duration: 0.7, ease: EASE }}
-          className="[perspective:1000px]"
+          className="relative w-full"
         >
-          <TiltCard maxTilt={7} className="h-full">
-            <div
-              className="relative rounded-3xl border border-[rgba(192,138,46,0.18)] bg-[#FFFDF8] p-8 shadow-[0_18px_50px_-12px_rgba(29,25,17,0.12)] sm:p-10"
-              style={{ transformStyle: 'preserve-3d' }}
-            >
-              <h3
-                className="flex items-center gap-3 font-fraunces text-xl font-semibold text-[#1D1911]"
-                style={{ transform: 'translateZ(26px)' }}
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#E9C04D] to-[#C08A2E] font-fraunces text-sm text-[#FFFDF8] shadow-[0_6px_16px_-4px_rgba(192,138,46,0.5)]">
-                  CC
-                </span>
-                At a Glance
-              </h3>
-
-              <div className="mt-8 grid grid-cols-2 gap-8">
-                {stats.map((stat) => (
-                  <div key={stat.label} style={{ transform: 'translateZ(16px)' }}>
-                    <p className="bg-gradient-to-r from-[#9C6A26] to-[#C08A2E] bg-clip-text font-fraunces text-3xl font-semibold text-transparent">
-                      {stat.value}
-                    </p>
-                    <p className="mt-1.5 text-sm text-[#5C5344]">{stat.label}</p>
-                  </div>
-                ))}
+          <span aria-hidden className="pointer-events-none absolute -right-2 -top-8 font-volkhov italic font-bold text-[8rem] leading-none text-black/[0.05] select-none sm:-right-4 sm:text-[10rem]">
+            3D
+          </span>
+          <div className="relative rounded-[2rem] border border-gray-200 bg-[#FAF9F6] p-3 shadow-[0_30px_70px_-35px_rgba(0,0,0,0.45)] sm:p-4">
+            <div className="relative aspect-square overflow-hidden rounded-[1.5rem]">
+              <ModelViewer3D src={CAP_MODEL_SRC} alt="Interactive 3D model of a cap" />
+              <div className="pointer-events-none absolute left-1/2 top-5 z-30 -translate-x-1/2 rounded-full border border-gray-200 bg-white/90 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-600 shadow-sm backdrop-blur">
+                Interactive 3D cap
               </div>
             </div>
-          </TiltCard>
+          </div>
+          <div className="mt-5 flex items-center justify-center gap-2 text-xs text-gray-500">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            <span>Drag to rotate and explore the model</span>
+          </div>
         </motion.div>
       </div>
     </section>
   );
 }
 
-function ValueCard({ value, index }) {
+function JourneySection() {
+  const reduced = useReducedMotion();
+  return (
+    <section className="bg-[#FAF9F6] border-t border-b border-gray-100 py-16 sm:py-24 relative overflow-hidden">
+      <span aria-hidden className="pointer-events-none absolute -bottom-10 left-0 font-volkhov italic font-bold text-[12rem] leading-none text-black/[0.03] select-none">
+        2019
+      </span>
+      <div className="mx-auto max-w-[1400px] px-4 py-2 sm:px-6 md:px-8">
+        <div className="mb-14 text-center">
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Our Journey</span>
+          <h2 className="mt-4 font-volkhov text-3xl font-bold text-black sm:text-4xl">
+            The road <span className="italic text-neutral-500">so far</span>
+          </h2>
+          <div className="mx-auto mt-6 h-[2px] w-16 bg-black" />
+        </div>
+
+        <div className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {journey.map((item, idx) => (
+            <motion.div
+              key={item.year}
+              initial={reduced ? false : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ delay: idx * 0.1, duration: 0.6, ease: EASE }}
+              className="relative"
+            >
+              <span className="font-volkhov italic font-bold text-4xl text-black">{item.year}</span>
+              <span className="mt-3 mb-4 block h-[2px] w-10 bg-black" />
+              <h3 className="font-volkhov text-lg font-bold text-black">{item.title}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-gray-600">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ValuePoint({ value, index }) {
   const reduced = useReducedMotion();
   const Icon = value.icon;
   return (
     <motion.div
-      initial={reduced ? false : { opacity: 0, y: 24 }}
+      initial={reduced ? false : { opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ delay: index * 0.08, duration: 0.6, ease: EASE }}
-      className="h-full"
+      transition={{ delay: index * 0.06, duration: 0.6, ease: EASE }}
+      className="group flex items-start gap-6 sm:gap-10 py-8 border-b border-gray-200 last:border-b-0"
     >
-      <TiltCard maxTilt={10} className="group h-full">
-        <div
-          className="relative h-full rounded-2xl border border-[rgba(192,138,46,0.18)] bg-[#FFFDF8] p-7 transition-colors duration-300 group-hover:border-[#C08A2E]/50 group-hover:shadow-[0_16px_44px_-12px_rgba(192,138,46,0.35)]"
-          style={{ transformStyle: 'preserve-3d' }}
-        >
-          <div
-            className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#C08A2E]/10 text-[#A9762A] transition-colors duration-300 group-hover:bg-gradient-to-br group-hover:from-[#E9C04D] group-hover:to-[#C08A2E] group-hover:text-white"
-            style={{ transform: 'translateZ(42px)' }}
-          >
-            <Icon className="h-5 w-5" />
-          </div>
-          <h3
-            className="font-fraunces text-lg font-semibold text-[#1D1911]"
-            style={{ transform: 'translateZ(30px)' }}
-          >
+      <span className="font-volkhov italic font-bold text-4xl sm:text-5xl text-gray-200 group-hover:text-black/20 transition-colors duration-300 w-12 shrink-0">
+        0{index + 1}
+      </span>
+      <div className="flex-1">
+        <div className="flex items-center gap-3">
+          <Icon className="h-5 w-5 text-black shrink-0" />
+          <h3 className="font-volkhov text-xl font-bold text-black sm:text-2xl group-hover:text-neutral-600 transition-colors duration-300">
             {value.title}
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-[#5C5344]" style={{ transform: 'translateZ(14px)' }}>
-            {value.desc}
-          </p>
         </div>
-      </TiltCard>
+        <p className="mt-2.5 text-sm sm:text-base leading-relaxed text-gray-600">{value.desc}</p>
+      </div>
     </motion.div>
   );
 }
@@ -186,17 +201,22 @@ function ValueCard({ value, index }) {
 function ValuesSection() {
   const reduced = useReducedMotion();
   return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+    <section className="mx-auto max-w-[1400px] px-4 py-16 sm:px-6 sm:py-24 md:px-8">
       <motion.div
         initial={reduced ? false : { opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.7, ease: EASE }}
+        className="mb-14 text-center"
       >
-        <SectionHeading eyebrow="Our Values" title="What we stand for" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Our Values</span>
+        <h2 className="mt-4 font-volkhov text-3xl font-bold text-black sm:text-4xl">
+          What we <span className="italic text-neutral-500">stand for</span>
+        </h2>
+        <div className="mx-auto mt-6 h-[2px] w-16 bg-black" />
       </motion.div>
-      <div className="grid gap-6 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3">
-        {values.map((v, i) => <ValueCard key={v.title} value={v} index={i} />)}
+      <div className="mx-auto max-w-3xl">
+        {values.map((v, i) => <ValuePoint key={v.title} value={v} index={i} />)}
       </div>
     </section>
   );
@@ -205,37 +225,44 @@ function ValuesSection() {
 function CtaSection() {
   const reduced = useReducedMotion();
   return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+    <section className="mx-auto max-w-[1400px] px-4 pb-20 sm:px-6 sm:pb-28 md:px-8">
       <motion.div
-        initial={reduced ? false : { opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        initial={reduced ? false : { opacity: 0, scale: 0.98 }}
+        whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.7, ease: EASE }}
-        className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(120deg,#241A0E_0%,#100D08_55%,#2E1F0E_100%)] px-6 py-12 sm:px-12 sm:py-16"
+        className="relative overflow-hidden rounded-[2rem] bg-black px-8 py-14 text-white sm:px-16 sm:py-20"
       >
-        <GoldSweep />
-        <div className="absolute inset-0 noise-bg opacity-[0.07]" aria-hidden="true" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C08A2E]/60 to-transparent" aria-hidden="true" />
+        <span aria-hidden className="pointer-events-none absolute -right-10 -top-16 text-[15rem] font-volkhov italic font-bold leading-none text-white/[0.05] select-none">
+          CC
+        </span>
+        <span className="pointer-events-none absolute left-1/4 bottom-0 h-px w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
         <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#D9A648]">Core Collective</p>
-            <h2 className="mt-3 font-fraunces text-3xl font-semibold text-[#FFFDF8] sm:text-4xl">
-              Ready to grow your business?
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">Core Collective</span>
+            <h2 className="mt-4 font-volkhov text-3xl font-bold leading-tight text-white sm:text-4xl">
+              Ready to grow
+              <span className="italic text-neutral-400"> your business?</span>
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-[#E8DFCF]/70 sm:text-base">
-              Join thousands of businesses sourcing products on Core Collective.
+            <p className="mt-4 text-sm leading-relaxed text-neutral-300 sm:text-base">
+              Join thousands of businesses sourcing products on Core Collective — or start selling yours.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            <ShimmerButton href="/products">Browse Products</ShimmerButton>
-            <a
+            <Link
+              href="/products"
+              className="inline-flex items-center rounded-full bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.22em] text-black transition-all duration-300 hover:bg-neutral-200 active:scale-[0.98]"
+            >
+              Browse Products
+            </Link>
+            <Link
               href="/supplier/signup"
-              className="inline-flex items-center border border-[#D9A648]/60 px-8 py-4 text-sm font-semibold tracking-wide text-[#EADFBF] transition-all duration-300 hover:border-[#D9A648] hover:bg-[#D9A648]/10"
+              className="inline-flex items-center rounded-full border border-white/30 px-8 py-4 text-xs font-bold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:border-white hover:bg-white/10 active:scale-[0.98]"
             >
               Become a Supplier
-            </a>
+            </Link>
           </div>
         </div>
       </motion.div>
@@ -245,10 +272,12 @@ function CtaSection() {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#FBF7EE] font-inter text-[#1D1911]">
+    <div className="min-h-screen bg-white font-jost text-black pt-24 sm:pt-28">
       <ScrollProgress />
       <HeroSection />
       <MissionSection />
+      <WhyCoreCollective />
+      <JourneySection />
       <ValuesSection />
       <CtaSection />
     </div>

@@ -1,35 +1,42 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ShieldCheck, BadgePercent, Lock, Truck, Headphones, BadgeCheck } from 'lucide-react';
 
 const features = [
   {
     number: '01',
+    icon: ShieldCheck,
     title: 'Verified Suppliers',
     desc: 'Every supplier is thoroughly vetted and verified for quality and reliability.',
   },
   {
     number: '02',
+    icon: BadgePercent,
     title: 'Bulk Pricing',
     desc: 'Competitive wholesale prices with volume discounts for every order size.',
   },
   {
     number: '03',
+    icon: Lock,
     title: 'Secure Payments',
     desc: 'Protected transactions with multiple payment options for peace of mind.',
   },
   {
     number: '04',
+    icon: Truck,
     title: 'Fast Delivery',
     desc: 'Reliable shipping across Pakistan with express delivery options.',
   },
   {
     number: '05',
+    icon: Headphones,
     title: 'Dedicated Support',
     desc: '24/7 customer support for all your needs, from sourcing to delivery.',
   },
   {
     number: '06',
+    icon: BadgeCheck,
     title: 'Quality Assured',
     desc: 'Rigorous quality checks on all products to ensure you get the best.',
   },
@@ -54,28 +61,29 @@ const itemVariants = {
 
 export default function WhyCoreCollective() {
   return (
-    <section className="relative pt-[70px] pb-[90px] font-jost bg-[#F3EDDF] overflow-hidden">
-      <div className="pointer-events-none" aria-hidden>
-        <div
-          className="absolute top-0 right-0 w-[520px] h-[520px] -translate-y-1/3 translate-x-1/4"
-          style={{ background: 'radial-gradient(circle, rgba(185,138,60,0.15) 0%, transparent 65%)' }}
-        />
-        <div
-          className="absolute bottom-0 left-0 w-[440px] h-[440px] translate-y-1/3 -translate-x-1/4"
-          style={{ background: 'radial-gradient(circle, rgba(185,138,60,0.1) 0%, transparent 65%)' }}
-        />
-      </div>
+    <section className="relative py-16 sm:py-24 font-jost bg-white overflow-hidden">
+      {/* Subtle neutral glow accents */}
+      <div className="pointer-events-none absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-gray-100 blur-[120px]" aria-hidden />
+      <div className="pointer-events-none absolute -bottom-32 -left-32 w-[480px] h-[480px] rounded-full bg-gray-100 blur-[120px]" aria-hidden />
 
-      <div className="relative max-w-[1080px] mx-auto px-4 sm:px-6">
-        <div className="text-center mb-16">
-          <span className="block w-[46px] h-[3px] rounded-full bg-gradient-to-r from-[#E9C97B] via-[#B98A3C] to-[#93692A] mx-auto mb-5" />
-          <h2 className="font-fraunces font-bold text-[38px] leading-tight tracking-[-0.02em] text-[#221D14]">
+      <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-2xl mx-auto mb-12 sm:mb-16"
+        >
+          <span className="text-xs uppercase tracking-[0.25em] font-semibold text-gray-500">
             Why Core Collective
+          </span>
+          <h2 className="mt-3 font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl text-black leading-tight">
+            Trusted By Businesses Across Pakistan
           </h2>
-          <p className="mt-4 text-[#746A57] text-base max-w-[760px] mx-auto">
+          <p className="mt-5 text-gray-500 text-sm sm:text-base leading-relaxed">
             Everything you need to source and sell with confidence
           </p>
-        </div>
+        </motion.div>
 
         <motion.div
           variants={containerVariants}
@@ -84,30 +92,39 @@ export default function WhyCoreCollective() {
           viewport={{ once: true, margin: '-60px' }}
           className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {features.map((feature) => (
-            <motion.div
-              key={feature.number}
-              variants={itemVariants}
-              className="group relative bg-[#FBF8F0] rounded-[14px] p-6 sm:p-8 overflow-hidden border border-[rgba(185,138,60,0.16)] shadow-[0_4px_20px_rgba(180,140,80,0.08),inset_0_1px_0_rgba(255,251,238,0.9)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[#B98A3C]/45 hover:shadow-[0_18px_38px_-12px_rgba(180,140,80,0.28),inset_0_1px_0_rgba(255,251,238,1)]"
-            >
-              <span className="absolute top-0 left-0 h-[2.5px] w-full rounded-full bg-gradient-to-r from-[#E9C97B] via-[#B98A3C] to-[#93692A] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-600 ease-out pointer-events-none" />
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <motion.div
+                key={feature.number}
+                variants={itemVariants}
+                className="group relative bg-white rounded-2xl p-7 sm:p-8 overflow-hidden border border-gray-200 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-1.5 hover:border-gray-300 hover:shadow-[0_24px_48px_-20px_rgba(0,0,0,0.25)]"
+              >
+                {/* Top hairline on hover */}
+                <span className="absolute inset-x-6 top-0 h-[2px] bg-gradient-to-r from-transparent via-black to-transparent scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-500 ease-out pointer-events-none" />
 
-              <span className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-[#B98A3C]/60 rounded-br-[4px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                {/* Decor corner number */}
+                <span className="absolute top-6 right-6 font-volkhov italic font-semibold text-4xl leading-none text-gray-100 transition-colors duration-500 group-hover:text-gray-200 select-none pointer-events-none">
+                  {feature.number}
+                </span>
 
-              <span className="inline-block font-fraunces font-bold text-[40px] leading-none text-transparent bg-clip-text bg-gradient-to-br from-[#E9C97B] to-[#93692A] select-none transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 group-hover:scale-105">
-                {feature.number}
-              </span>
+                {/* Icon tile */}
+                <div className="relative w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center transition-all duration-500 group-hover:bg-black group-hover:border-black group-hover:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.5)] group-hover:-translate-y-0.5">
+                  <Icon className="w-6 h-6 text-black transition-colors duration-500 group-hover:text-white" strokeWidth={1.8} />
+                </div>
 
-              <h3 className="mt-5 font-fraunces font-semibold text-[17px] leading-snug text-[#221D14]">
-                {feature.title}
-              </h3>
-              <span className="mt-2 block h-[2px] w-full bg-gradient-to-r from-[#B98A3C] to-[#D8BC85] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+                <h3 className="mt-6 font-volkhov font-bold text-lg leading-snug text-black">
+                  {feature.title}
+                </h3>
 
-              <p className="mt-3 text-[13.5px] leading-relaxed text-[#746A57]">
-                {feature.desc}
-              </p>
-            </motion.div>
-          ))}
+                <span className="mt-3 block w-8 h-[2px] bg-gray-200 transition-all duration-500 group-hover:w-12 group-hover:bg-black" />
+
+                <p className="mt-3 text-sm leading-relaxed text-gray-500">
+                  {feature.desc}
+                </p>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </section>

@@ -60,11 +60,11 @@ const buildFallbackAnswer = () => 'I can help with products, shipping, delivery 
 const GEMINI_KEY = typeof window !== 'undefined' ? (window.ENV?.NEXT_PUBLIC_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '') : '';
 
 const quickTopics = [
-  { label: 'Shipping times', icon: <Truck className="w-4 h-4 text-[#e9cf7d]" /> },
-  { label: 'Return policy', icon: <RotateCcw className="w-4 h-4 text-[#e9cf7d]" /> },
-  { label: 'Payment methods', icon: <CreditCard className="w-4 h-4 text-[#e9cf7d]" /> },
-  { label: 'Track my order', icon: <PackageSearch className="w-4 h-4 text-[#e9cf7d]" /> },
-  { label: 'Bulk order', icon: <Boxes className="w-4 h-4 text-[#e9cf7d]" /> },
+  { label: 'Shipping times', icon: <Truck className="w-4 h-4 text-black" /> },
+  { label: 'Return policy', icon: <RotateCcw className="w-4 h-4 text-black" /> },
+  { label: 'Payment methods', icon: <CreditCard className="w-4 h-4 text-black" /> },
+  { label: 'Track my order', icon: <PackageSearch className="w-4 h-4 text-black" /> },
+  { label: 'Bulk order', icon: <Boxes className="w-4 h-4 text-black" /> },
 ];
 
 function TypingDots() {
@@ -73,7 +73,7 @@ function TypingDots() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="w-2 h-2 rounded-full bg-[#e9cf7d]/50"
+          className="w-2 h-2 rounded-full bg-gray-400"
           style={{
             animation: 'typingBounce 1.4s ease-in-out infinite',
             animationDelay: `${i * 0.2}s`,
@@ -218,25 +218,23 @@ export default function ChatbotWidget() {
         aria-label={isOpen ? 'Close chatbot' : 'Open chatbot'}
       >
         {/* Tooltip */}
-        <span
-          className="absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden sm:block whitespace-nowrap rounded-lg border border-[rgba(201,169,74,0.35)] bg-[linear-gradient(180deg,#16130e,#100d09)] px-3 py-1.5 text-xs font-medium text-[#f6e9c0] shadow-[0_6px_14px_-4px_rgba(0,0,0,0.6)] opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-[opacity,transform] duration-200 pointer-events-none"
-        >
+        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden sm:block whitespace-nowrap rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white shadow-[0_6px_14px_-4px_rgba(0,0,0,0.6)] opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-[opacity,transform] duration-200 pointer-events-none">
           Chat with us
         </span>
 
         <span className="relative block group-hover:-translate-y-[3px] transition-transform duration-200">
           {!isOpen && (
             <>
-              {/* Soft halo glow behind the sphere */}
-              <span aria-hidden="true" className="absolute -inset-3 rounded-full bg-[radial-gradient(circle,#e9cf7d_0%,transparent_70%)] opacity-20 blur-md" />
-              {/* Rotating gold ring */}
+              {/* Soft halo glow */}
+              <span aria-hidden="true" className="absolute -inset-3 rounded-full bg-[radial-gradient(circle,#000_0%,transparent_70%)] opacity-10 blur-md" />
+              {/* Rotating ring */}
               <span aria-hidden="true" className="absolute -inset-2 rounded-full animate-chat-halo">
-                <span className="block w-full h-full rounded-full border border-dashed border-[#e9cf7d]/50" />
+                <span className="block w-full h-full rounded-full border border-dashed border-black/40" />
               </span>
             </>
           )}
-          {/* Gold sphere */}
-          <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[radial-gradient(circle_at_32%_28%,#f6e9c0_0%,#e9cf7d_25%,#c9a94a_60%,#8a6a1f_100%)] text-[#2a2420] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(74,54,12,0.5),0_8px_18px_-6px_rgba(0,0,0,0.6)] group-hover:scale-[1.05] transition-transform duration-200">
+          {/* Black sphere */}
+          <span className="relative flex items-center justify-center w-14 h-14 rounded-full bg-black text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_8px_18px_-6px_rgba(0,0,0,0.6)] group-hover:scale-[1.05] group-hover:bg-neutral-800 transition-all duration-200">
             {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
           </span>
         </span>
@@ -250,26 +248,25 @@ export default function ChatbotWidget() {
             isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-4 pointer-events-none'
           }`}
         >
-          <div className="flex flex-col max-h-[min(720px,calc(100vh-120px))] rounded-[22px] overflow-hidden border border-[rgba(201,169,74,0.28)] bg-[linear-gradient(180deg,#16130e,#100d09)] shadow-[0_32px_80px_-24px_rgba(0,0,0,0.85),0_18px_44px_-18px_rgba(0,0,0,0.6)]">
+          <div className="flex flex-col max-h-[min(720px,calc(100vh-120px))] rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-[0_32px_80px_-24px_rgba(0,0,0,0.5)]">
             {/* Header */}
-            <div className="relative bg-[linear-gradient(180deg,#1c1810,#131009)] px-4 pt-5 pb-4">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(201,169,74,0.16),transparent_60%)]" />
-              <div className="absolute bottom-0 inset-x-0 h-px bg-[linear-gradient(90deg,transparent,rgba(201,169,74,0.7),transparent)]" />
-              <div className="absolute bottom-0 inset-x-24 h-[2px] bg-[radial-gradient(circle,#e9cf7d,transparent_70%)] opacity-40 blur-[1px]" />
+            <div className="relative bg-white border-b border-gray-100 px-4 pt-5 pb-4">
+              <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-black via-neutral-300 to-black" />
 
               <div className="relative flex items-center justify-between">
                 <div className="w-16 shrink-0" />
                 <div className="flex-1 text-center">
-                  <h3
-                    className="font-cormorant font-bold text-xl sm:text-[22px] text-[#e9cf7d] tracking-[0.14em]"
-                    style={{ textShadow: '0 1px 0 rgba(255,255,255,0.06), 0 -1px 2px rgba(0,0,0,0.7)' }}
-                  >
-                    Core Collective AI
-                  </h3>
-                  <span className="block w-20 h-px mx-auto mt-1.5 bg-[linear-gradient(90deg,transparent,#c9a94a,transparent)]" />
+                  <div className="flex items-center justify-center gap-2.5">
+                    <span className="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center">
+                      <span className="font-volkhov italic font-bold text-sm leading-none">Cc</span>
+                    </span>
+                    <h3 className="font-volkhov font-bold text-lg sm:text-xl text-black tracking-tight">
+                      Core Collective AI
+                    </h3>
+                  </div>
                   <div className="flex items-center justify-center gap-1.5 mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_2px_rgba(52,211,153,0.55)]" />
-                    <span className="text-[9px] font-medium uppercase tracking-[0.3em] text-[#c9a94a]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.4)]" />
+                    <span className="text-[9px] font-semibold uppercase tracking-[0.3em] text-gray-500">
                       {isTyping ? 'Typing …' : loadingProducts ? 'Connecting …' : 'Online Now'}
                     </span>
                   </div>
@@ -277,14 +274,14 @@ export default function ChatbotWidget() {
                 <div className="flex items-center justify-end gap-1 w-16 shrink-0">
                   <button
                     onClick={handleClearChat}
-                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#c9a94a]/70 hover:text-[#e9cf7d] hover:bg-white/5 transition-colors"
+                    className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"
                     title="Clear chat"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="w-7 h-7 rounded-md flex items-center justify-center text-[#c9a94a]/70 hover:text-[#e9cf7d] hover:bg-white/5 transition-colors lg:hidden"
+                    className="w-7 h-7 rounded-md flex items-center justify-center text-gray-400 hover:text-black hover:bg-gray-100 transition-colors lg:hidden"
                     title="Close"
                   >
                     <ChevronDown className="w-4 h-4" />
@@ -294,8 +291,8 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3.5 bg-[linear-gradient(180deg,#17130d,#100d09)] scrollbar-thin" style={{ scrollBehavior: 'smooth' }}>
-              {messages.map((msg, index) => (
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3.5 bg-[#FAF9F6] scrollbar-thin" style={{ scrollBehavior: 'smooth' }}>
+              {messages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`flex items-end gap-2.5 transition-all duration-300 ${
@@ -307,32 +304,33 @@ export default function ChatbotWidget() {
                   }}
                 >
                   {msg.sender === 'bot' && (
-                    <div className="w-7 h-7 rounded-full shrink-0 mb-1 bg-[radial-gradient(circle_at_32%_28%,#f6e9c0_0%,#e9cf7d_25%,#c9a94a_60%,#8a6a1f_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.65),inset_0_-2px_4px_rgba(74,54,12,0.55),0_2px_5px_rgba(0,0,0,0.4)]" />
+                    <div className="w-7 h-7 rounded-full shrink-0 mb-1 bg-black text-white flex items-center justify-center shadow-sm">
+                      <span className="font-volkhov italic font-bold text-[10px] leading-none">Cc</span>
+                    </div>
                   )}
                   <div
                     className={`relative max-w-[80%] px-3.5 py-2.5 ${
                       msg.sender === 'user'
-                        ? 'bg-[linear-gradient(180deg,#251e13,#181208)] text-[#f6e9c0] rounded-2xl rounded-tr-sm border border-[rgba(201,169,74,0.35)] shadow-[0_6px_16px_-6px_rgba(0,0,0,0.5)]'
-                        : 'bg-[linear-gradient(180deg,#fbf6ea,#efe6d3)] text-[#2a2420] rounded-2xl rounded-tl-sm border border-[rgba(201,169,74,0.28)] shadow-[0_6px_16px_-6px_rgba(74,54,12,0.25)]'
+                        ? 'bg-black text-white rounded-2xl rounded-tr-sm shadow-[0_6px_16px_-6px_rgba(0,0,0,0.4)]'
+                        : 'bg-white text-gray-800 rounded-2xl rounded-tl-sm border border-gray-200 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.08)]'
                     } ${msg.local ? 'opacity-80' : ''}`}
                   >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text || msg.message}</p>
                     <p className={`text-[10px] mt-1.5 font-medium tracking-wide ${
-                      msg.sender === 'user' ? 'text-[#c9a94a]/60' : 'text-[#8a6a1f]/70'
+                      msg.sender === 'user' ? 'text-white/50' : 'text-gray-400'
                     }`}>
                       {msg.time || 'Just now'}
                     </p>
-                    {msg.sender === 'bot' && (
-                      <div className="absolute -bottom-1 left-4 w-2 h-2 bg-[#efe6d3] border-l border-b border-[rgba(201,169,74,0.28)] rotate-[-45deg]" />
-                    )}
                   </div>
                 </div>
               ))}
 
               {isTyping && (
                 <div className="flex items-end gap-2.5 transition-all duration-300">
-                  <div className="w-7 h-7 rounded-full shrink-0 mb-1 bg-[radial-gradient(circle_at_32%_28%,#f6e9c0_0%,#e9cf7d_25%,#c9a94a_60%,#8a6a1f_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.65),inset_0_-2px_4px_rgba(74,54,12,0.55),0_2px_5px_rgba(0,0,0,0.4)]" />
-                  <div className="bg-[linear-gradient(180deg,#fbf6ea,#efe6d3)] rounded-2xl rounded-tl-sm border border-[rgba(201,169,74,0.28)] shadow-[0_6px_16px_-6px_rgba(74,54,12,0.25)] px-4 py-3.5">
+                  <div className="w-7 h-7 rounded-full shrink-0 mb-1 bg-black text-white flex items-center justify-center shadow-sm">
+                    <span className="font-volkhov italic font-bold text-[10px] leading-none">Cc</span>
+                  </div>
+                  <div className="bg-white rounded-2xl rounded-tl-sm border border-gray-200 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.08)] px-4 py-3.5">
                     <TypingDots />
                   </div>
                 </div>
@@ -342,17 +340,17 @@ export default function ChatbotWidget() {
 
             {/* Quick Topics */}
             {showQuickTopics && messages.length <= 2 && (
-              <div className="px-4 py-3 bg-[linear-gradient(180deg,rgba(201,169,74,0.05),rgba(201,169,74,0))] border-t border-[rgba(201,169,74,0.25)]">
+              <div className="px-4 py-3 bg-white border-t border-gray-100">
                 <div className="flex items-center gap-2 mb-2.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#e9cf7d]" />
-                  <p className="font-cormorant font-semibold text-[13px] uppercase tracking-[0.18em] text-[#c9a94a]">Quick answers</p>
+                  <Sparkles className="w-3.5 h-3.5 text-gray-400" />
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Quick answers</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {quickTopics.map((topic) => (
                     <button
                       key={topic.label}
                       onClick={() => submitMessage(topic.label)}
-                      className="group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[linear-gradient(180deg,rgba(201,169,74,0.18),rgba(201,169,74,0.07))] border border-[rgba(201,169,74,0.4)] text-xs text-[#f6e9c0] hover:text-[#fff6dc] hover:border-[#e9cf7d]/70 hover:bg-[rgba(201,169,74,0.22)] transition-colors active:scale-95"
+                      className="group/btn inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-xs text-gray-700 hover:text-black hover:border-black hover:bg-black hover:text-white transition-colors active:scale-95"
                     >
                       <span className="shrink-0 flex items-center">{topic.icon}</span>
                       <span className="font-medium">{topic.label}</span>
@@ -363,7 +361,7 @@ export default function ChatbotWidget() {
             )}
 
             {/* Input Area */}
-            <div className="border-t border-[rgba(201,169,74,0.25)] px-4 pt-3 pb-3.5 bg-[linear-gradient(180deg,#14110c,#100d09)]">
+            <div className="border-t border-gray-100 px-4 pt-3 pb-3.5 bg-white">
               <form onSubmit={handleSubmit} className="flex items-center gap-2">
                 <div className="flex-1">
                   <input
@@ -372,19 +370,19 @@ export default function ChatbotWidget() {
                     placeholder="Type your message..."
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full bg-[linear-gradient(180deg,#1c1810,#14100a)] border border-[rgba(201,169,74,0.4)] text-sm text-[#f6e9c0] placeholder-[#c9a94a]/60 focus:outline-none focus:border-[#e9cf7d]/70 focus:ring-2 focus:ring-[#e9cf7d]/10 transition-all duration-200"
+                    className="w-full px-4 py-2.5 rounded-full bg-gray-50 border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black focus:ring-2 focus:ring-black/10 transition-all duration-200"
                     disabled={isTyping}
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!inputValue.trim() || isTyping}
-                  className="w-10 h-10 rounded-full shrink-0 bg-[radial-gradient(circle_at_32%_28%,#f6e9c0_0%,#e9cf7d_25%,#c9a94a_60%,#8a6a1f_100%)] text-[#2a2420] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-2px_4px_rgba(74,54,12,0.5),0_4px_10px_-2px_rgba(0,0,0,0.5)] flex items-center justify-center transition-all duration-200 hover:brightness-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100"
+                  className="w-10 h-10 rounded-full shrink-0 bg-black text-white shadow-[0_4px_10px_-2px_rgba(0,0,0,0.4)] flex items-center justify-center transition-all duration-200 hover:bg-neutral-800 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </form>
-              <p className="text-[9px] text-[#c9a94a]/60 mt-2 text-center font-medium tracking-wide">
+              <p className="text-[9px] text-gray-400 mt-2 text-center font-medium tracking-wide">
                 Powered by Core Collective AI &mdash; answers may be AI-generated
               </p>
             </div>

@@ -46,7 +46,7 @@ export default function HowItWorks() {
   }, []);
 
   return (
-    <section className="py-16 sm:py-24 font-jost bg-[#F3EDDF] overflow-hidden">
+    <section className="py-16 sm:py-24 font-jost bg-[#FAF9F6] border-t border-b border-gray-100 overflow-hidden">
       <style>{`
         @keyframes stepTravel {
           0% { left: 4%; opacity: 0; }
@@ -61,21 +61,15 @@ export default function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center max-w-2xl mx-auto mb-12 sm:mb-16"
         >
-          <span className="inline-flex rounded-full p-[1px] bg-gradient-to-r from-[#B98A3C]/50 via-[#E9C97B] to-[#B98A3C]/50 shadow-[0_2px_10px_rgba(185,138,60,0.18)]">
-            <span className="bg-[#FBF8F0] rounded-full px-5 py-2 text-[11px] font-medium uppercase tracking-[0.24em] text-[#93692A]">
-              How It Works
-            </span>
+          <span className="text-xs uppercase tracking-[0.25em] font-semibold text-gray-500">
+            How It Works
           </span>
-          <h2 className="mt-5 font-fraunces font-bold text-[32px] sm:text-[40px] lg:text-[46px] tracking-[-0.02em] leading-tight text-[#2A2318]">
-            How{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#E9C97B] via-[#B98A3C] to-[#93692A]">
-              Core Collective
-            </span>{' '}
-            Works
+          <h2 className="mt-3 font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl leading-tight text-black">
+            How Core Collective Works
           </h2>
-          <p className="text-[#64748B] text-base sm:text-lg mt-3">Three simple steps to source wholesale products</p>
+          <p className="text-gray-500 text-sm sm:text-base mt-5">Three simple steps to source wholesale products</p>
         </motion.div>
 
         <motion.div
@@ -91,20 +85,16 @@ export default function HowItWorks() {
             return (
               <motion.div key={step.number} className="relative" variants={itemVariants}>
                 {i < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-[76px] left-[55%] right-[-38%] h-[2px] rounded-full bg-gradient-to-r from-[#D8BC85]/60 via-[#B98A3C]/30 to-transparent">
-                    <span className="absolute top-1/2 -translate-y-1/2 left-[15%] w-1.5 h-1.5 rounded-full bg-[#B98A3C]/40" />
-                    <span className="absolute top-1/2 -translate-y-1/2 left-[45%] w-1.5 h-1.5 rounded-full bg-[#B98A3C]/40" />
-                    <span className="absolute top-1/2 -translate-y-1/2 left-[75%] w-1.5 h-1.5 rounded-full bg-[#B98A3C]/40" />
-
+                  <div className="hidden md:block absolute top-[76px] left-[55%] right-[-38%] h-[2px] rounded-full bg-gray-200">
                     <span
-                      className={`absolute inset-y-0 left-0 w-full rounded-full bg-gradient-to-r from-[#B98A3C] via-[#D8BC85] to-transparent origin-left transition-transform duration-[2800ms] ease-in-out ${
+                      className={`absolute inset-y-0 left-0 w-full rounded-full bg-black origin-left transition-transform duration-[2800ms] ease-in-out ${
                         isActive ? 'scale-x-100' : 'scale-x-0'
                       }`}
                     />
 
                     {isActive && (
                       <span
-                        className="absolute top-1/2 w-2 h-2 rounded-full bg-[#B98A3C] shadow-[0_0_10px_2px_rgba(185,138,60,0.55)] -translate-y-1/2"
+                        className="absolute top-1/2 w-2 h-2 rounded-full bg-black shadow-[0_0_10px_2px_rgba(0,0,0,0.35)] -translate-y-1/2"
                         style={{ animation: 'stepTravel 2.5s ease-in-out infinite' }}
                       />
                     )}
@@ -112,21 +102,21 @@ export default function HowItWorks() {
                 )}
 
                 <div
-                  className={`relative h-full bg-[#FBF8F0] border rounded-[20px] p-8 sm:p-10 text-center flex flex-col items-center transition-all duration-[600ms] ease-in-out hover:-translate-y-1 ${
+                  className={`relative h-full bg-white border rounded-2xl p-8 sm:p-10 text-center flex flex-col items-center transition-all duration-[600ms] ease-in-out hover:-translate-y-1 ${
                     isActive
-                      ? 'border-[#B98A3C]/50 scale-[1.03] shadow-[0_24px_55px_-15px_rgba(185,138,60,0.4),0_0_35px_-5px_rgba(185,138,60,0.2)]'
-                      : 'border-[#D8BC85]/30 shadow-[0_4px_20px_rgba(180,140,80,0.08)]'
+                      ? 'border-black scale-[1.03] shadow-[0_24px_55px_-15px_rgba(0,0,0,0.3)]'
+                      : 'border-gray-200 shadow-[0_4px_20px_rgba(0,0,0,0.05)]'
                   }`}
                 >
                   <div
-                    className={`w-[76px] h-[76px] rounded-[22px] flex items-center justify-center mb-7 transition-all duration-[600ms] ease-in-out ${
+                    className={`w-[76px] h-[76px] rounded-2xl flex items-center justify-center mb-7 transition-all duration-[600ms] ease-in-out ${
                       isActive
-                        ? 'bg-gradient-to-br from-[#D8A94E] to-[#B98A3C] shadow-[0_14px_30px_-8px_rgba(185,138,60,0.6)]'
-                        : 'bg-gradient-to-br from-[#F6EAD2] to-[#E9C97B]/55 shadow-[inset_0_2px_6px_rgba(255,255,255,0.7),inset_0_-3px_6px_rgba(185,138,60,0.18)]'
+                        ? 'bg-black shadow-[0_14px_30px_-8px_rgba(0,0,0,0.55)]'
+                        : 'bg-gray-100 border border-gray-200'
                     }`}
                   >
                     <svg
-                      className={`w-8 h-8 transition-colors duration-[600ms] ${isActive ? 'text-white' : 'text-[#93692A]'}`}
+                      className={`w-8 h-8 transition-colors duration-[600ms] ${isActive ? 'text-white' : 'text-black'}`}
                       fill="none"
                       stroke="currentColor"
                       strokeWidth={1.5}
@@ -137,19 +127,17 @@ export default function HowItWorks() {
                   </div>
 
                   <span
-                    className={`inline-flex items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full text-[10px] font-medium uppercase tracking-[0.18em] transition-colors duration-[600ms] ${
-                      isActive
-                        ? 'bg-[#3B2A1C] text-[#F3EDDF]'
-                        : 'bg-[#3B2A1C]/[0.07] border border-[#D8BC85]/40 text-[#5C5344]'
+                    className={`inline-flex items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition-colors duration-[600ms] ${
+                      isActive ? 'bg-black text-white' : 'bg-gray-100 text-gray-500 border border-gray-200'
                     }`}
                   >
                     Step {step.number}
                   </span>
 
-                  <h3 className={`mt-4 font-fraunces font-semibold text-xl sm:text-2xl transition-colors duration-[600ms] ${isActive ? 'text-[#2A2318]' : 'text-[#2A2318]'}`}>
+                  <h3 className="mt-4 font-volkhov font-bold text-xl sm:text-2xl text-black">
                     {step.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#5C5344] max-w-[300px]">{step.description}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-500 max-w-[300px]">{step.description}</p>
                 </div>
               </motion.div>
             );

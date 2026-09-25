@@ -18,17 +18,17 @@ import {
 } from 'lucide-react';
 
 const tabs = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'from-gold to-amber-600' },
-  { id: 'users', label: 'Users', icon: Users, color: 'from-slate-600 to-gray-700' },
-  { id: 'orders', label: 'Orders', icon: Package, color: 'from-blue-500 to-cyan-600' },
-  { id: 'inquiries', label: 'Inquiries', icon: ClipboardList, color: 'from-amber-500 to-orange-600' },
-  { id: 'discounts', label: 'Discounts', icon: MessageSquare, color: 'from-emerald-500 to-teal-600' },
-  { id: 'products', label: 'Pending Products', icon: ShoppingBag, color: 'from-purple-500 to-violet-600' },
-  { id: 'buyrequests', label: 'Buy Requests', icon: ShoppingCart, color: 'from-cyan-500 to-teal-600' },
-  { id: 'notifications', label: 'Notifications', icon: Bell, color: 'from-rose-500 to-pink-600' },
-  { id: 'allproducts', label: 'All Products', icon: Layers, color: 'from-teal-500 to-emerald-600' },
-  { id: 'contactmessages', label: 'Messages', icon: MessageSquare, color: 'from-indigo-500 to-purple-600' },
-  { id: 'quotes', label: 'Quotes', icon: FileText, color: 'from-yellow-500 to-amber-600' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'users', label: 'Users', icon: Users },
+  { id: 'orders', label: 'Orders', icon: Package },
+  { id: 'inquiries', label: 'Inquiries', icon: ClipboardList },
+  { id: 'discounts', label: 'Discounts', icon: MessageSquare },
+  { id: 'products', label: 'Pending Products', icon: ShoppingBag },
+  { id: 'buyrequests', label: 'Buy Requests', icon: ShoppingCart },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'allproducts', label: 'All Products', icon: Layers },
+  { id: 'contactmessages', label: 'Messages', icon: MessageSquare },
+  { id: 'quotes', label: 'Quotes', icon: FileText },
 ];
 
 const statusStyles = {
@@ -37,7 +37,7 @@ const statusStyles = {
   rejected: 'bg-red-500/10 text-red-400 border-red-500/20',
   delivered: 'bg-green-500/10 text-green-400 border-green-500/20',
   approved: 'bg-green-500/10 text-green-400 border-green-500/20',
-  shipped: 'bg-gold/10 text-gold border-gold/20',
+  shipped: 'bg-black/5 text-black border-black/20',
   in_transit: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
   out_for_delivery: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
   info: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -132,7 +132,7 @@ export default function AdminPage() {
   if (!isAdmin) return <AdminLoginCard />;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -157,7 +157,7 @@ export default function AdminPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/" className="p-2 text-gray-500 hover:text-white hover:bg-gray-100 rounded-xl transition-all">
+            <Link href="/" className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-xl transition-all">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
@@ -166,7 +166,7 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/notifications" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 text-gray-300 text-sm rounded-xl hover:border-primary/30 transition-all">
+            <Link href="/notifications" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 text-gray-600 text-sm rounded-xl hover:border-primary/30 transition-all">
               <Bell className="w-4 h-4" />
               Notifications
             </Link>
@@ -202,8 +202,8 @@ export default function AdminPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 lg:px-5 py-3 rounded-xl text-xs lg:text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
                     activeTab === tab.id
-                      ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
-                      : 'bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-400'
+                      ? 'bg-black text-white shadow-lg'
+                      : 'bg-white border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -250,7 +250,7 @@ function DashboardTab({ orders, inquiries, discounts, notifications, products, u
     .slice(0, 12);
 
   const stats = [
-    { label: 'Total Orders', value: orders.length, icon: Package, color: 'from-gold/20 to-amber-600/10', textColor: 'text-gold', change: `${orders.filter(o => o.status === 'pending').length} pending` },
+    { label: 'Total Orders', value: orders.length, icon: Package, color: 'from-black/10 to-neutral-500/5', textColor: 'text-black', change: `${orders.filter(o => o.status === 'pending').length} pending` },
     { label: 'Confirmed', value: confirmedCount, icon: Check, color: 'from-emerald-500/20 to-emerald-600/10', textColor: 'text-emerald-400', change: `${deliveredCount} delivered` },
     { label: 'Total Users', value: users.length, icon: Users, color: 'from-slate-500/20 to-slate-600/10', textColor: 'text-slate-500', change: `${users.filter(u => u.is_supplier).length} suppliers` },
     { label: 'Total Products', value: products.length, icon: Layers, color: 'from-teal-500/20 to-teal-600/10', textColor: 'text-teal-500', change: `${categories.length} categories` },
@@ -339,7 +339,7 @@ function WebsiteProgressPanel({ orders, products, users, categories, confirmed, 
       </div>
       <div className="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
         <motion.div initial={{ width: 0 }} animate={{ width: `${Math.round((steps.filter(s => s.done).length / steps.length) * 100)}%` }} transition={{ delay: 0.5, duration: 0.8 }}
-          className="h-full bg-gradient-to-r from-[#E8C04A] to-[#B8862E] rounded-full" />
+          className="h-full bg-black rounded-full" />
       </div>
     </motion.div>
   );
@@ -358,7 +358,7 @@ function CatalogPanel({ productNames, categories, total }) {
       </div>
       <div className="flex flex-wrap gap-2 mb-4">
         {categories.map(c => (
-          <span key={c} className="px-2.5 py-1 bg-[#F6EDDE] text-[#8A5A2E] text-[11px] font-semibold rounded-full border border-[#D4A853]/30">
+          <span key={c} className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-semibold rounded-full border border-gray-200">
             {c}
           </span>
         ))}
@@ -394,7 +394,7 @@ function RecentActivityPanel({ orders, inquiries }) {
         </div>
         <span className="text-xs text-gray-500">Latest 7 items</span>
       </div>
-      <div className="divide-y divide-[#1C1C2E]">
+      <div className="divide-y divide-gray-100">
         {combined.map((item, i) => (
           <motion.div
             key={`${item._type}-${item.id}`}
@@ -487,7 +487,7 @@ function UsersTab({ users, loadUsers, showToast }) {
                     className="border-b border-gray-200 hover:bg-gray-100/50 transition-colors group">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#E8C04A] to-[#B8862E] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-black text-white text-xs font-bold flex items-center justify-center shrink-0">
                           {initials(u.full_name || u.name || u.email)}
                         </div>
                         <p className="text-gray-900 text-sm font-medium">{u.full_name || u.name || 'User'}</p>
@@ -497,7 +497,7 @@ function UsersTab({ users, loadUsers, showToast }) {
                     <td className="px-5 py-4 text-gray-500 text-xs">{u.phone || '-'}</td>
                     <td className="px-5 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${
-                        role === 'admin' ? 'bg-gold/10 text-gold border-gold/30'
+                        role === 'admin' ? 'bg-black/5 text-black border-black/30'
                         : role === 'supplier' ? 'bg-amber-500/10 text-amber-500 border-amber-500/25'
                         : 'bg-blue-500/10 text-blue-500 border-blue-500/25'
                       }`}>
@@ -726,7 +726,7 @@ function OrdersTab({ orders, loadOrders, showToast }) {
                 <button onClick={() => setMessageOrder(null)}
                   className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">Cancel</button>
                 <button onClick={() => sendCustomerMessage(messageOrder.id)} disabled={sendingMessage || !messageText.trim()}
-                  className="px-5 py-2 bg-gradient-to-r from-[#D9A63C] to-[#8A6A1E] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+                  className="px-5 py-2 bg-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-all disabled:opacity-50 flex items-center gap-2">
                   {sendingMessage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   {sendingMessage ? 'Sending...' : 'Send Message'}
                 </button>
@@ -1018,7 +1018,7 @@ function NotificationsTab({ notifications, loadNotifications, showToast }) {
               Mark All Read
             </button>
           </div>
-          <div className="divide-y divide-[#1C1C2E] max-h-[600px] overflow-y-auto">
+          <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="px-6 py-16 text-center text-gray-600">No notifications sent yet</div>
             ) : (
@@ -1108,7 +1108,7 @@ function AllProductsTab({ products, loadProducts, showToast }) {
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <button onClick={() => setAdding(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#D9A63C] to-[#8A6A1E] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all whitespace-nowrap">
+            className="flex items-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-all whitespace-nowrap">
             <Plus className="w-4 h-4" />
             Add Product
           </button>
@@ -1247,7 +1247,7 @@ function AddProductModal({ onClose, onConfirm, loading }) {
         <div className="flex items-center gap-3 justify-end">
           <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">Cancel</button>
           <button onClick={handleSubmit} disabled={loading || !form.name.trim() || !form.category.trim()}
-            className="px-5 py-2 bg-gradient-to-r from-[#D9A63C] to-[#8A6A1E] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2">
+            className="px-5 py-2 bg-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-all disabled:opacity-50 flex items-center gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             {loading ? 'Adding...' : 'Add Product'}
           </button>
@@ -1718,14 +1718,14 @@ function SupplierProductModal({ action, item, onClose, onConfirm, loading }) {
   return (
     <ModalOverlay onClose={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-gray-100 border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{isApprove ? 'Approve Product' : 'Reject Product'}</h3>
-          <button onClick={onClose} className="p-1.5 text-gray-500 hover:text-white hover:bg-[#2A2A40] rounded-lg transition-all">
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-sm text-gray-400 mb-1">Product: <span className="text-white font-medium">{item.name}</span></p>
+        <p className="text-sm text-gray-500 mb-1">Product: <span className="text-gray-900 font-medium">{item.name}</span></p>
         <p className="text-xs text-gray-500 mb-4">by {item.supplier_name || item.supplier_email}</p>
         {!isApprove && (
           <textarea value={notes} onChange={e => setNotes(e.target.value)}
@@ -1733,7 +1733,7 @@ function SupplierProductModal({ action, item, onClose, onConfirm, loading }) {
             className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 resize-none mb-3" />
         )}
         <div className="flex items-center gap-3 justify-end">
-          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
+          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
             Cancel
           </button>
           <button onClick={() => onConfirm(item.id, isApprove ? 'approved' : 'rejected', isApprove ? undefined : (notes || undefined))} disabled={loading}
@@ -1968,7 +1968,7 @@ function QuotesTab({ quotes, loadQuotes, showToast }) {
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <StatusBadge status={q.status} />
                     <span className="text-[10px] text-gray-400">{timeAgo(q.created_at)}</span>
-                    <ChevronDown className={`w-4 h-4 text-gray-300 transition-transform ${expandedId === q.id ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${expandedId === q.id ? 'rotate-180' : ''}`} />
                   </div>
                 </div>
               </div>
@@ -2061,7 +2061,7 @@ function DetailCard({ icon: Icon, label, value, sub }) {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
       <Loader2 className="w-10 h-10 text-primary animate-spin" />
       <p className="text-sm text-gray-500">Loading...</p>
     </div>
@@ -2074,16 +2074,16 @@ function LoadingSkeleton() {
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5 animate-pulse">
-            <div className="w-10 h-10 bg-[#2A2A40] rounded-xl mb-3" />
-            <div className="h-6 bg-[#2A2A40] rounded w-2/3 mb-2" />
-            <div className="h-3 bg-[#2A2A40] rounded w-1/2" />
+            <div className="w-10 h-10 bg-gray-200 rounded-xl mb-3" />
+            <div className="h-6 bg-gray-200 rounded w-2/3 mb-2" />
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
           </div>
         ))}
       </div>
       <div className="bg-white border border-gray-200 rounded-2xl p-6 animate-pulse">
-        <div className="h-5 bg-[#2A2A40] rounded w-1/4 mb-4" />
+        <div className="h-5 bg-gray-200 rounded w-1/4 mb-4" />
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-12 bg-[#2A2A40]/50 rounded-lg mb-2" />
+          <div key={i} className="h-12 bg-gray-200/50 rounded-lg mb-2" />
         ))}
       </div>
     </div>
@@ -2103,16 +2103,16 @@ function ActionModal({ type, item, onClose, onConfirm, loading }) {
   return (
     <ModalOverlay onClose={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-gray-100 border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{titles[type] || 'Confirm'}</h3>
-          <button onClick={onClose} className="p-1.5 text-gray-500 hover:text-white hover:bg-[#2A2A40] rounded-lg transition-all">
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
             <X className="w-4 h-4" />
           </button>
         </div>
         <p className="text-sm text-gray-400">{messages[type] || 'Are you sure?'}</p>
         <div className="flex items-center gap-3 mt-6 justify-end">
-          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
+          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
             Cancel
           </button>
           <button onClick={onConfirm} disabled={loading}
@@ -2136,14 +2136,14 @@ function InquiryModal({ action, inquiry, onClose, onConfirm, loading }) {
   return (
     <ModalOverlay onClose={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-gray-100 border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{isApprove ? 'Approve Inquiry' : 'Reject Inquiry'}</h3>
-          <button onClick={onClose} className="p-1.5 text-gray-500 hover:text-white hover:bg-[#2A2A40] rounded-lg transition-all">
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-sm text-gray-400 mb-4">Item: <span className="text-white font-medium">{inquiry.item_name}</span></p>
+        <p className="text-sm text-gray-500 mb-4">Item: <span className="text-gray-900 font-medium">{inquiry.item_name}</span></p>
         {isApprove ? (
           <input type="text" value={ref} onChange={e => setRef(e.target.value)}
             placeholder="Supplier reference (optional)" className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 mb-3" />
@@ -2153,7 +2153,7 @@ function InquiryModal({ action, inquiry, onClose, onConfirm, loading }) {
             className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 resize-none mb-3" />
         )}
         <div className="flex items-center gap-3 justify-end">
-          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
+          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
             Cancel
           </button>
           <button onClick={() => onConfirm(inquiry.id, isApprove ? 'approved' : 'rejected', isApprove ? undefined : notes, isApprove ? (ref || undefined) : undefined)} disabled={loading}
@@ -2176,20 +2176,20 @@ function DiscountModal({ action, item, onClose, onConfirm, loading }) {
   return (
     <ModalOverlay onClose={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-gray-100 border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{isApprove ? 'Approve Discount' : 'Reject Discount'}</h3>
-          <button onClick={onClose} className="p-1.5 text-gray-500 hover:text-white hover:bg-[#2A2A40] rounded-lg transition-all">
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
             <X className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-sm text-gray-400 mb-1">From: <span className="text-white font-medium">{item.user_name || item.user_email}</span></p>
+        <p className="text-sm text-gray-500 mb-1">From: <span className="text-gray-900 font-medium">{item.user_name || item.user_email}</span></p>
         <p className="text-xs text-gray-500 mb-4">Message: {item.message}</p>
         <textarea value={reply} onChange={e => setReply(e.target.value)}
           placeholder="Admin reply (optional)" rows={3}
           className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 resize-none mb-3" />
         <div className="flex items-center gap-3 justify-end">
-          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-300 text-sm rounded-xl hover:bg-[#2A2A40] transition-all">
+          <button onClick={onClose} className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
             Cancel
           </button>
           <button onClick={() => onConfirm(item.id, isApprove ? 'approved' : 'rejected', reply || undefined)} disabled={loading}

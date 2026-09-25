@@ -15,7 +15,7 @@ function loadScript() {
   });
 }
 
-export default function ModelViewerInner({ src }) {
+export default function ModelViewerInner({ src, alt = '3D Product Model' }) {
   const containerRef = useRef(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -31,7 +31,7 @@ export default function ModelViewerInner({ src }) {
 
         viewer = document.createElement('model-viewer');
         viewer.setAttribute('src', src);
-        viewer.setAttribute('alt', '3D Product Model');
+        viewer.setAttribute('alt', alt);
         viewer.setAttribute('auto-rotate', '');
         viewer.setAttribute('auto-rotate-delay', '500');
         viewer.setAttribute('rotation-per-second', '24deg');
@@ -84,7 +84,7 @@ export default function ModelViewerInner({ src }) {
         }
       };
     }
-  }, [src]);
+  }, [src, alt]);
 
   return (
     <motion.div

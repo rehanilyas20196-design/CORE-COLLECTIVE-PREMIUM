@@ -1,81 +1,9 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ArrowUpRight, Package } from 'lucide-react';
 import { useScrollReveal, AnimatedSection } from '../../hooks/useScrollReveal';
-
-function IconLaptop({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="4" y="4" width="16" height="11" rx="1.5" />
-      <path d="M2 19h20" />
-      <path d="M12 15v4" />
-    </svg>
-  );
-}
-
-function IconShirt({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M8.6 3.8 4.2 5.6l1.9 2.8L8 7.5l0 11H16l0-11 1.9 0.9 1.9-2.8-4.4-1.8L14 4.7Q12 6.1 10 4.7Z" />
-    </svg>
-  );
-}
-
-function IconSofa({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="4.5" y="5.5" width="15" height="5.5" rx="1.5" />
-      <path d="M2.5 14.5v-1.6a2.1 2.1 0 0 1 4.2 0V14.5" />
-      <path d="M17.3 14.5v-1.6a2.1 2.1 0 0 1 4.2 0V14.5" />
-      <path d="M5 14.5h14v2.3a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1Z" />
-      <path d="M7.5 20.5V18" />
-      <path d="M16.5 20.5V18" />
-    </svg>
-  );
-}
-
-function IconBasketball({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="8" />
-      <path d="M4 12h16" />
-      <path d="M7.2 5.6c2.3 3.4 2.3 9.4 0 12.8" />
-      <path d="M16.8 5.6c-2.3 3.4-2.3 9.4 0 12.8" />
-    </svg>
-  );
-}
-
-function IconLotus({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M12 4 Q15 9 12 14.5 Q9 9 12 4Z" />
-      <path d="M6.8 6.6 Q10.8 10 11.8 14.2 Q7.8 13.2 6.8 6.6Z" />
-      <path d="M17.2 6.6 Q13.2 10 12.2 14.2 Q16.2 13.2 17.2 6.6Z" />
-      <path d="M5 19h14" />
-    </svg>
-  );
-}
-
-function IconGrid({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-      <rect x="14" y="14" width="7" height="7" rx="1" />
-    </svg>
-  );
-}
-
-function ArrowIcon({ className = 'w-4 h-4' }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-    </svg>
-  );
-}
 
 const categories = [
   {
@@ -83,196 +11,205 @@ const categories = [
     href: '/products?category=Electronics',
     count: { value: 2400, suffix: '+' },
     description: 'Latest gadgets, smart devices and electronics for a smarter you.',
-    tint: 'bg-[#DCECF7]',
-    stroke: 'text-[#5F8FB0]',
-    icon: IconLaptop,
-    isCta: false,
+    image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?q=80&w=800&auto=format&fit=crop',
   },
   {
     name: 'Clothing & Apparel',
     href: '/products?category=Clothing%20%26%20Apparel',
     count: { value: 1800, suffix: '+' },
     description: 'Premium fashion, apparel and everyday essentials for every wardrobe.',
-    tint: 'bg-[#F6E0E2]',
-    stroke: 'text-[#B07E84]',
-    icon: IconShirt,
-    isCta: false,
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
   },
   {
     name: 'Home & Furniture',
     href: '/products?category=Home%20%26%20Furniture',
     count: { value: 1200, suffix: '+' },
     description: 'Stylish furniture, décor and home upgrades for every living space.',
-    tint: 'bg-[#E1EAD9]',
-    stroke: 'text-[#7E9B6F]',
-    icon: IconSofa,
-    isCta: false,
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=800&auto=format&fit=crop',
   },
   {
     name: 'Sports Equipment',
     href: '/products?category=Sports%20Equipment',
     count: { value: 850, suffix: '+' },
     description: 'High-performance gear, fitness tools and athletic essentials.',
-    tint: 'bg-[#F3E7C9]',
-    stroke: 'text-[#B39354]',
-    icon: IconBasketball,
-    isCta: false,
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop',
   },
   {
     name: 'Health & Beauty',
     href: '/products?category=Health%20%26%20Beauty',
     count: { value: 950, suffix: '+' },
     description: 'Skincare, wellness and beauty products that care for you.',
-    tint: 'bg-[#EAE0F3]',
-    stroke: 'text-[#9380B0]',
-    icon: IconLotus,
-    isCta: false,
+    image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800&auto=format&fit=crop',
   },
   {
     name: 'View All Categories',
     href: '/products',
     count: null,
-    description: 'Explore everything we have to offer in one place.',
-    tint: '',
-    stroke: '',
-    icon: IconGrid,
-    isCta: true,
+    description: 'Browse the complete range across every category in one place.',
   },
 ];
 
-function useCountUp(target, duration = 900) {
-  const [display, setDisplay] = useState(0);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    let raf = 0;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      observer.disconnect();
-      const start = performance.now();
-      const tick = (now) => {
-        const p = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        setDisplay(Math.round(target * eased));
-        if (p < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }, { threshold: 0.3 });
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [target, duration]);
-
-  return [display, ref];
+function formatCount(category) {
+  return category.count ? `${category.count.value.toLocaleString()}${category.count.suffix}` : '';
 }
 
-function CategoryCard({ cat, index }) {
-  const Icon = cat.icon;
-  const [display, countRef] = useCountUp(cat.count ? cat.count.value : 0);
-
+function CategoryImage({ category, className, priority = false }) {
   return (
-    <motion.div
+    <div className={className}>
+      {category.image ? (
+        <img
+          src={category.image}
+          alt={category.name}
+          loading={priority ? 'eager' : 'lazy'}
+          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-gray-400">
+          <Package className="h-12 w-12" strokeWidth={1.25} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ArrowControl({ featured = false }) {
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-full border shadow-sm transition-all duration-300 group-hover:scale-110 ${
+        featured
+          ? 'h-14 w-14 border-white/20 bg-black/30 text-white backdrop-blur-sm sm:h-16 sm:w-16'
+          : 'h-10 w-10 border-black bg-black text-white sm:h-11 sm:w-11'
+      }`}
+      aria-hidden="true"
+    >
+      <ArrowUpRight className={featured ? 'h-6 w-6 sm:h-7 sm:w-7' : 'h-4 w-4 sm:h-5 sm:w-5'} />
+    </span>
+  );
+}
+
+function CategoryCard({ category, index, featured = false }) {
+  return (
+    <motion.article
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
       transition={{ delay: index * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="h-full"
+      className={featured ? 'min-h-[500px] sm:min-h-[560px] lg:min-h-[680px]' : 'h-full min-h-[280px] sm:min-h-[300px]'}
     >
       <Link
-        href={cat.href}
-        className={`group relative flex flex-col h-full rounded-[4px] border overflow-hidden transition-all duration-500 hover:-translate-y-1 ${
-          cat.isCta
-            ? 'bg-[#3B2A1C] border-[#3B2A1C] shadow-[0_2px_12px_rgba(42,35,24,0.1)] hover:shadow-[0_18px_36px_-10px_rgba(42,35,24,0.35)]'
-            : 'bg-[#FBF8F0] border-[rgba(185,138,60,0.16)] shadow-[0_2px_12px_rgba(42,35,24,0.06)] hover:shadow-[0_18px_36px_-10px_rgba(42,35,24,0.16)]'
+        href={category.href}
+        aria-label={`Explore ${category.name}`}
+        className={`group relative block h-full overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black ${
+          featured
+            ? 'min-h-[500px] border border-black bg-black shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:shadow-[0_24px_44px_-14px_rgba(0,0,0,0.45)] sm:min-h-[560px] lg:min-h-[680px]'
+            : 'min-h-[280px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_-14px_rgba(0,0,0,0.22)] sm:min-h-[300px]'
         }`}
       >
-        <span className="absolute top-0 left-0 right-0 h-[2px] bg-[#B98A3C] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out pointer-events-none" />
-
-        <div className="p-5 sm:p-6 flex flex-col flex-1">
-          <div
-            className={`w-[58px] h-[58px] rounded-full flex items-center justify-center transition-colors duration-300 ${
-              cat.isCta
-                ? 'bg-[#FBF8F0]/10 border border-[#FBF8F0]/20 group-hover:bg-[#B98A3C]'
-                : `${cat.tint} group-hover:bg-[#B98A3C]`
-            }`}
-          >
-            <Icon
-              className={`w-7 h-7 transition-colors duration-300 ${
-                cat.isCta ? 'text-[#FBF8F0]' : `${cat.stroke} group-hover:text-[#FBF8F0]`
-              }`}
+        {featured ? (
+          <>
+            <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/[0.06] blur-2xl transition-transform duration-700 group-hover:scale-150" />
+            <span className="absolute right-5 top-5 z-30 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm backdrop-blur sm:right-6 sm:top-6 sm:px-4 sm:py-1.5 sm:text-xs">
+              Featured Category
+            </span>
+            <CategoryImage
+              category={category}
+              priority
+              className="absolute inset-x-[8%] bottom-[27%] top-[6%] z-10 overflow-hidden"
             />
-          </div>
-
-          <h3 className={`mt-5 font-fraunces font-semibold text-[20px] leading-tight ${cat.isCta ? 'text-[#FBF8F0]' : 'text-[#2A2318]'}`}>
-            {cat.name}
-          </h3>
-          <span className={`mt-2 block h-[2px] w-full origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out ${cat.isCta ? 'bg-[#B98A3C]' : 'bg-[#B98A3C]'}`} />
-
-          {cat.count && (
-            <p className="mt-2 text-sm text-[#5C5344]">
-              <span ref={countRef}>{display.toLocaleString()}</span>
-              {cat.count.suffix} products
-            </p>
-          )}
-
-          <p className={`mt-3 text-sm leading-relaxed line-clamp-2 ${cat.isCta ? 'text-[#FBF8F0]/70' : 'text-[#5C5344]'}`}>
-            {cat.description}
-          </p>
-
-          <span
-            className={`mt-auto pt-6 w-fit inline-flex items-center gap-2 border px-6 py-2.5 text-sm font-medium transition-all duration-300 ${
-              cat.isCta
-                ? 'border-[#FBF8F0]/40 text-[#FBF8F0] group-hover:border-[#B98A3C] group-hover:bg-[#B98A3C]/20'
-                : 'border-[rgba(185,138,60,0.4)] text-[#2A2318] group-hover:border-[#B98A3C]'
-            }`}
-          >
-            Browse Now
-            <ArrowIcon className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </span>
-        </div>
+            <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-5 p-6 sm:p-8 lg:p-9">
+              <div className="min-w-0 max-w-[80%]">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
+                  {formatCount(category)} products
+                </p>
+                <h3 className="mt-2 font-volkhov text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
+                  {category.name}
+                </h3>
+                <p className="mt-3 hidden max-w-lg text-sm leading-relaxed text-white/70 sm:block">
+                  {category.description}
+                </p>
+              </div>
+              <ArrowControl featured />
+            </div>
+          </>
+        ) : (
+          <>
+            <CategoryImage
+              category={category}
+              className="absolute inset-x-0 bottom-[38%] top-0 z-10 overflow-hidden bg-[#F4F4F6]"
+            />
+            <span className="absolute left-4 top-4 z-30 rounded-full bg-white/95 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm backdrop-blur">
+              {formatCount(category)} products
+            </span>
+            <div className="absolute inset-x-0 bottom-0 z-30 flex min-h-[38%] items-end justify-between gap-3 border-t border-gray-100 bg-white p-5 sm:p-6">
+              <div className="min-w-0">
+                <h3 className="font-volkhov text-xl font-bold leading-snug text-black">
+                  {category.name}
+                </h3>
+                <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">
+                  {category.description}
+                </p>
+              </div>
+              <ArrowControl />
+            </div>
+          </>
+        )}
       </Link>
-    </motion.div>
+    </motion.article>
   );
 }
 
 export default function CategoryGrid() {
   const { ref } = useScrollReveal({ threshold: 0.05 });
+  const browseCategories = categories.filter((category) => category.image);
+  const featuredCategory = browseCategories.find((category) => category.name === 'Home & Furniture') || browseCategories[0];
+  const smallCategories = browseCategories.filter((category) => category.name !== featuredCategory?.name);
+  const viewAllCategory = categories.find((category) => !category.image);
 
   return (
-    <section ref={ref} className="py-16 sm:py-24 font-jost bg-[#F3EDDF] overflow-hidden">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-        <AnimatedSection animation="fade-up" className="text-center mb-12 sm:mb-16">
-          <div className="flex items-center justify-center gap-4">
-            <span aria-hidden className="h-px w-10 sm:w-16 bg-gradient-to-r from-transparent to-[#D8BC85]" />
-            <span className="text-xs font-medium uppercase tracking-[0.22em] text-[#93692A]">
-              Browse by Category
-            </span>
-            <span aria-hidden className="h-px w-10 sm:w-16 bg-gradient-to-l from-transparent to-[#D8BC85]" />
-          </div>
-          <h2 className="mt-4 font-fraunces font-semibold text-[32px] sm:text-[40px] lg:text-[44px] leading-tight tracking-[-0.02em] text-[#2A2318]">
-            Explore Our Product{' '}
-            <span className="italic text-[#B98A3C] font-medium">Categories</span>
+    <section ref={ref} className="overflow-hidden bg-white py-16 font-jost sm:py-24">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+        <AnimatedSection animation="fade-up" className="mx-auto mb-12 max-w-2xl text-center sm:mb-16">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">
+            Browse by Category
+          </span>
+          <h2 className="mt-3 font-volkhov text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">
+            Explore Our Product Categories
           </h2>
-          <p className="text-[#5C5344] text-base sm:text-lg font-normal leading-relaxed mt-3">
+          <p className="mt-5 text-sm font-normal leading-relaxed text-gray-500 sm:text-base">
             Find exactly what you need from our wide range of products
           </p>
         </AnimatedSection>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-          {categories.slice(0, 4).map((cat, i) => (
-            <CategoryCard key={cat.name} cat={cat} index={i} />
-          ))}
-        </div>
+        {featuredCategory ? (
+          <>
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+              <CategoryCard category={featuredCategory} index={0} featured />
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:min-h-[680px] lg:grid-rows-2">
+                {smallCategories.map((category, index) => (
+                  <CategoryCard key={category.name} category={category} index={index + 1} />
+                ))}
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-6">
-          {categories.slice(4).map((cat, i) => (
-            <CategoryCard key={cat.name} cat={cat} index={i + 4} />
-          ))}
-        </div>
+            {viewAllCategory && (
+              <div className="mt-10 text-center sm:mt-12">
+                <Link
+                  href={viewAllCategory.href}
+                  className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm transition-all duration-300 hover:bg-neutral-800 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black"
+                >
+                  {viewAllCategory.name}
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center">
+            <Package className="mx-auto h-10 w-10 text-gray-400" strokeWidth={1.5} />
+            <p className="mt-4 font-semibold text-black">No categories available yet.</p>
+          </div>
+        )}
       </div>
     </section>
   );

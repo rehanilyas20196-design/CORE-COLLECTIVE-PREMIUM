@@ -7,10 +7,10 @@ const ModelViewerInner = dynamic(
   { ssr: false }
 );
 
-export default function ModelViewer3D({ src }) {
+export default function ModelViewer3D({ src, alt = '3D Product Model' }) {
   return (
     <div className="relative w-full h-full">
-      <ModelViewerInner src={src} />
+      <ModelViewerInner src={src} alt={alt} />
     </div>
   );
 }

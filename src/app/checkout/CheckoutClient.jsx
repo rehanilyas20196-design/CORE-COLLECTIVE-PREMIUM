@@ -21,21 +21,8 @@ import { useCart } from '../../context/CartContext';
 import { supabase } from '../../lib/supabase';
 import PaddleCheckout from '../../components/checkout/PaddleCheckout';
 
-const palette = {
-  creamBg: '#EFE3C8',
-  panelBg: '#F7EFDC',
-  cardBg: '#FBF5E8',
-  ink: '#2B2013',
-  tan: '#7A6A4C',
-  goldDeep: '#8A6A1E',
-  goldMid: '#B8862E',
-  goldSoft: 'rgba(185, 138, 60, 0.22)',
-};
-
 const PADDLE_METHODS = ['Visa', 'Mastercard', 'PayPal', 'Apple Pay', 'Google Pay'];
 
-// Preview unit price only — the checkout API always re-derives prices from
-// the products table (source of truth).
 function getUnit(item) {
   return Math.round(Number(item.price_min || item.price || 0) * 100) / 100;
 }
@@ -45,9 +32,6 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
   const { userProfile } = useAuth();
   const { cartItems, updateQty, removeFromCart } = useCart();
 
-  // Buy Now is an explicit single-product checkout (?product_id=...). It must
-  // take priority over the cart — otherwise a stale/default cart entry would be
-  // shown instead of the product the buyer actually clicked.
   const buyNowId = Number(initialProductId);
   const buyNow = Number.isInteger(buyNowId) && buyNowId > 0;
   const fromCart = !buyNow && cartItems.length > 0;
@@ -58,7 +42,6 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
   const [quantity, setQuantity] = useState(() => Math.min(1000, Math.max(1, Number(initialQty) || 1)));
   const [error, setError] = useState(initialCancelled ? 'You cancelled the payment. Please try again.' : '');
 
-  // Buy Now mode: load the single product referenced by ?product_id.
   useEffect(() => {
     if (!buyNow) {
       setLoading(false);
@@ -117,9 +100,9 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
 
   if (loading) {
     return (
-      <main className="min-h-[60vh] flex items-center justify-center" style={{ backgroundColor: palette.cardBg }}>
-        <div className="flex items-center gap-3 text-sm" style={{ color: palette.tan }}>
-          <Loader className="w-5 h-5 animate-spin" /> Reviewing your order...
+      <main className="min-h-[60vh] flex items-center justify-center bg-white font-jost">
+        <div className="flex items-center gap-3 text-sm text-gray-500">
+          <Loader className="w-5 h-5 animate-spin text-black" /> Reviewing your order...
         </div>
       </main>
     );
@@ -127,13 +110,13 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
 
   if (lines.length === 0) {
     return (
-      <main className="min-h-[60vh] flex items-center justify-center p-6" style={{ backgroundColor: palette.cardBg }}>
+      <main className="min-h-[60vh] flex items-center justify-center p-6 bg-white font-jost">
         <div className="max-w-md w-full text-center space-y-4">
-          <ShoppingBag className="w-10 h-10 mx-auto" style={{ color: palette.goldMid }} />
-          <p className="text-sm" style={{ color: palette.tan }}>
+          <ShoppingBag className="w-12 h-12 mx-auto text-black" />
+          <p className="text-sm text-gray-500">
             {loadError || 'Your cart is empty. Add products to your cart before checking out.'}
           </p>
-          <Link href="/products" className="gold-shimmer-btn inline-block px-6 py-2.5 font-semibold">
+          <Link href="/products" className="inline-block px-8 py-3 bg-black text-white font-semibold text-xs uppercase tracking-widest rounded-md hover:bg-neutral-800 transition-all">
             Browse Products
           </Link>
         </div>
@@ -148,185 +131,151 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
   };
 
   return (
-    <main className="min-h-[70vh] py-10 px-4 sm:px-6" style={{ backgroundColor: palette.cardBg }}>
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <main className="min-h-screen py-12 px-4 sm:px-6 md:px-8 bg-white font-jost pt-24 sm:pt-28">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: palette.ink, fontFamily: 'Fraunces, serif' }}>Checkout</h1>
-            <p className="text-sm mt-1" style={{ color: palette.tan }}>
-              Review your order, then pay securely through Paddle.
+            <h1 className="font-volkhov font-bold text-3xl text-black">Core Collective Checkout</h1>
+            <p className="text-xs text-gray-500 mt-1">
+              Review your order items, enter delivery information, and complete payment securely.
             </p>
           </div>
           <button
             type="button"
             onClick={() => router.push('/products')}
-            className="flex items-center gap-1.5 text-sm hover:underline"
-            style={{ color: palette.tan }}
+            className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-black uppercase tracking-wider"
           >
             <ArrowLeft className="w-4 h-4" /> Continue shopping
           </button>
         </div>
 
         {error && (
-          <div
-            className="flex items-start gap-2 p-3 mb-6 text-sm border rounded-lg"
-            style={{ borderColor: 'rgba(161,42,42,0.4)', color: '#A12A2A', backgroundColor: '#F7E3DD' }}
-          >
-            <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+          <div className="flex items-start gap-2 p-4 mb-6 text-xs bg-red-50 border border-red-200 text-red-600 rounded-lg">
+            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
           </div>
         )}
 
-        <motion.div key="review" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="border overflow-hidden rounded-2xl" style={{ borderColor: palette.goldSoft, backgroundColor: palette.cardBg }}>
-            <div className="p-5 border-b" style={{ borderColor: palette.goldSoft, backgroundColor: palette.panelBg }}>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: palette.tan }}>
-                Order Review {fromCart && `· ${cartItems.length} item${cartItems.length === 1 ? '' : 's'}`}
-              </p>
-            </div>
+        <div className="grid lg:grid-cols-12 gap-8">
+          {/* Order Review Details Column */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-black">
+                  Order Items ({itemCount})
+                </span>
+                {fromCart && (
+                  <span className="text-xs text-gray-500">{cartItems.length} items in cart</span>
+                )}
+              </div>
 
-            <div className="divide-y" style={{ borderColor: palette.goldSoft }}>
-              {lines.map((line) => (
-                <div key={line.product_id} className="p-5 grid grid-cols-1 sm:grid-cols-[auto_1fr_auto] gap-4 sm:items-center">
-                  {line.image ? (
-                    <img
-                      src={line.image}
-                      alt={line.name}
-                      className="w-20 h-20 rounded-lg border object-cover flex-shrink-0"
-                      style={{ borderColor: palette.goldSoft }}
-                    />
-                  ) : (
-                    <div
-                      className="w-20 h-20 rounded-lg border flex items-center justify-center flex-shrink-0"
-                      style={{ borderColor: palette.goldSoft }}
-                    >
-                      <CreditCard className="w-6 h-6" style={{ color: palette.tan }} />
+              <div className="divide-y divide-gray-100">
+                {lines.map((line) => (
+                  <div key={line.product_id} className="p-4 flex items-center gap-4">
+                    {line.image ? (
+                      <img
+                        src={line.image}
+                        alt={line.name}
+                        className="w-16 h-16 rounded-lg border border-gray-200 object-cover shrink-0 bg-gray-50"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                        <CreditCard className="w-6 h-6 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-volkhov font-bold text-sm text-black truncate">{line.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">${Number(line.price).toFixed(2)} / unit</p>
                     </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="font-semibold line-clamp-2" style={{ color: palette.ink }}>{line.name}</p>
-                    <p className="text-sm mt-1 font-medium" style={{ color: palette.goldDeep }}>
-                      ${Number(line.price).toFixed(2)} / unit
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 justify-between sm:justify-end">
+
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => changeQty(line, line.quantity - 1)}
-                        className="w-9 h-9 flex items-center justify-center border rounded-lg hover:border-[#B8862E]/40 transition-colors"
-                        style={{ borderColor: palette.goldSoft, color: palette.ink }}
-                        aria-label="Decrease quantity"
+                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 text-black"
                       >
-                        <Minus className="w-4 h-4" />
+                        <Minus className="w-3 h-3" />
                       </button>
-                      <input
-                        type="number"
-                        min={1}
-                        max={1000}
-                        value={line.quantity}
-                        onChange={(e) => changeQty(line, e.target.value)}
-                        className="w-20 text-center border rounded-lg px-2 py-2 text-sm outline-none focus:border-[#B8862E]/50"
-                        style={{ borderColor: palette.goldSoft, color: palette.ink, backgroundColor: '#fff' }}
-                      />
+                      <span className="w-8 text-center text-xs font-bold text-black">{line.quantity}</span>
                       <button
                         type="button"
                         onClick={() => changeQty(line, line.quantity + 1)}
-                        className="w-9 h-9 flex items-center justify-center border rounded-lg hover:border-[#B8862E]/40 transition-colors"
-                        style={{ borderColor: palette.goldSoft, color: palette.ink }}
-                        aria-label="Increase quantity"
+                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 text-black"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3 h-3" />
                       </button>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <p className="text-sm font-bold w-24 text-right" style={{ color: palette.ink }}>
+
+                    <div className="text-right pl-2">
+                      <p className="font-bold text-sm text-black">
                         ${(Number(line.price) * line.quantity).toFixed(2)}
                       </p>
                       {fromCart && (
                         <button
                           type="button"
                           onClick={() => removeFromCart(line.product_id)}
-                          className="p-2 rounded-lg border transition-colors hover:border-red-400"
-                          style={{ borderColor: palette.goldSoft, color: palette.tan }}
-                          aria-label="Remove item"
+                          className="text-red-500 hover:text-red-700 text-[11px] mt-1"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          Remove
                         </button>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="px-5 pb-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: palette.tan }}>Billed to</label>
-                <div
-                  className="border rounded-lg px-3 py-2 text-sm flex items-center gap-2"
-                  style={{ borderColor: palette.goldSoft, backgroundColor: palette.panelBg, color: palette.ink }}
-                >
-                  <Lock className="w-3.5 h-3.5" style={{ color: palette.goldMid }} />
-                  {userProfile?.email ? userProfile.email : 'Not signed in'}
-                </div>
+                ))}
               </div>
             </div>
 
-            <div className="px-5 py-4 flex items-center justify-between border-t" style={{ borderColor: palette.goldSoft, backgroundColor: palette.panelBg }}>
-              <div>
-                <p className="text-sm font-medium" style={{ color: palette.ink }}>Total (USD)</p>
-                <p className="text-xs" style={{ color: palette.tan }}>{itemCount} item{itemCount === 1 ? '' : 's'} · prices confirmed at payment</p>
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-black block">Account</span>
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <Lock className="w-3.5 h-3.5 text-black" />
+                <span>{userProfile?.email || 'Not signed in'}</span>
               </div>
-              <p className="text-2xl font-bold" style={{ color: palette.goldDeep, fontFamily: 'Fraunces, serif' }}>
-                ${amount.toFixed(2)}
-              </p>
             </div>
           </div>
 
-          <div className="mt-6 space-y-3">
-            {!userProfile && (
-              <div className="flex items-start gap-2 p-3 text-sm border rounded-lg" style={{ borderColor: palette.goldSoft, color: '#93692A', backgroundColor: palette.panelBg }}>
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>
-                  You need to be signed in to place an order.{' '}
-                  <Link href="/login?redirect=/checkout" className="font-semibold underline">Log in</Link>
-                </span>
-              </div>
-            )}
+          {/* FASCO Right Column Summary & Payment Box */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="bg-[#FAF9F6] border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <h3 className="font-volkhov font-bold text-lg text-black">Order Summary</h3>
 
-            <div className="border overflow-hidden rounded-2xl" style={{ borderColor: palette.goldSoft, backgroundColor: palette.cardBg }}>
-              <div className="p-5 border-b" style={{ borderColor: palette.goldSoft, backgroundColor: palette.panelBg }}>
-                <p className="text-sm font-semibold" style={{ color: palette.ink }}>Pay with Paddle</p>
-                <p className="text-xs mt-0.5" style={{ color: palette.tan }}>
-                  A secure Paddle checkout window opens for your payment.
-                </p>
-              </div>
-              <div className="p-5 space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  {PADDLE_METHODS.map((m) => (
-                    <span key={m} className="text-[11px] font-medium px-2.5 py-1 border rounded-full" style={{ borderColor: palette.goldSoft, color: palette.tan }}>
-                      {m}
-                    </span>
-                  ))}
-                  <span className="text-[11px] text-xs" style={{ color: palette.tan }}>+ more via Paddle</span>
+              <div className="space-y-2 text-xs text-gray-600 pt-2 border-t border-gray-200">
+                <div className="flex justify-between">
+                  <span>Subtotal ({itemCount} items)</span>
+                  <span className="font-semibold text-black">${amount.toFixed(2)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="font-semibold text-green-700">Calculated at Checkout</span>
+                </div>
+              </div>
 
+              <div className="flex justify-between pt-3 border-t border-gray-200 text-base font-bold text-black font-volkhov">
+                <span>Total Amount</span>
+                <span>${amount.toFixed(2)}</span>
+              </div>
+
+              {!userProfile && (
+                <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg">
+                  Please <Link href="/login?redirect=/checkout" className="font-bold underline">sign in</Link> to complete your order.
+                </div>
+              )}
+
+              <div className="pt-2">
                 <PaddleCheckout
                   disabled={!userProfile}
                   lines={lines}
                   onOpened={() => {}}
                   onError={(msg) => setError(msg)}
                 />
+              </div>
 
-                <p className="flex items-start gap-1.5 text-xs leading-relaxed" style={{ color: palette.tan }}>
-                  <ShieldCheck className="w-4 h-4 flex-shrink-0" style={{ color: palette.goldMid }} />
-                  Paddle handles all payment methods and card data. We never see your card details, stocks are reduced
-                  only after Paddle verifies the payment, and your order is confirmed only by the verified webhook.
-                </p>
+              <div className="pt-2 flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
+                <ShieldCheck className="w-4 h-4 text-black" />
+                <span>Encrypted 256-Bit SSL Payment Protection</span>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </main>
   );

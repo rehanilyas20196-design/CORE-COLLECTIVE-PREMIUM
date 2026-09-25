@@ -210,7 +210,7 @@ export default function PaddleCheckout({ lines, disabled, onOpened, onError, onP
         type="button"
         onClick={start}
         disabled={opening || disabled}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-[4px] bg-[#071F57] hover:bg-[#0d2f80] text-white font-semibold transition-colors disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-md bg-black hover:bg-neutral-800 text-white font-semibold text-xs sm:text-sm uppercase tracking-[0.2em] transition-all shadow-md active:scale-[0.98] disabled:opacity-60"
       >
         {opening ? <Loader className="w-4 h-4 animate-spin" /> : <LockIcon />}
         {opening ? 'Preparing Paddle...' : 'Pay Securely with Paddle'}

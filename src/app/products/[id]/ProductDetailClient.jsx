@@ -1,24 +1,24 @@
 ﻿'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Star, ShieldCheck, Truck, Lock, Send, Loader, ChevronLeft, ChevronRight, Heart, Eye, ShoppingBag, CheckCircle, AlertCircle, X, Check, ChevronUp, Clock, ShoppingCart } from 'lucide-react';
+import { ChevronDown, Star, ShieldCheck, Truck, Lock, Send, Loader, ChevronLeft, ChevronRight, Heart, Eye, ShoppingBag, CheckCircle, AlertCircle, Check, ShoppingCart, Award, Factory } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import { api } from '../../../lib/api';
 import { supabase } from '../../../lib/supabase';
 import OptimizedProductImage from '../../../components/products/OptimizedProductImage';
 
-const creamBg = '#EFE3C8';
-const panelBg = '#F7EFDC';
-const cardBg = '#FBF5E8';
-const ink = '#2B2013';
-const tan = '#7A6A4C';
-const goldDeep = '#8A6A1E';
-const goldMid = '#B8862E';
-const goldSoft = 'rgba(185, 138, 60, 0.22)';
+const creamBg = '#FFFFFF';
+const panelBg = '#FAF9F6';
+const cardBg = '#FFFFFF';
+const ink = '#000000';
+const tan = '#666666';
+const goldDeep = '#000000';
+const goldMid = '#000000';
+const goldSoft = '#E5E7EB';
 const borderGoldSoft = { borderColor: goldSoft };
 
 function WhatsAppIcon({ className }) {
@@ -30,9 +30,9 @@ function WhatsAppIcon({ className }) {
 }
 
 const stockStatusConfig = {
-  in_stock: { label: 'In Stock', color: '#9C7034' },
-  limited: { label: 'Limited Stock', color: '#B8862E' },
-  out_of_stock: { label: 'Out of Stock', color: '#A12A2A' },
+  in_stock: { label: 'In Stock', color: '#16A34A' },
+  limited: { label: 'Limited Stock', color: '#D97706' },
+  out_of_stock: { label: 'Out of Stock', color: '#DC2626' },
 };
 
 function parseGallery(product) {
@@ -53,10 +53,6 @@ export default function ProductDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
-  const { userProfile } = useAuth();
-const [buyModalOpen, setBuyModalOpen] = useState(false);
-  const [buyForm, setBuyForm] = useState({ quantity: 1, message: '' });
-  const [buyError, setBuyError] = useState('');
 
   const [quoteForm, setQuoteForm] = useState({ name: '', business: '', phone: '', email: '', quantity: '', message: '' });
   const [quoteSubmitting, setQuoteSubmitting] = useState(false);
@@ -66,7 +62,7 @@ const [buyModalOpen, setBuyModalOpen] = useState(false);
   const [glow, setGlow] = useState({ x: 50, y: 50, active: false });
   const [wishlisted, setWishlisted] = useState(false);
 
-useEffect(() => {
+  useEffect(() => {
     fetchProduct();
   }, [params.id]);
 
@@ -100,6 +96,8 @@ useEffect(() => {
   const current = product ? Number(product.price_min || product.price || 0) : 0;
   const priceMax = product ? Number(product.price_max || product.price || current) : current;
   const hasRange = priceMax > current;
+  const listPrice = priceMax > current ? priceMax : null;
+  const savingsPct = listPrice ? Math.round((1 - current / listPrice) * 100) : null;
   const pricingTiers = product?.pricing_tiers || [];
   const rating = Number(product?.rating || 0);
   const reviews = Number(product?.reviews_count || product?.review_count || 0);
@@ -110,13 +108,9 @@ useEffect(() => {
     setGlow({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100, active: true });
   };
 
-const handleBuySubmit = (e) => {
-    e.preventDefault();
-    const qty = Math.min(1000, Math.max(1, Math.floor(Number(buyForm.quantity) || 1)));
-    setBuyError('');
-    setBuyModalOpen(false);
-    router.push(`/checkout?product_id=${product.id}&qty=${qty}`);
-  };
+  const scrollToQuote = () => document.getElementById('request-quote')?.scrollIntoView({ behavior: 'smooth' });
+
+  const waLink = `https://wa.me/923101515568?text=${encodeURIComponent(`Hi, I'm interested in buying: ${product?.name || 'this product'}`)}`;
 
   const handleQuoteSubmit = async (e) => {
     e.preventDefault();
@@ -145,10 +139,10 @@ const handleBuySubmit = (e) => {
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: creamBg }}>
-        <div className="max-w-[1180px] mx-auto px-4 py-10 flex items-center justify-center min-h-[60vh]">
+        <div className="max-w-[1400px] mx-auto px-4 py-10 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 border border-[rgba(185,138,60,0.3)] animate-pulse bg-[#F7EFDC]" />
-            <div className="h-4 w-48 mx-auto bg-[#D9C49A] animate-pulse" />
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 animate-pulse rounded-2xl" />
+            <div className="h-4 w-48 mx-auto bg-gray-200 animate-pulse" />
           </div>
         </div>
       </div>
@@ -159,9 +153,9 @@ const handleBuySubmit = (e) => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: creamBg }}>
         <div className="text-center">
-          <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-[#B8862E]" />
-          <h2 className="text-xl font-bold mb-2" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Product not found</h2>
-          <button onClick={() => router.push('/products')} className="text-[#93692A] hover:underline">Browse all products</button>
+          <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+          <h2 className="text-xl font-volkhov font-bold mb-2 text-black">Product not found</h2>
+          <button onClick={() => router.push('/products')} className="text-black underline underline-offset-4 hover:opacity-70">Browse all products</button>
         </div>
       </div>
     );
@@ -181,7 +175,7 @@ const handleBuySubmit = (e) => {
     offers: {
       '@type': 'Offer',
       url: `${origin}/products/${product.id}`,
-priceCurrency: 'USD',
+      priceCurrency: 'USD',
       price: current.toFixed(2),
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       availability: stock === 'out_of_stock' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
@@ -205,243 +199,289 @@ priceCurrency: 'USD',
     ],
   };
 
-return (
-    <div className="min-h-screen pt-[84px] sm:pt-[96px] md:pt-[100px]" style={{ backgroundColor: creamBg }}>
+  const watermarkText = product.name.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').slice(0, 2).join(' ');
+
+  return (
+    <div className="min-h-screen pt-24 sm:pt-28" style={{ backgroundColor: creamBg }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       {/* Breadcrumb */}
-      <div className="max-w-[1180px] mx-auto px-4 pt-4 pb-2">
-        <nav className="flex items-center gap-2 text-sm flex-wrap" style={{ color: tan }} aria-label="Breadcrumb">
-          <button onClick={() => router.push('/')} className="hover:text-[#93692A] transition-colors">Home</button>
-          <ChevronDown className="w-3 h-3 -rotate-90" style={{ color: goldMid }} />
-          <button onClick={() => router.push('/products')} className="hover:text-[#93692A] transition-colors">Products</button>
-          <ChevronDown className="w-3 h-3 -rotate-90" style={{ color: goldMid }} />
-          <span className="truncate max-w-[240px]" style={{ color: '#93692A' }}>{product.name}</span>
+      <div className="max-w-[1400px] mx-auto px-4 pt-4 pb-2">
+        <nav className="flex items-center gap-2 text-sm flex-wrap text-gray-500" aria-label="Breadcrumb">
+          <button onClick={() => router.push('/')} className="hover:text-black transition-colors">Home</button>
+          <ChevronDown className="w-3 h-3 -rotate-90 text-gray-400" />
+          <button onClick={() => router.push('/products')} className="hover:text-black transition-colors">Products</button>
+          <ChevronDown className="w-3 h-3 -rotate-90 text-gray-400" />
+          <span className="truncate max-w-[240px] text-black">{product.name}</span>
         </nav>
       </div>
 
-      {/* Hero: gallery (left) + info (right) */}
-      <div className="max-w-[1180px] mx-auto px-4 py-6 grid grid-cols-1 items-start gap-10 desktop:grid-cols-2">
-{/* Left: gallery */}
-        <div className="space-y-4">
-          <div className="gold-border-frame relative cursor-crosshair" onMouseMove={handleGlow} onMouseLeave={() => setGlow(g => ({ ...g, active: false }))}>
-            <div className="relative aspect-square w-full overflow-hidden" style={{ backgroundColor: panelBg }}>
-              {galleryImages.length > 0 ? (
-                <OptimizedProductImage
-                  src={galleryImages[activeImage % galleryImages.length]}
-                  alt={product.name}
-                  sizes="(max-width: 720px) 100vw, 50vw"
-                  classN="object-cover"
-                  priority
-                  onError={e => { if (e.currentTarget.src !== (product.image_url || '')) e.currentTarget.src = product.image_url || ''; }}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-16 h-16" style={{ color: goldMid }} /></div>
-              )}
-
-              {/* subtle gold glow that follows the cursor */}
-              <div
-                className="absolute inset-0 pointer-events-none transition-opacity duration-300"
-                style={{
-                  opacity: glow.active ? 1 : 0,
-                  background: `radial-gradient(circle at ${glow.x}% ${glow.y}%, rgba(217,166,60,0.22) 0%, transparent 55%)`,
-                }}
-              />
-
-              {/* heart */}
-              <button
-                onClick={() => setWishlisted(!wishlisted)}
-                className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center border bg-[#FBF5E8]/90 hover:bg-[#FBF5E8] transition-colors"
-                style={{ borderColor: goldSoft, color: '#93692A' }}
-                aria-label="Toggle favorites"
-              >
-                <Heart className={`w-5 h-5 transition-colors ${wishlisted ? 'fill-[#D9A63C] text-[#D9A63C]' : ''}`} />
-              </button>
-
-              {galleryImages.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setActiveImage(i => (i - 1 + galleryImages.length) % galleryImages.length)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-[#2B2013]/50 hover:bg-[#2B2013]/75 text-[#FBF5E8] transition-colors"
-                    style={{ borderColor: goldSoft }}
-                    aria-label="Previous image"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setActiveImage(i => (i + 1) % galleryImages.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-[#2B2013]/50 hover:bg-[#2B2013]/75 text-[#FBF5E8] transition-colors"
-                    style={{ borderColor: goldSoft }}
-                    aria-label="Next image"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-{/* thumbnails (4) */}
-          {galleryImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-3">
-              {galleryImages.slice(0, 4).map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(i)}
-                  className={`relative aspect-square overflow-hidden border-2 transition-all duration-200 ${
-                    i === activeImage ? 'opacity-100' : 'opacity-70 hover:opacity-100'
-                  }`}
-                  style={{
-                    backgroundColor: panelBg,
-                    borderColor: i === activeImage ? goldMid : goldSoft,
-                    outline: i === activeImage ? `2px solid ${creamBg}` : 'none',
-                    outlineOffset: 2,
-                  }}
-                  aria-label={`Image ${i + 1}`}
-                >
-                  <OptimizedProductImage src={img} alt={`${product.name} - view ${i + 1}`} sizes="96px" classN="object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Editorial hero: gallery + info on #FAF9F6 band with ghost watermark */}
+      <section className="relative overflow-hidden border-b border-gray-100" style={{ backgroundColor: panelBg }}>
+        <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block select-none max-w-[60%] overflow-hidden">
+          <span className="block font-volkhov italic font-bold text-[9rem] leading-none text-black/[0.04] whitespace-nowrap uppercase pl-4">
+            {watermarkText || 'Core Collective'}
+          </span>
         </div>
 
-        {/* Right: info */}
-        <div className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2">
-            {product.category && (
-              <span className="px-3 py-1 text-[11px] uppercase tracking-wider border" style={{ borderColor: goldSoft, color: goldDeep, backgroundColor: panelBg }}>
-                {product.category}
-              </span>
-            )}
-            {product.is_verified && (
-              <span className="px-3 py-1 text-[11px] uppercase tracking-wider flex items-center gap-1.5 border" style={{ borderColor: goldSoft, color: goldDeep, backgroundColor: cardBg }}>
-                <ShieldCheck className="w-3.5 h-3.5" /> Verified Supplier
-              </span>
-            )}
-          </div>
+        <div className="relative max-w-[1400px] mx-auto px-4 py-10 grid grid-cols-1 items-start gap-10 desktop:grid-cols-12">
+          {/* Left: gallery */}
+          <div className="desktop:col-span-6 space-y-4">
+            <div className="relative cursor-crosshair" onMouseMove={handleGlow} onMouseLeave={() => setGlow(g => ({ ...g, active: false }))}>
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_20px_60px_-30px_rgba(0,0,0,0.35)]">
+                {galleryImages.length > 0 ? (
+                  <OptimizedProductImage
+                    src={galleryImages[activeImage % galleryImages.length]}
+                    alt={product.name}
+                    sizes="(max-width: 720px) 100vw, 50vw"
+                    classN="object-cover"
+                    priority
+                    onError={e => { if (e.currentTarget.src !== (product.image_url || '')) e.currentTarget.src = product.image_url || ''; }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-16 h-16 text-gray-300" /></div>
+                )}
 
-          <h1 className="text-3xl sm:text-4xl font-bold leading-tight" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>
-            {product.name}
-          </h1>
+                {/* subtle black glow that follows the cursor */}
+                <div
+                  className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+                  style={{
+                    opacity: glow.active ? 1 : 0,
+                    background: `radial-gradient(circle at ${glow.x}% ${glow.y}%, rgba(0,0,0,0.06) 0%, transparent 55%)`,
+                  }}
+                />
 
-          <div className="flex items-center gap-5 flex-wrap text-sm" style={{ color: tan }}>
-            <div className="flex items-center gap-1.5">
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map(s => (
-                  <Star key={s} className={`w-4 h-4 ${s <= Math.round(rating) ? 'fill-[#D9A63C] text-[#D9A63C]' : 'text-[#C4B08A]'}`} />
+                {/* rating badge */}
+                {rating > 0 && (
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm pl-3">
+                    <Star className="w-3.5 h-3.5 fill-black text-black" />
+                    <span className="text-xs font-bold text-black">{rating}</span>
+                    <span className="text-xs text-gray-500">({reviews})</span>
+                  </div>
+                )}
+
+                {/* heart */}
+                <button
+                  onClick={() => setWishlisted(!wishlisted)}
+                  className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm hover:bg-white transition-colors text-black"
+                  aria-label="Toggle favorites"
+                >
+                  <Heart className={`w-5 h-5 transition-colors ${wishlisted ? 'fill-black text-black' : 'text-gray-600'}`} />
+                </button>
+
+                {galleryImages.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setActiveImage(i => (i - 1 + galleryImages.length) % galleryImages.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => setActiveImage(i => (i + 1) % galleryImages.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* thumbnails (4) */}
+            {galleryImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-3">
+                {galleryImages.slice(0, 4).map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(i)}
+                    className={`relative aspect-square overflow-hidden rounded-xl border transition-all duration-200 ${
+                      i === activeImage ? 'opacity-100' : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{
+                      backgroundColor: cardBg,
+                      borderColor: i === activeImage ? ink : '#E5E7EB',
+                      outline: i === activeImage ? '3px solid #FFFFFF' : 'none',
+                      outlineOffset: 2,
+                      boxShadow: i === activeImage ? '0 0 0 1px #000' : 'none',
+                    }}
+                    aria-label={`Image ${i + 1}`}
+                  >
+                    <OptimizedProductImage src={img} alt={`${product.name} - view ${i + 1}`} sizes="96px" classN="object-cover" />
+                  </button>
                 ))}
               </div>
-              <span className="font-semibold" style={{ color: goldDeep }}>{rating || '—'}</span>
-              <span>({reviews} reviews)</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Eye className="w-4 h-4" /> {product.views || 0} views
-            </div>
+            )}
           </div>
 
-          {/* Price */}
-          <div style={{ backgroundColor: panelBg, borderColor: goldSoft }} className="border p-6 space-y-3">
-            <p className="text-xs uppercase tracking-widest" style={{ color: tan }}>Price</p>
-            <div className="flex items-baseline gap-3 flex-wrap">
-              <span className="text-gold-gradient text-4xl font-bold" style={{ fontFamily: 'Fraunces, serif' }}>
-$${current.toFixed(2)}
-              </span>
-              {hasRange && (
-                <span className="text-xl font-semibold" style={{ color: '#93692A', fontFamily: 'Fraunces, serif' }}>
-                  – $${priceMax.toFixed(2)}
+          {/* Right: info */}
+          <div className="desktop:col-span-6 space-y-6">
+            <div className="flex flex-wrap items-center gap-2">
+              {product.category && (
+                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] border border-gray-200 text-black rounded-full bg-white">
+                  {product.category}
                 </span>
               )}
-              <span className="text-sm" style={{ color: tan }}>/ unit</span>
+              {product.is_verified && (
+                <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 border border-gray-200 text-black rounded-full bg-white">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Verified Supplier
+                </span>
+              )}
             </div>
 
-            {product.moq > 1 && (
-              <p className="text-sm" style={{ color: tan }}>
-                Min. Order: <span className="font-semibold" style={{ color: ink }}>{product.moq} units</span>
+            <h1 className="font-volkhov font-bold text-3xl sm:text-5xl leading-tight text-black">
+              {product.name}
+            </h1>
+
+            <div className="flex items-center gap-5 flex-wrap text-sm text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <Star key={s} className={`w-4 h-4 ${s <= Math.round(rating) ? 'fill-black text-black' : 'text-gray-300'}`} />
+                  ))}
+                </div>
+                <span className="font-semibold text-black">{rating || 'â€”'}</span>
+                <span>({reviews} reviews)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Eye className="w-4 h-4" /> {product.views || 0} views
+              </div>
+            </div>
+
+            {product.description && (
+              <p className="leading-relaxed text-gray-600 line-clamp-2 max-w-xl">
+                {product.description.split('\n')[0]}
               </p>
             )}
 
-            {/* stock status */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: stockStatusConfig[stock]?.color || goldMid }} />
-              <span className="font-medium" style={{ color: stockStatusConfig[stock]?.color || ink }}>
-                {stockStatusConfig[stock]?.label || 'In Stock'}
-              </span>
-            </div>
-          </div>
+            {/* Price */}
+            <div className="border border-gray-200 rounded-2xl bg-white p-6 space-y-4">
+              <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                <div className="flex flex-col">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-500 mb-1">Price</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-volkhov italic font-bold text-4xl text-black">
+                      {'$'}{current.toFixed(2)}
+                    </span>
+                    <span className="text-sm text-gray-500">/ unit</span>
+                  </div>
+                </div>
+                {savingsPct && (
+                  <span className="px-3 py-1 text-[11px] font-bold uppercase tracking-wider rounded-full bg-black text-white">
+                    Save {savingsPct}%
+                  </span>
+                )}
+              </div>
 
-          {/* Bulk pricing tiers */}
-          {pricingTiers.length > 0 && (
-            <div className="border" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-              <p className="px-5 pt-4 text-xs uppercase tracking-widest font-medium" style={{ color: tan }}>Bulk Pricing Tiers</p>
-              <div className="p-5 overflow-x-auto">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                {product.moq > 1 && (
+                  <p className="text-gray-500">
+                    Min. Order: <span className="font-semibold text-black">{product.moq} units</span>
+                  </p>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: stockStatusConfig[stock]?.color || '#000' }} />
+                  <span className="font-medium" style={{ color: stockStatusConfig[stock]?.color || '#000' }}>
+                    {stockStatusConfig[stock]?.label || 'In Stock'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Contact actions */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={scrollToQuote}
+                  className="flex-1 h-12 rounded-full bg-black text-white font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:bg-neutral-800 active:scale-[0.99]"
+                >
+                  <Send className="w-4 h-4" /> Request a Quote
+                </button>
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 h-12 rounded-full border-2 border-black text-black font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:bg-black hover:text-white active:scale-[0.98]"
+                >
+                  <WhatsAppIcon className="w-5 h-5" /> WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Bulk pricing tiers */}
+            {pricingTiers.length > 0 && (
+              <div className="border border-gray-200 rounded-2xl bg-white p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-500 mb-2">Bulk Pricing Tiers</p>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-[11px] uppercase tracking-wider" style={{ color: tan }}>
+                    <tr className="text-left text-[10px] uppercase tracking-wider text-gray-500">
                       <th className="pb-2 font-medium">Order Qty</th>
                       <th className="pb-2 font-medium">Price / Unit</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {pricingTiers.map((tier, i) => (
-                      <tr key={i} className="border-t" style={{ borderColor: goldSoft }}>
-                        <td className="py-2.5" style={{ color: ink }}>{tier.qty_from}–{tier.qty_to || '∞'} units</td>
-                        <td className="py-2.5 font-semibold" style={{ color: goldDeep, fontFamily: 'Fraunces, serif' }}>
-                          $${Number(tier.price_per_unit || tier.price).toFixed(2)}
-                        </td>
-                      </tr>
-                    ))}
+                    {pricingTiers.map((tier, i) => {
+                      const isBest = i === pricingTiers.length - 1;
+                      return (
+                        <tr key={i} className="border-t border-gray-100">
+                          <td className="py-2.5 text-black">
+                            {tier.qty_from}â€“{tier.qty_to || 'âˆž'} units
+                            {isBest && (
+                              <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-[#F4F4F6] text-gray-700">Best Value</span>
+                            )}
+                          </td>
+                          <td className="py-2.5 font-volkhov italic font-semibold text-black">
+                            {'$'}{Number(tier.price_per_unit || tier.price).toFixed(2)}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-            </div>
-          )}
+            )}
 
-{/* WhatsApp contact */}
-          <div className="border p-5 space-y-3" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-            <p className="text-sm leading-relaxed" style={{ color: tan }}>
-              If you want to buy this product, contact me at WhatsApp.
-            </p>
+            {/* WhatsApp contact */}
             <a
-              href={`https://wa.me/923101515568?text=${encodeURIComponent(`Hi, I'm interested in buying: ${product?.name || 'this product'}`)}`}
+              href={waLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-[8px] text-white font-semibold text-base bg-[#25D366] hover:bg-[#1EBE5D] shadow-[0_8px_24px_-6px_rgba(37,211,102,0.6)] transition-all duration-300 active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-full border border-gray-200 bg-white text-black text-base font-semibold hover:border-black transition-all duration-300 active:scale-[0.98]"
             >
-              <WhatsAppIcon className="w-6 h-6" />
-              WhatsApp
+              <WhatsAppIcon className="w-5 h-5" />
+              Chat on WhatsApp
             </a>
-          </div>
 
-          {/* Trust badges */}
-          <div className="grid grid-cols-3 gap-3 pt-1">
-            {[
-              { icon: ShieldCheck, label: 'Verified Supplier' },
-              { icon: Truck, label: 'Fast Delivery' },
-              { icon: Lock, label: 'Secure Payment' },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-2 border py-4 px-2 text-center" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-                <Icon className="w-5 h-5" style={{ color: goldDeep }} />
-                <span className="text-[11px] leading-tight" style={{ color: tan }}>{label}</span>
-              </div>
-            ))}
+            {/* Trust badges */}
+            <div className="grid grid-cols-3 gap-3 pt-1">
+              {[
+                { icon: ShieldCheck, label: 'Verified Supplier' },
+                { icon: Truck, label: 'Fast Delivery' },
+                { icon: Lock, label: 'Secure Payment' },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex flex-col items-center gap-2 border border-gray-200 rounded-2xl py-4 px-2 text-center bg-white hover:shadow-md transition-shadow">
+                  <Icon className="w-5 h-5 text-black" />
+                  <span className="text-[11px] leading-tight text-gray-500">{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Tabs */}
-      <div className="max-w-[1180px] mx-auto px-4 mt-10">
-        <div className="flex border-b overflow-x-auto no-scrollbar" style={{ borderColor: goldSoft }}>
+      <div className="max-w-[1400px] mx-auto px-4 mt-10">
+        <div className="flex border-b border-gray-200 overflow-x-auto no-scrollbar">
           {['description', 'specifications', 'shipping', 'reviews'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className="px-5 py-3 text-sm font-medium capitalize transition-all whitespace-nowrap border-b-2 -mb-[1px]"
               style={{
-                color: activeTab === tab ? goldDeep : tan,
-                borderColor: activeTab === tab ? goldMid : 'transparent',
-                fontFamily: activeTab === tab ? 'Fraunces, serif' : 'inherit',
+                color: activeTab === tab ? '#000000' : '#9CA3AF',
+                borderColor: activeTab === tab ? '#000000' : 'transparent',
+                fontFamily: activeTab === tab ? 'Volkhov, serif' : 'inherit',
               }}
             >
               {tab}
@@ -458,41 +498,41 @@ $${current.toFixed(2)}
             className="py-8"
           >
             {activeTab === 'description' && (
-              <div className="max-w-3xl leading-relaxed whitespace-pre-line" style={{ color: ink }}>{product.description}</div>
+              <div className="max-w-3xl leading-relaxed whitespace-pre-line text-gray-800">{product.description}</div>
             )}
 
             {activeTab === 'specifications' && (
-              <div className="max-w-2xl border" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
+              <div className="max-w-2xl border border-gray-200 rounded-2xl" style={{ backgroundColor: cardBg }}>
                 {product.specifications && Object.keys(product.specifications).length > 0 ? (
                   <table className="w-full text-sm">
                     <tbody>
                       {Object.entries(product.specifications).map(([key, val], i) => (
-                        <tr key={i} className="border-b last:border-0" style={{ borderColor: goldSoft, backgroundColor: i % 2 === 0 ? cardBg : panelBg }}>
-                          <td className="px-5 py-3.5 font-medium capitalize" style={{ color: ink }}>{String(key).replace(/_/g, ' ')}</td>
-                          <td className="px-5 py-3.5" style={{ color: tan }}>{String(val)}</td>
+                        <tr key={i} className="border-b last:border-0 border-gray-100" style={{ backgroundColor: i % 2 === 0 ? cardBg : panelBg }}>
+                          <td className="px-5 py-3.5 font-medium capitalize text-black">{String(key).replace(/_/g, ' ')}</td>
+                          <td className="px-5 py-3.5 text-gray-500">{String(val)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 ) : (
-                  <p className="p-6" style={{ color: tan }}>No specifications available for this product.</p>
+                  <p className="p-6 text-gray-500">No specifications available for this product.</p>
                 )}
               </div>
             )}
 
             {activeTab === 'shipping' && (
               <div className="max-w-2xl space-y-4">
-                <div className="border p-6" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-                  <h4 className="font-semibold mb-3" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Delivery & Shipping</h4>
+                <div className="border border-gray-200 rounded-2xl p-6" style={{ backgroundColor: cardBg }}>
+                  <h4 className="font-volkhov font-semibold mb-3 text-black">Delivery & Shipping</h4>
                   <ul className="space-y-2.5 text-sm" style={{ color: tan }}>
-                    <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: goldMid }} /> Delivery across all major cities in Pakistan</li>
-                    <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: goldMid }} /> Estimated delivery: 3–7 business days</li>
-                    <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: goldMid }} /> International shipping available on request</li>
+                    <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-black" /> Delivery across all major cities in Pakistan</li>
+                    <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-black" /> Estimated delivery: 3â€“7 business days</li>
+                    <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-black" /> International shipping available on request</li>
                   </ul>
                 </div>
-<div className="border p-6" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-                  <h4 className="font-semibold mb-2" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Payment Methods</h4>
-                  <p className="text-sm" style={{ color: tan }}>Secure international payments via Paddle — Visa, Mastercard, PayPal, Apple Pay, Google Pay and more.</p>
+                <div className="border border-gray-200 rounded-2xl p-6" style={{ backgroundColor: cardBg }}>
+                  <h4 className="font-volkhov font-semibold mb-2 text-black">Payment Methods</h4>
+                  <p className="text-sm text-gray-500">Secure international payments via Paddle â€” Visa, Mastercard, PayPal, Apple Pay, Google Pay and more.</p>
                 </div>
               </div>
             )}
@@ -504,81 +544,112 @@ $${current.toFixed(2)}
         </AnimatePresence>
       </div>
 
+      {/* Buyer benefit cards */}
+      <div className="max-w-[1400px] mx-auto px-4 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 desktop:grid-cols-3 gap-5">
+          <BuyerBenefitCard
+            icon={Award}
+            eyebrow="Wholesale"
+            title="Bulk pricing that scales"
+            lines={[
+              `MOQ: ${product.moq > 1 ? `${product.moq} units` : 'Any quantity'}`,
+              `Unit price from ${'$'}${current.toFixed(2)}${savingsPct ? ` â€” list ${'$'}${listPrice.toFixed(2)}` : ''}`,
+              pricingTiers.length > 0 ? `${pricingTiers.length} quantity tiers Â· best value at top tier` : 'Flat wholesale rate for all orders',
+            ]}
+          />
+          <BuyerBenefitCard
+            icon={Factory}
+            eyebrow="Supplier"
+            title={product.supplier_name || 'Core Collective'}
+            lines={[
+              product.is_verified ? 'Verified wholesale supplier' : 'Wholesale supplier',
+              'Typically responds within 24 hours',
+              'Direct wholesale pricing, no middlemen',
+            ]}
+          />
+          <BuyerBenefitCard
+            icon={Truck}
+            eyebrow="Delivery"
+            title="Fast, trackable delivery"
+            lines={[
+              'Nationwide in Pakistan Â· 3â€“7 business days',
+              'International shipping on request',
+              'Secure checkout via Paddle payments',
+            ]}
+          />
+        </div>
+      </div>
+
       {/* Quote + Related */}
-      <div className="max-w-[1180px] mx-auto px-4 pb-16 grid grid-cols-1 desktop:grid-cols-12 gap-10 mt-4">
+      <div className="max-w-[1400px] mx-auto px-4 pb-28 sm:pb-16 grid grid-cols-1 desktop:grid-cols-12 gap-10 mt-10">
         {/* Quote form */}
         <div className="desktop:col-span-5">
           <motion.div
+            id="request-quote"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="border p-7 desktop:sticky desktop:top-8"
-            style={{ borderColor: goldSoft, backgroundColor: cardBg }}
+            className="border border-gray-200 rounded-2xl p-7 desktop:sticky desktop:top-28"
+            style={{ backgroundColor: cardBg }}
           >
             {quoteSent ? (
               <div className="text-center py-8">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-16 h-16 mx-auto mb-4 border flex items-center justify-center" style={{ borderColor: goldSoft }}>
-                  <CheckCircle className="w-8 h-8" style={{ color: goldMid }} />
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-16 h-16 mx-auto mb-4 border border-gray-200 rounded-full flex items-center justify-center" style={{ backgroundColor: panelBg }}>
+                  <CheckCircle className="w-8 h-8 text-black" />
                 </motion.div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Quote Request Sent!</h3>
-                <p className="text-sm mb-4" style={{ color: tan }}>The supplier will respond within 24 hours.</p>
-                <button onClick={() => { setQuoteSent(false); setQuoteForm({ name: '', business: '', phone: '', email: '', quantity: '', message: '' }); }} className="text-sm text-[#93692A] hover:underline">
+                <h3 className="font-volkhov text-lg font-bold mb-2 text-black">Quote Request Sent!</h3>
+                <p className="text-sm mb-4 text-gray-500">The supplier will respond within 24 hours.</p>
+                <button onClick={() => { setQuoteSent(false); setQuoteForm({ name: '', business: '', phone: '', email: '', quantity: '', message: '' }); }} className="text-sm text-black underline underline-offset-4 hover:opacity-70">
                   Send another request
                 </button>
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-bold mb-1" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Request a Quote</h3>
-                <p className="text-sm mb-6" style={{ color: tan }}>Get a custom quote for bulk orders</p>
+                <h3 className="font-volkhov text-lg font-bold mb-1 text-black">Request a Quote</h3>
+                <p className="text-sm mb-6 text-gray-500">Get a custom quote for bulk orders</p>
                 <form onSubmit={handleQuoteSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Full Name *</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-500">Full Name *</label>
                       <input type="text" value={quoteForm.name} onChange={e => setQuoteForm(p => ({ ...p, name: e.target.value }))} required
-                        className="w-full px-3.5 py-2.5 text-sm outline-none border bg-white transition-colors focus:border-[#B8862E]"
-                        style={{ borderColor: goldSoft, color: ink }} />
+                        className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black" />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Business Name</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-500">Business Name</label>
                       <input type="text" value={quoteForm.business} onChange={e => setQuoteForm(p => ({ ...p, business: e.target.value }))}
-                        className="w-full px-3.5 py-2.5 text-sm outline-none border bg-white transition-colors focus:border-[#B8862E]"
-                        style={{ borderColor: goldSoft, color: ink }} />
+                        className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Phone *</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-500">Phone *</label>
                       <input type="tel" value={quoteForm.phone} onChange={e => setQuoteForm(p => ({ ...p, phone: e.target.value }))} required
-                        className="w-full px-3.5 py-2.5 text-sm outline-none border bg-white transition-colors focus:border-[#B8862E]"
-                        style={{ borderColor: goldSoft, color: ink }} />
+                        className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black" />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Email *</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-500">Email *</label>
                       <input type="email" value={quoteForm.email} onChange={e => setQuoteForm(p => ({ ...p, email: e.target.value }))} required
-                        className="w-full px-3.5 py-2.5 text-sm outline-none border bg-white transition-colors focus:border-[#B8862E]"
-                        style={{ borderColor: goldSoft, color: ink }} />
+                        className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Quantity (min. {product.moq || 1})</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-500">Quantity (min. {product.moq || 1})</label>
                     <input type="number" min={product.moq || 1} value={quoteForm.quantity} onChange={e => setQuoteForm(p => ({ ...p, quantity: e.target.value }))} required
-                      className="w-full px-3.5 py-2.5 text-sm outline-none border bg-white transition-colors focus:border-[#B8862E]"
-                      style={{ borderColor: goldSoft, color: ink }} />
+                      className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Message (optional)</label>
+                    <label className="block text-xs font-medium mb-1.5 text-gray-500">Message (optional)</label>
                     <textarea rows={3} value={quoteForm.message} onChange={e => setQuoteForm(p => ({ ...p, message: e.target.value }))}
                       placeholder="Any specific requirements..."
-                      className="w-full px-3.5 py-2.5 text-sm outline-none border bg-white transition-colors focus:border-[#B8862E] resize-none"
-                      style={{ borderColor: goldSoft, color: ink }} />
+                      className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black resize-none" />
                   </div>
                   {quoteError && (
-                    <div className="flex items-center gap-2 p-3 text-sm border" style={{ borderColor: 'rgba(161,42,42,0.4)', color: '#A12A2A', backgroundColor: '#F7E3DD' }}>
+                    <div className="flex items-center gap-2 p-3 text-sm border border-red-200 rounded-lg text-red-600 bg-red-50">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" /> {quoteError}
                     </div>
                   )}
                   <button type="submit" disabled={quoteSubmitting}
-                    className="gold-shimmer-btn w-full py-3.5 font-semibold flex items-center justify-center gap-2 transition-transform duration-200 active:scale-[0.99] disabled:opacity-50">
+                    className="w-full py-3.5 rounded-full bg-black text-white font-semibold flex items-center justify-center gap-2 transition-all duration-200 hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-50">
                     {quoteSubmitting ? <Loader className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     {quoteSubmitting ? 'Sending...' : 'Request Quote'}
                   </button>
@@ -590,81 +661,209 @@ $${current.toFixed(2)}
 
         {/* Similar products */}
         <div className="desktop:col-span-7">
-          <h3 className="text-xl font-bold mb-5" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Similar Products</h3>
+          <div className="flex items-end justify-between mb-5">
+            <h3 className="font-volkhov text-xl font-bold text-black">Similar Products</h3>
+            <Link href={`/products?category=${encodeURIComponent(product.category || '')}`} className="text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black transition-colors shrink-0">
+              View All â†’
+            </Link>
+          </div>
           <RelatedProducts category={product.category} currentId={product.id} currentName={product.name} />
         </div>
       </div>
 
-      {/* Buy modal */}
-      <AnimatePresence>
-        {buyModalOpen && (
-<BuyRequestModal
-            product={product}
-            form={buyForm}
-            setForm={setBuyForm}
-            error={buyError}
-            onClose={() => { setBuyModalOpen(false); setBuyError(''); setBuyForm({ quantity: 1, message: '' }); }}
-            onSubmit={handleBuySubmit}
-            user={userProfile}
-          />
-        )}
-      </AnimatePresence>
+      {/* Mobile sticky action bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-3 flex items-center gap-3">
+        <div className="shrink-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Price</p>
+          <p className="font-volkhov italic font-bold text-lg text-black leading-tight">{'$'}{current.toFixed(2)}</p>
+        </div>
+        <button
+          onClick={scrollToQuote}
+          className="flex-1 h-12 rounded-full bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+        >
+          <Send className="w-4 h-4" /> Request a Quote
+        </button>
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat on WhatsApp"
+          className="h-12 w-12 rounded-full border-2 border-black text-black flex items-center justify-center transition-all active:scale-[0.98]"
+        >
+          <WhatsAppIcon className="w-5 h-5" />
+        </a>
+      </div>
     </div>
   );
 }
 
+function BuyerBenefitCard({ icon: Icon, eyebrow, title, lines }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="border border-gray-200 rounded-2xl p-6 bg-white hover:shadow-lg transition-shadow"
+    >
+      <div className="w-11 h-11 rounded-full bg-black flex items-center justify-center mb-4">
+        <Icon className="w-5 h-5 text-white" />
+      </div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400 mb-1">{eyebrow}</p>
+      <h4 className="font-volkhov font-bold text-lg text-black mb-3">{title}</h4>
+      <ul className="space-y-2 text-sm text-gray-500">
+        {lines.map((line, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="w-1 h-1 rounded-full bg-black mt-2 shrink-0" />
+            {line}
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+  );
+}
+
 function ReviewSection({ productId, rating, reviewsCount }) {
+  const { userProfile } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ name: '', rating: 5, comment: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
+  const loadReviews = () => {
     if (!supabase) { setLoading(false); return; }
     supabase.from('reviews').select('*').eq('product_id', productId).eq('is_approved', true)
       .then(({ data }) => { setReviews(data || []); setLoading(false); })
       .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    if (form.name === '' && userProfile?.name) {
+      setForm(f => ({ ...f, name: userProfile.name }));
+    }
+  }, [userProfile?.name]);
+
+  useEffect(() => {
+    if (!supabase) { setLoading(false); return; }
+    loadReviews();
   }, [productId]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.comment.trim()) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const { error: err } = await supabase.from('reviews').insert({
+        product_id: productId,
+        user_id: userProfile?.id || null,
+        rating: Number(form.rating) || 5,
+        comment: form.comment.trim(),
+        is_approved: false,
+      });
+      if (err) throw err;
+      setSubmitted(true);
+      loadReviews();
+    } catch (err) {
+      setError(err.message || 'Failed to submit review');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const star = (v) => (
-    <Star key={v} className={`w-4 h-4 ${v <= Math.round(rating || 0) ? 'fill-[#D9A63C] text-[#D9A63C]' : 'text-[#C4B08A]'}`} />
+    <Star key={v} className={`w-4 h-4 ${v <= Math.round(rating || 0) ? 'fill-black text-black' : 'text-gray-300'}`} />
   );
 
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
         <div className="flex items-center gap-2">
-          <span className="text-4xl font-bold" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>{rating || '—'}</span>
+          <span className="font-volkhov text-4xl font-bold text-black">{rating || 'â€”'}</span>
           <div>
             <div className="flex items-center gap-0.5">{[1, 2, 3, 4, 5].map(star)}</div>
-            <p className="text-xs mt-1" style={{ color: tan }}>{reviewsCount || 0} reviews</p>
+            <p className="text-xs mt-1 text-gray-500">{reviewsCount || 0} reviews</p>
           </div>
         </div>
       </div>
 
+      {/* Write a review */}
+      <div className="border border-gray-200 rounded-2xl p-6 mb-6 bg-white">
+        <h4 className="font-volkhov font-semibold text-black mb-4">Write a Review</h4>
+        {submitted ? (
+          <div className="flex items-center gap-2 p-3 text-sm rounded-lg border border-green-200 bg-green-50 text-green-700">
+            <CheckCircle className="w-4 h-4 flex-shrink-0" />
+            Thanks for your review! It will appear once approved.
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <label className="block text-xs font-medium text-gray-500">Your Rating</label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map(s => (
+                  <button key={s} type="button" onClick={() => setForm(f => ({ ...f, rating: s }))} aria-label={`${s} star`} className="transition-transform hover:scale-110">
+                    <Star className={`w-5 h-5 ${s <= (form.rating || 5) ? 'fill-black text-black' : 'text-gray-300'}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5 text-gray-500">Name</label>
+              <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required
+                className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5 text-gray-500">Your Review</label>
+              <textarea rows={3} value={form.comment} onChange={e => setForm(f => ({ ...f, comment: e.target.value }))} required
+                placeholder="Share your experience with this product..."
+                className="w-full px-3.5 py-2.5 text-sm outline-none border border-gray-200 rounded-lg bg-white text-black transition-colors focus:border-black resize-none" />
+            </div>
+            {error && (
+              <div className="flex items-center gap-2 p-3 text-sm border border-red-200 rounded-lg text-red-600 bg-red-50">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+              </div>
+            )}
+            <button type="submit" disabled={submitting}
+              className="w-full py-3 rounded-full bg-black text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:bg-neutral-800 active:scale-[0.99] disabled:opacity-50">
+              {submitting ? <Loader className="w-4 h-4 animate-spin" /> : <Star className="w-4 h-4 fill-white" />}
+              {submitting ? 'Submitting...' : 'Submit Review'}
+            </button>
+          </form>
+        )}
+      </div>
+
       {loading ? (
-        <div className="h-24 border animate-pulse" style={{ ...borderGoldSoft, backgroundColor: panelBg }} />
+        <div className="h-24 border border-gray-200 rounded-2xl animate-pulse" style={{ ...borderGoldSoft, backgroundColor: panelBg }} />
       ) : reviews.length === 0 ? (
-        <p className="text-sm" style={{ color: tan }}>No reviews yet. Be the first to review this product.</p>
+        <p className="text-sm text-gray-500">No approved reviews yet.</p>
       ) : (
         <div className="space-y-4">
-          {reviews.map((review, i) => (
-            <div key={review.id || i} className="border p-5" style={{ borderColor: goldSoft, backgroundColor: cardBg }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 flex items-center justify-center text-xs font-bold border" style={{ borderColor: goldSoft, color: goldDeep, backgroundColor: panelBg }}>
-                    {(review.buyer_name || 'U')[0]}
+          {reviews.map((review, i) => {
+            const reviewerName = review.user_id && userProfile?.id && review.user_id === userProfile.id
+              ? 'You'
+              : (review.buyer_name || 'Anonymous');
+            return (
+              <div key={review.id || i} className="border border-gray-200 rounded-2xl p-5" style={{ backgroundColor: cardBg }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 flex items-center justify-center text-xs font-bold border border-gray-200 rounded-full text-black" style={{ backgroundColor: panelBg }}>
+                      {reviewerName[0]}
+                    </div>
+                    <span className="text-sm font-medium text-black">{reviewerName}</span>
                   </div>
-                  <span className="text-sm font-medium" style={{ color: ink }}>{review.buyer_name || 'Anonymous'}</span>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} className={`w-3.5 h-3.5 ${s <= (Number(review.rating) || 0) ? 'fill-black text-black' : 'text-gray-300'}`} />
+                    ))}
+                  </div>
                 </div>
-                <div className="flex gap-0.5" style={{ color: goldMid }}>
-                  {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} className={`w-3.5 h-3.5 ${s <= (Number(review.rating) || 0) ? 'fill-[#D9A63C] text-[#D9A63C]' : 'text-[#C4B08A]'}`} />
-                  ))}
-                </div>
+                <p className="text-sm leading-relaxed text-gray-800">{review.comment}</p>
+                <p className="text-xs mt-2 text-gray-400">{review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</p>
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: ink }}>{review.comment}</p>
-              <p className="text-xs mt-2" style={{ color: tan }}>{review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -695,8 +894,8 @@ function RelatedProducts({ category, currentId, currentName }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 desktop:grid-cols-3 gap-5">
         {[0, 1, 2].map(i => (
-          <div key={i} className="border border-[rgba(185,138,60,0.3)] animate-pulse" style={{ backgroundColor: panelBg }}>
-            <div className="aspect-[4/3]" />
+          <div key={i} className="rounded-2xl animate-pulse" style={{ backgroundColor: panelBg }}>
+            <div className="aspect-[3/4] rounded-2xl" />
             <div className="h-12 p-4" />
           </div>
         ))}
@@ -704,7 +903,7 @@ function RelatedProducts({ category, currentId, currentName }) {
     );
   }
 
-  if (products.length === 0) return <p className="text-sm" style={{ color: tan }}>No similar products found in this category.</p>;
+  if (products.length === 0) return <p className="text-sm text-gray-500">No similar products found in this category.</p>;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 desktop:grid-cols-3 gap-5">
@@ -740,13 +939,12 @@ function RelatedCard({ product, index }) {
       transition={{ delay: index * 0.06, duration: 0.4 }}
       className="h-full"
     >
-<Link
+      <Link
         href={`/products/${p.id}`}
-        className="group relative flex flex-col h-full border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_18px_36px_-16px_rgba(42,35,24,0.35)]"
-        style={{ borderColor: goldSoft, backgroundColor: cardBg }}
+        className="group relative flex flex-col h-full"
       >
-        <div className="relative aspect-square overflow-hidden w-full" style={{ backgroundColor: panelBg }}>
-{!imgError && p.image_url ? (
+        <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-[#F4F4F6] p-2 flex items-center justify-center transition-all duration-300 group-hover:shadow-xl">
+          {!imgError && p.image_url ? (
             <OptimizedProductImage
               src={p.image_url}
               alt={p.name}
@@ -756,197 +954,47 @@ function RelatedCard({ product, index }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <ShoppingBag className="w-12 h-12" style={{ color: goldMid }} />
+              <ShoppingBag className="w-12 h-12 text-gray-300" />
             </div>
           )}
 
-          <span className="absolute top-3 left-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider border"
-            style={{ borderColor: goldSoft, color: goldDeep, backgroundColor: 'rgba(251,245,232,0.92)' }}>
+          <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-black bg-white/90 backdrop-blur rounded-full">
             {category}
           </span>
         </div>
 
-        <div className="p-4 flex flex-col flex-1">
-          <h3 className="text-[15px] font-semibold leading-snug line-clamp-1" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>
+        <div className="mt-3 px-1 flex flex-col flex-1">
+          <h3 className="font-volkhov font-bold text-[15px] leading-snug text-black line-clamp-1 transition-colors group-hover:text-gray-700">
             {p.name}
           </h3>
 
           <div className="mt-1.5 flex items-center gap-1.5 text-xs">
             <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map(s => (
-                <Star key={s} className={`w-3 h-3 ${s <= Math.round(rating) ? 'fill-[#D9A63C] text-[#D9A63C]' : 'text-[#C4B08A]'}`} />
+                <Star key={s} className={`w-3 h-3 ${s <= Math.round(rating) ? 'fill-black text-black' : 'text-gray-300'}`} />
               ))}
             </div>
-            <span style={{ color: tan }}>({reviews})</span>
+            <span className="text-gray-500">({reviews})</span>
           </div>
 
           <div className="mt-2.5 flex-1">
-            <span className="text-lg font-semibold text-gold-gradient" style={{ fontFamily: 'Fraunces, serif' }}>
-$${current.toFixed(2)}
+            <span className="font-volkhov italic font-bold text-lg text-black">
+              {'$'}{current.toFixed(2)}
             </span>
           </div>
 
           <button
             onClick={handleAddToCart}
-            className={`mt-3 w-full py-2.5 text-[13px] font-medium flex items-center justify-center gap-2 transition-all duration-300 active:scale-[0.98] border ${
-              added ? 'text-[#93692A]' : 'text-[#FBF5E8]'
+            className={`mt-3 w-full py-2.5 text-[13px] font-semibold uppercase tracking-wider flex items-center justify-center gap-2 rounded-md transition-all duration-300 active:scale-[0.98] ${
+              added ? 'bg-green-700 text-white' : 'bg-black text-white hover:bg-neutral-800'
             }`}
-            style={{
-              borderColor: goldSoft,
-              backgroundColor: added ? panelBg : ink,
-              color: added ? '#93692A' : '#FBF5E8',
-            }}
           >
             {added ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-            {added ? 'Added to Cart' : 'Add to Cart'}
+            {added ? 'Added' : 'Add to Cart'}
           </button>
         </div>
       </Link>
     </motion.div>
   );
 }
-function BuyRequestModal({ product, form, setForm, error, onClose, onSubmit, user }) {
-  const update = (key) => (value) => setForm(p => ({ ...p, [key]: value }));
-  const scrollRef = useRef(null);
-  const [canScrollUp, setCanScrollUp] = useState(false);
-  const [canScrollDown, setCanScrollDown] = useState(false);
 
-  const checkScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollUp(el.scrollTop > 5);
-    setCanScrollDown(el.scrollTop < el.scrollHeight - el.clientHeight - 5);
-  };
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    checkScroll();
-    el.addEventListener('scroll', checkScroll);
-    const ro = new ResizeObserver(checkScroll);
-    ro.observe(el);
-    return () => {
-      el.removeEventListener('scroll', checkScroll);
-      ro.disconnect();
-    };
-  }, []);
-
-  const scroll = (dir) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({ top: dir === 'up' ? -180 : 180, behavior: 'smooth' });
-  };
-
-  const inputCls = "w-full px-3.5 py-2.5 bg-white border text-sm outline-none transition-colors focus:border-[#B8862E]";
-  const inputStyle = { borderColor: goldSoft, color: ink };
-
-  const panelCls = "bg-[#FBF5E8] border w-full max-w-md mx-4 shadow-2xl";
-  const panelStyle = { borderColor: goldSoft };
-
-  const unit = Number(product.price_min || product.price || 0);
-  const qty = Math.min(1000, Math.max(1, Math.floor(Number(form.quantity) || 1)));
-  const total = Math.round(qty * unit * 100) / 100;
-
-  const closeBtn = (
-    <button onClick={onClose} className="p-1.5 transition-colors hover:bg-[#EFE3C8]" aria-label="Close">
-      <X className="w-4 h-4" style={{ color: tan }} />
-    </button>
-  );
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <motion.div initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.96, opacity: 0 }}
-        onClick={e => e.stopPropagation()} className="relative p-7" style={{ ...panelStyle, backgroundColor: cardBg }}>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 flex items-center justify-center border" style={{ borderColor: goldSoft, color: goldDeep, backgroundColor: panelBg }}>
-              <ShoppingCart className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold" style={{ color: ink, fontFamily: 'Fraunces, serif' }}>Buy Product</h3>
-              <p className="text-xs line-clamp-1" style={{ color: tan }}>{product.name}</p>
-            </div>
-          </div>
-          {closeBtn}
-        </div>
-
-        <div className="relative">
-          {canScrollUp && (
-            <button type="button" onClick={() => scroll('up')}
-              className="absolute -top-1 left-1/2 -translate-x-1/2 z-10 w-9 h-9 flex items-center justify-center border shadow-lg hover:border-[#B8862E]/40 transition-colors"
-              style={{ borderColor: goldSoft, backgroundColor: cardBg, color: tan }}>
-              <ChevronUp className="w-4 h-4" />
-            </button>
-          )}
-          <div ref={scrollRef} className="max-h-[60vh] overflow-y-auto scroll-smooth space-y-4 pr-1 -mr-1">
-            <form onSubmit={onSubmit}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Your Name</label>
-                  <input type="text" value={user?.name || ''} disabled className={inputCls + ' bg-[#EFE3C8] cursor-not-allowed'} style={inputStyle} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Email</label>
-                  <input type="email" value={user?.email || ''} disabled className={inputCls + ' bg-[#EFE3C8] cursor-not-allowed'} style={inputStyle} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Quantity</label>
-                    <input type="number" min="1" value={form.quantity} onChange={e => update('quantity')(e.target.value)} className={inputCls} style={inputStyle} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Unit Price</label>
-                    <input type="text" value={'$' + unit.toFixed(2)} disabled className={inputCls + ' bg-[#EFE3C8] cursor-not-allowed'} style={inputStyle} />
-                  </div>
-                </div>
-                {total > 0 && (
-                  <div className="flex items-center justify-between px-4 py-3 border" style={{ borderColor: goldSoft, backgroundColor: panelBg }}>
-                    <span className="text-sm font-medium" style={{ color: ink }}>Total Amount</span>
-                    <span className="text-lg font-bold text-gold-gradient" style={{ fontFamily: 'Fraunces, serif' }}>
-                      {'$' + total.toFixed(2)}
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: tan }}>Message (optional)</label>
-                  <textarea rows={3} value={form.message} onChange={e => update('message')(e.target.value)}
-                    placeholder="Any specific requirements or notes..." className={inputCls + ' resize-none'} style={inputStyle} />
-                </div>
-
-                {error && (
-                  <div className="flex items-center gap-2 p-3 text-sm border" style={{ borderColor: 'rgba(161,42,42,0.4)', color: '#A12A2A', backgroundColor: '#F7E3DD' }}>
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
-                  </div>
-                )}
-
-                {!user && (
-                  <div className="flex items-center gap-2 p-3 text-sm border" style={{ borderColor: goldSoft, color: '#93692A', backgroundColor: panelBg }}>
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" /> Please log in to place an order
-                  </div>
-                )}
-
-                <div className="border px-4 py-3 text-xs" style={{ borderColor: goldSoft, backgroundColor: panelBg, color: tan }}>
-                  Payment is handled securely by Paddle in the next step — Visa, Mastercard, PayPal, Apple Pay, Google Pay and more.
-                </div>
-
-                <button type="submit" disabled={!user}
-                  className="gold-shimmer-btn w-full py-3.5 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-transform duration-200 active:scale-[0.99]">
-                  <ShoppingCart className="w-4 h-4" />
-                  Continue to Secure Checkout
-                </button>
-              </div>
-            </form>
-          </div>
-          {canScrollDown && (
-            <button type="button" onClick={() => scroll('down')}
-              className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-10 w-9 h-9 flex items-center justify-center border shadow-lg hover:border-[#B8862E]/40 transition-colors"
-              style={{ borderColor: goldSoft, backgroundColor: cardBg, color: tan }}>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
