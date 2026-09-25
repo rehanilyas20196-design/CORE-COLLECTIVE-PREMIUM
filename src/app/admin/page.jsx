@@ -101,7 +101,19 @@ export default function AdminPage() {
     catch (e) { console.error(e); }
   }, []);
 
+  // Notifications DIRECTLY from Supabase (admin sees all users' rows).
   const loadNotifications = useCallback(async () => {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        setNotifications(data);
+        return;
+      }
+      if (error) console.error('Direct notifications load failed, using backend:', error.message);
+    }
     try { const d = await api.notifications.getAll(); setNotifications(Array.isArray(d) ? d : []); }
     catch (e) { console.error(e); }
   }, []);
@@ -990,13 +1002,44 @@ function DiscountsTab({ discounts, loadDiscounts, showToast }) {
 function NotificationsTab({ notifications, loadNotifications, showToast }) {
   const [newNotif, setNewNotif] = useState({ type: 'info', title: '', message: '' });
   const [sending, setSending] = useState(false);
+  // Direct-to-user form: admin types a user's email and sends ONLY to them.
+  const [directNotif, setDirectNotif] = useState({ email: '', type: 'info', title: '', message: '' });
+  const [sendingDirect, setSendingDirect] = useState(false);
+  const [userOptions, setUserOptions] = useState([]);
+
+  // Load user emails directly from profiles (same direct pattern as Users tab).
+  useEffect(() => {
+    let cancelled = false;
+    if (!supabase) return;
+    supabase.from('profiles').select('id, email, full_name').order('created_at', { ascending: false })
+      .then(({ data }) => { if (!cancelled && Array.isArray(data)) setUserOptions(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newNotif.title || !newNotif.message) return;
     setSending(true);
     try {
-      await api.notifications.create(newNotif.type, newNotif.title, newNotif.message, {});
+      // Broadcast to ALL users: insert one row per profile, directly via
+      // Supabase. Falls back to the backend API if the direct insert fails.
+      let sent = false;
+      if (supabase && userOptions.length > 0) {
+        const rows = userOptions.map(u => ({
+          user_id: u.id,
+          type: newNotif.type,
+          title: newNotif.title,
+          message: newNotif.message,
+          data: {},
+        }));
+        const { error } = await supabase.from('notifications').insert(rows);
+        if (!error) sent = true;
+        else console.error('Direct broadcast failed, using backend:', error.message);
+      }
+      if (!sent) {
+        await api.notifications.create(newNotif.type, newNotif.title, newNotif.message, {});
+      }
       setNewNotif({ type: 'info', title: '', message: '' });
       showToast('Notification sent');
       await loadNotifications();
@@ -1007,10 +1050,95 @@ function NotificationsTab({ notifications, loadNotifications, showToast }) {
     }
   };
 
+  // Send a notification to ONE specific user by email (or role-wide).
+  const handleSendDirect = async (e) => {
+    e.preventDefault();
+    const email = (directNotif.email || '').trim().toLowerCase();
+    if (!directNotif.title || !directNotif.message) return;
+    setSendingDirect(true);
+    try {
+      const { data: { user: me } } = await supabase.auth.getUser();
+      let targets = [];
+      if (email === 'all suppliers' || email === '@suppliers') {
+        targets = userOptions.filter(u => u.role === 'supplier');
+      } else if (email === 'all buyers' || email === '@buyers') {
+        targets = userOptions.filter(u => u.role !== 'supplier' && u.role !== 'admin');
+      } else if (email) {
+        targets = userOptions.filter(u => (u.email || '').toLowerCase() === email);
+      }
+      if (targets.length === 0) {
+        showToast('No user found with that email. Check Users tab for exact emails.', 'error');
+        setSendingDirect(false);
+        return;
+      }
+      const rows = targets.map(u => ({
+        user_id: u.id,
+        type: directNotif.type,
+        title: directNotif.title,
+        message: directNotif.message,
+        data: {},
+      }));
+      const { error } = await supabase.from('notifications').insert(rows);
+      if (error) throw new Error(error.message);
+      setDirectNotif({ email: '', type: 'info', title: '', message: '' });
+      showToast(targets.length === 1 ? 'Notification sent to user' : `Notification sent to ${targets.length} users`);
+      await loadNotifications();
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setSendingDirect(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-1">
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 sticky top-28">
+      <div className="lg:col-span-1 space-y-6">
+        {/* Send to ONE user by email */}
+        <div className="bg-white border-2 border-black rounded-2xl p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Send to Specific User</h3>
+          <p className="text-xs text-gray-500 mb-5">Type a user's email (see Users tab) or @suppliers / @buyers</p>
+          <form onSubmit={handleSendDirect} className="space-y-4">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">User Email</label>
+              <input type="text" list="admin-user-emails" value={directNotif.email}
+                onChange={e => setDirectNotif(p => ({ ...p, email: e.target.value }))}
+                placeholder="user@example.com or @suppliers" required
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 transition-colors" />
+              <datalist id="admin-user-emails">
+                {userOptions.map(u => <option key={u.id} value={u.email}>{u.full_name || u.email}</option>)}
+              </datalist>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">Type</label>
+              <select value={directNotif.type} onChange={e => setDirectNotif(p => ({ ...p, type: e.target.value }))}
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 transition-colors">
+                {['info', 'success', 'error', 'pending'].map(t => (
+                  <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">Title</label>
+              <input type="text" value={directNotif.title} onChange={e => setDirectNotif(p => ({ ...p, title: e.target.value }))}
+                placeholder="Notification title" required
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 transition-colors" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">Message</label>
+              <textarea value={directNotif.message} onChange={e => setDirectNotif(p => ({ ...p, message: e.target.value }))}
+                placeholder="Notification message" required rows={4}
+                className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-600 transition-colors resize-none" />
+            </div>
+            <button type="submit" disabled={sendingDirect}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-all disabled:opacity-50">
+              {sendingDirect ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {sendingDirect ? 'Sending...' : 'Send to User'}
+            </button>
+          </form>
+        </div>
+
+        {/* Broadcast to everyone */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-1">Send Notification</h3>
           <p className="text-xs text-gray-500 mb-6">Broadcast a message to all users</p>
           <form onSubmit={handleSend} className="space-y-4">
