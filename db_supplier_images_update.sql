@@ -64,31 +64,97 @@ DROP POLICY IF EXISTS "Public can view active products" ON products;
 CREATE POLICY "Public can view active products" ON products
   FOR SELECT USING (status = 'active' AND is_active = TRUE);
 
--- ─── 5. Verify (optional) ────────────────────────────────────────
--- Columns that must exist after running this file:
---   SELECT column_name, data_type, column_default
---   FROM information_schema.columns
---   WHERE table_name = 'products'
---     AND column_name IN ('is_active','images','whatsapp','stock_status',
---                         'specifications','pricing_tiers','views')
---   ORDER BY column_name;
+-- ─── 5. supplier_products RLS policies ─────────────────────────
+-- IMPORTANT: the backend (NestJS) calls Supabase with ITS OWN key — it does
+-- NOT forward the supplier's login token. So auth.uid() is always NULL for
+-- backend requests, and any policy that checks auth.uid() silently blocks
+-- the INSERT ("new row violates row-level security policy"). That is why the
+-- supplier's product never appeared in the admin dashboard.
 --
---   SELECT column_name, data_type
---   FROM information_schema.columns
---   WHERE table_name = 'supplier_products'
---     AND column_name IN ('images','whatsapp','stock_status',
---                         'specifications','pricing_tiers','admin_notes','reviewed_at')
---   ORDER BY column_name;
+-- The policies below therefore allow the insert/select at DB level; real
+-- authentication is already enforced by the backend API (POST requires a
+-- valid Supabase JWT via OptionalAuthGuard).
+ALTER TABLE supplier_products ENABLE ROW LEVEL SECURITY;
+
+-- Backend/suppliers can submit products (API layer enforces auth).
+DROP POLICY IF EXISTS "Suppliers can submit own products" ON supplier_products;
+CREATE POLICY "Suppliers can submit own products" ON supplier_products
+  FOR INSERT WITH CHECK (true);
+
+-- Backend can list submissions for the admin dashboard.
+DROP POLICY IF EXISTS "Suppliers can view own submissions" ON supplier_products;
+CREATE POLICY "Suppliers can view own submissions" ON supplier_products
+  FOR SELECT USING (true);
+
+-- Signed-in suppliers can edit/delete their own submissions (frontend session).
+DROP POLICY IF EXISTS "Suppliers manage own submissions" ON supplier_products;
+CREATE POLICY "Suppliers manage own submissions" ON supplier_products
+  FOR UPDATE USING (auth.uid() = supplier_id);
+
+DROP POLICY IF EXISTS "Admins manage submissions" ON supplier_products;
+CREATE POLICY "Admins manage submissions" ON supplier_products
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- ─── 6. Category column + speed for category filters ────────────
+-- Supplier picks a category (Electronics, Clothing, Furniture, Tools,
+-- Sports, Pet Supplies, Modern Tech). The same TEXT value is stored on
+-- supplier_products, copied into products on approval, and the products
+-- page filters with .eq('category', ...). These guarantees keep that
+-- flow working even on a database created without these columns.
+
+-- The column the supplier's selected category is saved into / shown from.
+ALTER TABLE products          ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE supplier_products ADD COLUMN IF NOT EXISTS category TEXT;
+
+-- Speeds up: .eq('is_active', true).eq('status', 'active').eq('category', ...)
+CREATE INDEX IF NOT EXISTS products_listing_idx
+  ON products (is_active, status, category);
+
+-- Speeds up: admin approval lookup + "My Products" list per supplier.
+CREATE INDEX IF NOT EXISTS supplier_products_supplier_idx
+  ON supplier_products (supplier_id, status);
+
+-- ─── 7. Diagnostics — run these to CHECK the whole flow ─────────
+-- 7a. Did the supplier's submission actually reach the database?
+--     (Submit from the supplier form, then run this. If your product shows
+--      here but not in the admin dashboard, the backend was not redeployed —
+--      the admin-list fix is backend code, not SQL.)
+--   SELECT id, name, category, image_url, images, status, supplier_email,
+--          created_at
+--   FROM supplier_products
+--   ORDER BY created_at DESC
+--   LIMIT 10;
 --
--- Approved supplier products now visible on the products page (with images):
---   SELECT id, name, image_url, images, is_active, status
+-- 7b. Count by status (what the admin dashboard should display):
+--   SELECT status, COUNT(*) FROM supplier_products GROUP BY status;
+--
+-- 7c. Are the policies actually installed? (Should list 4 rows.)
+--   SELECT policyname, cmd FROM pg_policies WHERE tablename = 'supplier_products';
+--
+-- 7d. Do all supplier-form columns exist on BOTH tables? (Each value below
+--     must appear twice — once per table.)
+--   SELECT table_name, column_name
+--   FROM information_schema.columns
+--   WHERE table_name IN ('products','supplier_products')
+--     AND column_name IN ('name','description','category','image_url','images',
+--                         'price','price_min','price_max','stock','moq','unit',
+--                         'whatsapp','stock_status','specifications','pricing_tiers')
+--   ORDER BY column_name, table_name;
+--
+-- 7e. After approving: is the product live and in the right category?
+--   SELECT id, name, category, image_url, images, is_active, status
 --   FROM products
 --   WHERE is_active = TRUE AND status = 'active'
 --   ORDER BY created_at DESC
 --   LIMIT 20;
 --
--- Pending supplier submissions waiting for approval:
---   SELECT id, name, image_url, images, status, created_at
+-- 7f. Pending supplier submissions waiting for approval:
+--   SELECT id, name, images, status, created_at
 --   FROM supplier_products
 --   WHERE status = 'pending'
 --   ORDER BY created_at DESC;

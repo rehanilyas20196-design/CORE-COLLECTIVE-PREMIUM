@@ -1178,8 +1178,15 @@ function AddProductModal({ onClose, onConfirm, loading }) {
   const [form, setForm] = useState({
     name: '', category: '', price: '', price_min: '', price_max: '',
     stock: '', moq: '1', unit: 'Pcs', description: '', image_url: '',
+    image2: '', image3: '',
     whatsapp: '', supplier_name: 'Admin',
   });
+
+  const imageFields = [
+    { key: 'image_url', label: 'Main Image URL', placeholder: 'https://... (shows first & as thumbnail)' },
+    { key: 'image2', label: 'Image 2 URL', placeholder: 'https://... (optional)' },
+    { key: 'image3', label: 'Image 3 URL', placeholder: 'https://... (optional)' },
+  ];
 
   const fields = [
     { key: 'name', label: 'Product Name', type: 'text', required: true, placeholder: 'e.g. Premium T-Shirt', span: true },
@@ -1190,18 +1197,19 @@ function AddProductModal({ onClose, onConfirm, loading }) {
     { key: 'stock', label: 'Stock', type: 'number', placeholder: '0' },
     { key: 'moq', label: 'MOQ', type: 'number', placeholder: '1' },
     { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Pcs' },
-    { key: 'image_url', label: 'Image URL', type: 'text', placeholder: 'https://...', span: true },
     { key: 'whatsapp', label: 'WhatsApp', type: 'text', placeholder: '+92...' },
     { key: 'supplier_name', label: 'Supplier Name', type: 'text', placeholder: 'Admin' },
   ];
 
   const handleSubmit = () => {
     if (!form.name.trim() || !form.category.trim()) return;
+    const images = [form.image_url, form.image2, form.image3].map(s => (s || '').trim()).filter(Boolean);
     onConfirm({
       name: form.name.trim(),
       category: form.category.trim(),
       description: form.description.trim(),
-      image_url: form.image_url.trim(),
+      image_url: images[0] || '',
+      images,
       price: form.price ? Number(form.price) : null,
       price_min: form.price_min ? Number(form.price_min) : null,
       price_max: form.price_max ? Number(form.price_max) : null,
@@ -1237,6 +1245,29 @@ function AddProductModal({ onClose, onConfirm, loading }) {
               />
             </div>
           ))}
+          {/* 3-image area (same flow as the supplier form) */}
+          <div className="sm:col-span-2 border border-gray-200 rounded-xl p-4 bg-gray-50/60">
+            <p className="text-xs font-semibold text-gray-700 mb-3">Product Images (up to 3)</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {imageFields.map(f => (
+                <div key={f.key}>
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">{f.label}</label>
+                  <input
+                    type="text"
+                    value={form[f.key]}
+                    onChange={e => setForm({ ...form, [f.key]: e.target.value })}
+                    placeholder={f.placeholder}
+                    className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400"
+                  />
+                  {form[f.key]?.trim() && (
+                    <img src={form[f.key].trim()} alt="preview" className="mt-2 w-full h-24 object-cover rounded-lg border border-gray-200"
+                      onError={e => { e.target.style.display = 'none'; }} />
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[11px] text-gray-400">First image is the main thumbnail. All images appear in the product page gallery.</p>
+          </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Description</label>
             <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}

@@ -425,10 +425,13 @@ export default function ProductDetailPage({ params }) {
                   <tbody>
                     {pricingTiers.map((tier, i) => {
                       const isBest = i === pricingTiers.length - 1;
+                      // Supplier form saves { min_qty, price }; support both shapes.
+                      const qtyFrom = tier.qty_from ?? tier.min_qty;
+                      const qtyTo = tier.qty_to ?? tier.max_qty;
                       return (
                         <tr key={i} className="border-t border-gray-100">
                           <td className="py-2.5 text-black">
-                            {tier.qty_from}â€“{tier.qty_to || 'âˆž'} units
+                            {qtyFrom}â€“{qtyTo || 'âˆž'} units
                             {isBest && (
                               <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-[#F4F4F6] text-gray-700">Best Value</span>
                             )}

@@ -22,7 +22,7 @@ export class AdminGuard implements CanActivate {
       if (error || !user) {
         throw new ForbiddenException('Access denied');
       }
-      if (user.email !== this.adminEmail) {
+      if ((user.email || '').trim().toLowerCase() !== this.adminEmail.trim().toLowerCase()) {
         throw new ForbiddenException('Admin access required');
       }
       request.user = user;

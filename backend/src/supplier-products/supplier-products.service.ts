@@ -40,7 +40,10 @@ export class SupplierProductsService {
   }
 
   async findAll(userId?: string, userEmail?: string) {
-    const isAdmin = userEmail === this.adminEmail;
+    // Case-insensitive so "Hinata4020196@gmail.com" still matches the admin email.
+    // Without this, the admin was treated as a supplier and only saw their own
+    // submissions — supplier products never appeared in the admin dashboard.
+    const isAdmin = (userEmail || '').trim().toLowerCase() === this.adminEmail.trim().toLowerCase();
 
     let query = this.supabase
       .from('supplier_products')
@@ -64,6 +67,10 @@ export class SupplierProductsService {
       .order('created_at', { ascending: false });
     if (error) throw new InternalServerErrorException(error.message);
     return data || [];
+  }
+
+  isAdminEmail(userEmail?: string) {
+    return (userEmail || '').trim().toLowerCase() === this.adminEmail.trim().toLowerCase();
   }
 
   async updateStatus(id: number, status: string, adminNotes?: string) {
