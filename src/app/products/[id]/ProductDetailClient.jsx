@@ -42,8 +42,10 @@ function parseGallery(product) {
     : typeof raw === 'string'
       ? raw.split(',').filter(Boolean).map(s => s.trim())
       : [];
-  arr = arr.slice(0, 4);
-  if (arr.length === 0 && product?.image_url) arr = [product.image_url];
+  // Main image always comes first, then up to 3 gallery images (no duplicates).
+  const main = product?.image_url ? String(product.image_url).trim() : '';
+  const gallery = arr.filter(src => src !== main);
+  arr = (main ? [main] : []).concat(gallery).slice(0, 4);
   return arr;
 }
 

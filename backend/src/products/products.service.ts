@@ -82,6 +82,7 @@ export class ProductsService {
       pricing_tiers: dto.pricing_tiers || [],
       supplier_name: dto.supplier_name || 'Admin',
       is_verified: true,
+      is_active: true,
       status: 'active',
       rating: 0,
       review_count: 0,

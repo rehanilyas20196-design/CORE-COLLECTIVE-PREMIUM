@@ -106,6 +106,7 @@ export class SupplierProductsService {
         pricing_tiers: product.pricing_tiers || [],
         supplier_name: product.supplier_name,
         is_verified: true,
+        is_active: true,
         status: 'active',
         rating: 0,
         review_count: 0,

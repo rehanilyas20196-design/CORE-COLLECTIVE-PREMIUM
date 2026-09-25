@@ -43,7 +43,7 @@ export default function SupplierDashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <Loader2 className="w-10 h-10 text-black animate-spin" />
       </div>
     );
   }
@@ -70,18 +70,18 @@ export default function SupplierDashboardPage() {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 pt-24 sm:pt-28">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/" className="p-2 text-gray-500 hover:text-white hover:bg-gray-100 rounded-xl transition-all">
+            <Link href="/" className="p-2 text-gray-500 hover:text-black hover:bg-gray-100 rounded-xl transition-all">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
               <div className="flex items-center gap-3">
-                <Store className="w-6 h-6 text-primary" />
+                <Store className="w-6 h-6 text-black" />
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Supplier Dashboard</h1>
               </div>
               <p className="text-sm text-gray-500 mt-0.5">Manage your products and submissions</p>
             </div>
           </div>
-          <Link href="/notifications" className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 text-gray-300 text-sm rounded-xl hover:border-primary/30 transition-all">
+          <Link href="/notifications" className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 text-gray-600 text-sm rounded-xl hover:border-black/30 transition-all">
             <Clock className="w-4 h-4" />
             Notifications
           </Link>
@@ -99,8 +99,8 @@ export default function SupplierDashboardPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-primary to-amber-600 text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-gray-400 hover:text-white hover:border-gray-600'
+                    ? 'bg-black text-white shadow-lg'
+                    : 'bg-white border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -122,17 +122,23 @@ export default function SupplierDashboardPage() {
 }
 
 function AddProductTab({ showToast, userProfile }) {
-  const categoryOptions = ['Electronics', 'Clothing', 'Furniture', 'Home Goods', 'Sports Equipment', 'Pet Supplies', 'Tools', 'Modern Tech', 'Industrial', 'Mobile Accessories', 'Fashion'];
+  const categoryOptions = ['Electronics', 'Clothing', 'Furniture', 'Tools', 'Sports', 'Pet Supplies', 'Modern Tech'];
 
   const [form, setForm] = useState({
-    name: '', description: '', category: '', image_url: '',
+    name: '', description: '', category: '',
+    image_url: '', image2: '', image3: '',
     price: '', price_min: '', price_max: '', stock: '', moq: '1', unit: 'Pcs',
     whatsapp: '', stock_status: 'in_stock',
   });
-  const [extraImages, setExtraImages] = useState([]);
   const [specs, setSpecs] = useState([{ key: '', value: '' }]);
   const [tiers, setTiers] = useState([{ min_qty: '', price: '' }]);
   const [submitting, setSubmitting] = useState(false);
+
+  const imageFields = [
+    { key: 'image_url', label: 'Main Image', required: true },
+    { key: 'image2', label: 'Image 2', required: false },
+    { key: 'image3', label: 'Image 3', required: false },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -140,7 +146,7 @@ function AddProductTab({ showToast, userProfile }) {
 
     setSubmitting(true);
     try {
-      const images = [form.image_url, ...extraImages].filter(Boolean);
+      const images = [form.image_url, form.image2, form.image3].map(s => (s || '').trim()).filter(Boolean);
       const specifications = {};
       specs.forEach(s => { if (s.key.trim()) specifications[s.key.trim()] = s.value.trim(); });
       const pricing_tiers = tiers
@@ -151,7 +157,7 @@ function AddProductTab({ showToast, userProfile }) {
         name: form.name,
         description: form.description || undefined,
         category: form.category || undefined,
-        image_url: form.image_url || undefined,
+        image_url: images[0] || undefined,
         images: images.length > 0 ? images : undefined,
         price: form.price ? parseFloat(form.price) : undefined,
         price_min: form.price_min ? parseFloat(form.price_min) : undefined,
@@ -167,11 +173,11 @@ function AddProductTab({ showToast, userProfile }) {
       await api.supplierProducts.create(payload);
       showToast('Product submitted for admin review!');
       setForm({
-        name: '', description: '', category: '', image_url: '',
+        name: '', description: '', category: '',
+        image_url: '', image2: '', image3: '',
         price: '', price_min: '', price_max: '', stock: '', moq: '1', unit: 'Pcs',
         whatsapp: '', stock_status: 'in_stock',
       });
-      setExtraImages([]);
       setSpecs([{ key: '', value: '' }]);
       setTiers([{ min_qty: '', price: '' }]);
     } catch (err) {
@@ -273,38 +279,34 @@ function AddProductTab({ showToast, userProfile }) {
             </div>
           </div>
 
-          {/* Images */}
+          {/* Images — main + 2 additional, saved to database and shown on product cards/detail */}
           <div className="border-t border-gray-200 pt-5">
-            <label className="block text-xs text-gray-600 mb-2 font-medium">Main Image URL</label>
-            <input type="url" value={form.image_url} onChange={e => update('image_url')(e.target.value)}
-              placeholder="https://example.com/product-image.jpg" className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 transition-colors" />
-            {form.image_url && (
-              <div className="mt-2">
-                <p className="text-xs text-gray-500 mb-1.5">Preview:</p>
-                <img src={form.image_url} alt="Preview" className="w-24 h-24 object-cover rounded-lg border border-gray-200"
-                  onError={e => { e.target.style.display = 'none' }} />
-              </div>
-            )}
-            <div className="mt-3 space-y-2">
-              <p className="text-xs text-gray-500 font-medium">Additional Images</p>
-              {extraImages.map((url, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input type="url" value={url} onChange={e => {
-                    const copy = [...extraImages];
-                    copy[i] = e.target.value;
-                    setExtraImages(copy);
-                  }} placeholder="Image URL" className="flex-1 px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 transition-colors" />
-                  <button type="button" onClick={() => setExtraImages(extraImages.filter((_, j) => j !== i))}
-                    className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                    <X className="w-4 h-4" />
-                  </button>
+            <label className="block text-xs text-gray-600 mb-2 font-medium">Product Images (up to 3)</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {imageFields.map(({ key, label, required }) => (
+                <div key={key}>
+                  <div className="relative aspect-square rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+                    {form[key] ? (
+                      <img src={form[key]} alt={`${label} preview`}
+                        className="w-full h-full object-cover"
+                        onError={e => { e.currentTarget.style.display = 'none'; }} />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                        <Image className="w-8 h-8" strokeWidth={1.25} />
+                        {required && <span className="mt-1 text-[10px] font-medium text-gray-400">Required</span>}
+                      </div>
+                    )}
+                    <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-white/95 text-[9px] font-bold uppercase tracking-wider text-gray-600 shadow-sm">
+                      {label}
+                    </span>
+                  </div>
+                  <input type="url" value={form[key]} onChange={e => update(key)(e.target.value)}
+                    placeholder="https://image-url..." required={required}
+                    className="mt-2 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 transition-colors" />
                 </div>
               ))}
-              <button type="button" onClick={() => setExtraImages([...extraImages, ''])}
-                className="text-xs text-primary hover:text-amber-600 transition-colors font-medium">
-                + Add another image
-              </button>
             </div>
+            <p className="mt-2 text-[11px] text-gray-400">First image is the main thumbnail. All images appear on the product page and cards.</p>
           </div>
 
           {/* Specifications */}
@@ -373,21 +375,21 @@ function AddProductTab({ showToast, userProfile }) {
 
           <div className="flex items-center gap-3 pt-2">
             <button type="submit" disabled={submitting}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-amber-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50">
+              className="flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-all disabled:opacity-50">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               {submitting ? 'Submitting...' : 'Submit for Approval'}
             </button>
             <button type="button" onClick={() => {
               setForm({
-                name: '', description: '', category: '', image_url: '',
+                name: '', description: '', category: '',
+                image_url: '', image2: '', image3: '',
                 price: '', price_min: '', price_max: '', stock: '', moq: '1', unit: 'Pcs',
                 whatsapp: '', stock_status: 'in_stock',
               });
-              setExtraImages([]);
               setSpecs([{ key: '', value: '' }]);
               setTiers([{ min_qty: '', price: '' }]);
             }}
-              className="px-4 py-3 border border-gray-200 text-gray-400 text-sm rounded-xl hover:bg-gray-100 transition-all">
+              className="px-4 py-3 border border-gray-200 text-gray-600 text-sm rounded-xl hover:bg-gray-100 transition-all">
               Clear
             </button>
           </div>
@@ -454,15 +456,15 @@ function MyProductsTab({ showToast }) {
                 <motion.tr key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
                   className="border-b border-[#1C1C2E] hover:bg-gray-100/50 transition-colors group">
                   <td className="px-5 py-4">
-                    <button onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-white text-sm font-medium hover:text-primary transition-colors">
+                    <button onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-gray-900 text-sm font-medium hover:text-black transition-colors">
                       {p.name}
                     </button>
                     {p.admin_notes && (
                       <p className="text-[10px] text-gray-600 mt-0.5">Notes: {p.admin_notes}</p>
                     )}
                   </td>
-                  <td className="px-5 py-4 text-gray-400 text-xs">{p.category || 'Uncategorized'}</td>
-                  <td className="px-5 py-4 text-white font-semibold text-xs">
+                  <td className="px-5 py-4 text-gray-500 text-xs">{p.category || 'Uncategorized'}</td>
+                  <td className="px-5 py-4 text-gray-900 font-semibold text-xs">
                     {p.price ? `$${Number(p.price).toFixed(2)}` : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'}
                   </td>
                   <td className="px-5 py-4">
@@ -508,12 +510,20 @@ function MyProductsTab({ showToast }) {
           if (!p) return null;
           return (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              className="bg-gray-100 border-t border-gray-200 p-6">
+              className="bg-[#FAF9F6] border-t border-gray-200 p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <DetailCard2 icon={ShoppingBag} label="Product" value={p.name} />
                 <DetailCard2 icon={FileText} label="Description" value={p.description || 'N/A'} />
                 <DetailCard2 icon={Package} label="Category" value={p.category || 'Uncategorized'} />
-                <DetailCard2 icon={Image} label="Image" value={p.image_url ? <img src={p.image_url} alt={p.name} className="w-20 h-20 object-cover rounded-lg border border-gray-200" /> : 'No image'} />
+                <DetailCard2 icon={Image} label="Images" value={
+                  <div className="flex flex-wrap gap-2">
+                    {(Array.isArray(p.images) ? p.images : [p.image_url].filter(Boolean)).slice(0, 3).map((img, i) => (
+                      <img key={i} src={img} alt={`${p.name} ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                        onError={e => { e.currentTarget.style.display = 'none'; }} />
+                    ))}
+                    {(!p.images || p.images.length === 0) && !p.image_url && 'No image'}
+                  </div>
+                } />
                 <DetailCard2 icon={ShoppingBag} label="Price / Stock" value={`$${p.price ? Number(p.price).toFixed(2) : p.price_min ? `$${Number(p.price_min).toFixed(2)} - $${Number(p.price_max).toFixed(2)}` : 'N/A'} / Stock: ${p.stock ?? 0}`} />
                 <DetailCard2 icon={ShoppingBag} label="WhatsApp" value={p.whatsapp || 'N/A'} />
                 <DetailCard2 icon={Package} label="Stock Status" value={p.stock_status ? p.stock_status.replace('_', ' ') : 'in stock'} />
@@ -571,7 +581,7 @@ function DetailCard2({ icon: Icon, label, value }) {
         <Icon className="w-4 h-4 text-primary" />
         <span className="text-xs text-gray-500 font-medium">{label}</span>
       </div>
-      <div className="text-sm text-white font-medium">{value || 'N/A'}</div>
+      <div className="text-sm text-gray-900 font-medium">{value || 'N/A'}</div>
     </div>
   );
 }
