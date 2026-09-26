@@ -243,23 +243,23 @@ export default function ContactPage() {
                 <div className="form-grid">
                   <div className="field">
                     <label>Full Name</label>
-                    <input ref={nameRef} type="text" placeholder="John Doe" required />
+                    <input ref={nameRef} type="text" placeholder="Name" required />
                   </div>
                   <div className="field">
                     <label>Email Address</label>
-                    <input ref={emailRef} type="email" placeholder="john@example.com" required />
+                    <input ref={emailRef} type="email" placeholder="Email" required />
                   </div>
                   <div className="field">
                     <label>Phone (optional)</label>
-                    <input ref={phoneRef} type="text" placeholder="+92 345 5900229" />
+                    <input ref={phoneRef} type="text" placeholder="Phone" />
                   </div>
                   <div className="field">
                     <label>Subject</label>
-                    <input ref={subjectRef} type="text" placeholder="How can we help?" required />
+                    <input ref={subjectRef} type="text" placeholder="Subject" required />
                   </div>
                   <div className="field full">
                     <label>Message</label>
-                    <textarea ref={messageRef} placeholder="Tell us about your inquiry..." required />
+                    <textarea ref={messageRef} placeholder="Message" required />
                   </div>
                 </div>
                 <button type="submit" className="send-btn" ref={sendBtnRef} disabled={sending}>
