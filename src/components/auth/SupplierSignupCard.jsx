@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { signupErrorMessage, validatePassword, passwordIssues, isValidEmail } from '../../lib/auth';
+import { signupErrorMessage, validatePassword, passwordIssues, isValidEmail, isAdminEmail, ADMIN_ONLY_SIGN_IN } from '../../lib/auth';
 import OtpVerificationCard from './OtpVerificationCard';
 
 function Field({ id, label, required, optional, toggle, ...inputProps }) {
@@ -66,6 +66,11 @@ function SupplierSignupCard() {
     }
     if (form.email && !isValidEmail(form.email)) {
       setError('Please enter a valid email address');
+      return;
+    }
+    // The admin account already exists and must never be created from here.
+    if (isAdminEmail(form.email)) {
+      setError(ADMIN_ONLY_SIGN_IN);
       return;
     }
     if (form.password && form.password.length < 8) {

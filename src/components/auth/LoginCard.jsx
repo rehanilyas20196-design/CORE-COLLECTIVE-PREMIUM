@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { isValidEmail, loginErrorMessage } from '../../lib/auth';
+import { isValidEmail, loginErrorMessage, isAdminEmail, ADMIN_ONLY_SIGN_IN } from '../../lib/auth';
 
 const REMEMBER_KEY = 'corecollective_remember_email';
 
@@ -39,6 +39,11 @@ function LoginCard() {
       setError('Please enter a valid email address');
       return;
     }
+    // Admins have their own sign-in page — keep them off the buyer login.
+    if (isAdminEmail(email)) {
+      setError(ADMIN_ONLY_SIGN_IN);
+      return;
+    }
     setLoading(true);
     try {
       const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({ email, password });
@@ -53,11 +58,7 @@ function LoginCard() {
       if (user) {
         window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
       }
-      if (user?.email === 'hinata4020196@gmail.com') {
-        router.push('/admin');
-      } else {
-        router.push('/');
-      }
+      router.push('/');
       router.refresh();
     } catch (err) {
       setError(loginErrorMessage(err));
@@ -153,6 +154,12 @@ function LoginCard() {
               Are you a supplier?{' '}
               <Link href="/supplier/login" className="font-semibold text-black hover:underline">
                 Supplier login
+              </Link>
+            </p>
+            <p>
+              Are you an administrator?{' '}
+              <Link href="/admin" className="font-semibold text-black hover:underline">
+                Admin login
               </Link>
             </p>
           </div>

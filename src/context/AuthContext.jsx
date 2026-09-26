@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { isAdminEmail } from '../lib/auth';
 
 const AuthContext = createContext(null);
 
@@ -24,7 +25,7 @@ export function AuthProvider({ children }) {
         phone: user.user_metadata?.phone || ''
       };
       setUserProfile(profile);
-      setIsAdmin(user.email === 'hinata4020196@gmail.com');
+      setIsAdmin(isAdminEmail(user.email));
       setIsSupplier(!!user.user_metadata?.is_supplier);
     };
 

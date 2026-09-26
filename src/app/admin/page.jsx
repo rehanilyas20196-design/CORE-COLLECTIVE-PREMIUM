@@ -10,6 +10,7 @@ import { validateImageUrl, ALLOWED_EXTENSIONS, PROPER_HOST, PROPER_LINK_EXAMPLE 
 import ImageFormatHelp from '../../components/products/ImageFormatHelp';
 import { useAuth } from '../../context/AuthContext';
 import AdminLoginCard from '../../components/admin/AdminLoginCard';
+import ImageLinkList from '../../components/admin/ImageLinkList';
 import {
   LayoutDashboard, Package, ClipboardList, MessageSquare,
   Bell, ArrowLeft, X, Check, Search, Trash2, Send,
@@ -1661,14 +1662,7 @@ function SupplierProductsTab({ products, loadProducts, showToast }) {
                 <DetailCard icon={ShoppingBag} label="Product Name" value={p.name} />
                 <DetailCard icon={User} label="Supplier" value={p.supplier_name} sub={p.supplier_email} />
                 <DetailCard icon={Image} label="Images" value={
-                  <div className="flex flex-wrap gap-2">
-                    {p.image_url && <img src={p.image_url} alt={p.name} className="w-16 h-16 object-cover rounded-lg border border-gray-200" />}
-                    {p.images?.filter(Boolean).map((img, i) => (
-                      <img key={i} src={img} alt={`${p.name} ${i}`} className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                        onError={e => { e.target.style.display = 'none' }} />
-                    ))}
-                    {!p.image_url && (!p.images || p.images.length === 0) && 'No images'}
-                  </div>
+                  <ImageLinkList imageUrl={p.image_url} images={p.images} emptyText="No images" />
                 } />
                 <DetailCard icon={Package} label="Category" value={p.category || 'Uncategorized'} />
                 <DetailCard icon={FileText} label="Description" value={p.description || 'No description'} />
@@ -2011,7 +2005,7 @@ function SupplierProductModal({ action, item, onClose, onConfirm, loading }) {
   return (
     <ModalOverlay onClose={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
+        className="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-xl mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{isApprove ? 'Approve Product' : 'Reject Product'}</h3>
           <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
@@ -2020,6 +2014,10 @@ function SupplierProductModal({ action, item, onClose, onConfirm, loading }) {
         </div>
         <p className="text-sm text-gray-500 mb-1">Product: <span className="text-gray-900 font-medium">{item.name}</span></p>
         <p className="text-xs text-gray-500 mb-4">by {item.supplier_name || item.supplier_email}</p>
+        <div className="mb-4">
+          <p className="text-xs font-medium text-gray-500 mb-2">Image links added by the supplier</p>
+          <ImageLinkList imageUrl={item.image_url} images={item.images} emptyText="No images were submitted" />
+        </div>
         {!isApprove && (
           <textarea value={notes} onChange={e => setNotes(e.target.value)}
             placeholder="Reason for rejection (optional)" rows={3}

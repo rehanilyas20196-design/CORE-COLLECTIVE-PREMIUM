@@ -198,6 +198,10 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string) {
+    if (email?.trim().toLowerCase() === this.adminEmail) {
+      throw new UnauthorizedException('Admin accounts can only sign in from the admin page');
+    }
+
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
       password,

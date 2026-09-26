@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Shield, LogOut, ChevronDown, Store, LayoutDashboard, ShoppingBag, ArrowUpRight, BadgeCheck, Pencil, X, Check, Loader2, MapPin, Briefcase, Calendar, Globe, User } from 'lucide-react';
+import { Mail, Phone, Shield, LogOut, ChevronDown, Store, LayoutDashboard, ShoppingBag, ArrowUpRight, BadgeCheck, Pencil, X, Check, Loader2, MapPin, Briefcase, Calendar, Globe, User, Camera, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
@@ -109,6 +109,9 @@ export default function ProfilePage() {
     address: '',
     about: '',
   });
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -144,6 +147,11 @@ export default function ProfilePage() {
           role: isAdmin ? 'Admin' : isSupplier ? 'Supplier' : 'Buyer',
           emailConfirmed: !!user.email_confirmed_at,
         });
+        setAvatarUrl(meta.avatar_url || '');
+        // The profiles table is the source of truth for the stored link.
+        supabase.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle()
+          .then(({ data }) => { if (data?.avatar_url) setAvatarUrl(data.avatar_url); })
+          .catch(() => {});
       }
       setLoading(false);
     }).catch(() => {
@@ -157,6 +165,70 @@ export default function ProfilePage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAvatarFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    if (!['jpg', 'jpeg', 'jfif', 'png', 'webp'].includes(ext)) {
+      setSaveMsg('Picture must be a .jpg, .jpeg, .jfif, .png or .webp file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setSaveMsg('Picture must be smaller than 5 MB.');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setSaveMsg('');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Please sign in again.');
+
+      // Path must start with the user id — the storage RLS policy checks it.
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { contentType: file.type, upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+      setAvatarUrl(publicUrl);
+
+      const { error: metaError } = await supabase.auth.updateUser({ data: { avatar_url: publicUrl } });
+      if (metaError) throw metaError;
+
+      const { error: profileError } = await supabase.from('profiles')
+        .upsert({ id: user.id, email: user.email, avatar_url: publicUrl }, { onConflict: 'id' });
+      if (profileError) throw profileError;
+
+      setSaveMsg('Profile picture updated successfully.');
+    } catch (err) {
+      setSaveMsg(err.message || 'Could not upload the picture. Please try again.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    setSaveMsg('');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && avatarUrl) {
+        const path = avatarUrl.split('/avatars/')[1];
+        if (path) await supabase.storage.from('avatars').remove([decodeURIComponent(path)]);
+      }
+      setAvatarUrl('');
+      await supabase.auth.updateUser({ data: { avatar_url: '' } });
+      if (user) {
+        await supabase.from('profiles').upsert({ id: user.id, avatar_url: '' }, { onConflict: 'id' });
+      }
+    } catch (err) {
+      setSaveMsg(err.message || 'Could not remove the picture.');
+    }
   };
 
   const handleLogout = async () => {
@@ -266,10 +338,23 @@ export default function ProfilePage() {
                 initial={{ scale: 0, rotate: -12 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.15, type: 'spring', stiffness: 160, damping: 14 }}
-                className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 rounded-full bg-black text-white flex items-center justify-center shadow-[0_20px_40px_-16px_rgba(0,0,0,0.5)]"
+                className="relative w-28 h-28 sm:w-32 sm:h-32 shrink-0 rounded-full bg-black text-white flex items-center justify-center shadow-[0_20px_40px_-16px_rgba(0,0,0,0.5)] group"
               >
-                <span className="font-volkhov italic font-bold text-4xl sm:text-5xl">{initialsOf(account?.full_name)}</span>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={account?.full_name || 'Profile'}
+                    className="w-full h-full rounded-full object-cover" />
+                ) : (
+                  <span className="font-volkhov italic font-bold text-4xl sm:text-5xl">{initialsOf(account?.full_name)}</span>
+                )}
                 <span aria-hidden className="absolute -inset-1.5 rounded-full border border-dashed border-black/30" />
+
+                <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.jfif,.png,.webp,image/jpeg,image/png,image/webp"
+                  onChange={handleAvatarFile} className="hidden" />
+                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar}
+                  title="Change profile picture"
+                  className="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-black border-2 border-white text-white flex items-center justify-center hover:bg-neutral-800 transition-all disabled:opacity-50 shadow-md">
+                  {uploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                </button>
               </motion.div>
 
               <motion.div
@@ -382,6 +467,33 @@ export default function ProfilePage() {
             {!editing ? (
               <>
                 <div className="mt-8 max-w-2xl bg-[#FAF9F6] border border-gray-200 rounded-3xl px-7 py-3 sm:px-9">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-5 border-b border-gray-100">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-200 text-gray-700 shrink-0">
+                        <Camera className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">Profile Picture</p>
+                        <p className="mt-1 text-[0.95rem] font-medium text-gray-900 break-all">
+                          {avatarUrl ? avatarUrl : 'No picture uploaded'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 text-[10px] font-bold uppercase tracking-[0.15em] hover:border-black hover:text-black transition-all disabled:opacity-50">
+                        {uploadingAvatar ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
+                        {uploadingAvatar ? 'Uploading' : avatarUrl ? 'Replace' : 'Upload'}
+                      </button>
+                      {avatarUrl && (
+                        <button type="button" onClick={handleAvatarRemove}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 text-[10px] font-bold uppercase tracking-[0.15em] hover:border-red-400 hover:text-red-600 transition-all">
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
                     <FieldInfo icon={Mail} label="Email Address" value={account?.email} />
                     <FieldInfo icon={Phone} label="Phone Number" value={account?.phone} />

@@ -1,3 +1,12 @@
+export const ADMIN_EMAIL = 'hinata4020196@gmail.com';
+
+export function isAdminEmail(value = '') {
+  return (value || '').trim().toLowerCase() === ADMIN_EMAIL;
+}
+
+export const ADMIN_ONLY_SIGN_IN =
+  'This is an admin account. Admins can only sign in from the admin page.';
+
 export function signupErrorMessage(err) {
   const msg = (err?.message || '').toLowerCase();
   if (msg.includes('signups not allowed')) {

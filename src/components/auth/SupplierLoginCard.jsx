@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { isValidEmail, loginErrorMessage } from '../../lib/auth';
+import { isValidEmail, loginErrorMessage, isAdminEmail, ADMIN_ONLY_SIGN_IN } from '../../lib/auth';
 
 function SupplierLoginCard() {
   const router = useRouter();
@@ -24,6 +24,11 @@ function SupplierLoginCard() {
     }
     if (!isValidEmail(email)) {
       setError('Please enter a valid email address');
+      return;
+    }
+    // Admins have their own sign-in page — keep them off the supplier login.
+    if (isAdminEmail(email)) {
+      setError(ADMIN_ONLY_SIGN_IN);
       return;
     }
     setLoading(true);
