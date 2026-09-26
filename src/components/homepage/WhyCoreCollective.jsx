@@ -77,7 +77,7 @@ export default function WhyCoreCollective() {
           <span className="text-xs uppercase tracking-[0.25em] font-semibold text-gray-500">
             Why Core Collective
           </span>
-          <h2 className="mt-3 font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl text-black leading-tight">
+          <h2 className="mt-3 font-playfair font-bold text-3xl sm:text-4xl lg:text-5xl text-black leading-tight">
             Trusted By Businesses Across Pakistan
           </h2>
           <p className="mt-5 text-gray-500 text-sm sm:text-base leading-relaxed">
@@ -104,7 +104,7 @@ export default function WhyCoreCollective() {
                 <span className="absolute inset-x-6 top-0 h-[2px] bg-gradient-to-r from-transparent via-black to-transparent scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-500 ease-out pointer-events-none" />
 
                 {/* Decor corner number */}
-                <span className="absolute top-6 right-6 font-volkhov italic font-semibold text-4xl leading-none text-gray-100 transition-colors duration-500 group-hover:text-gray-200 select-none pointer-events-none">
+                <span className="absolute top-6 right-6 font-playfair italic font-semibold text-4xl leading-none text-gray-100 transition-colors duration-500 group-hover:text-gray-200 select-none pointer-events-none">
                   {feature.number}
                 </span>
 
@@ -113,7 +113,7 @@ export default function WhyCoreCollective() {
                   <Icon className="w-6 h-6 text-black transition-colors duration-500 group-hover:text-white" strokeWidth={1.8} />
                 </div>
 
-                <h3 className="mt-6 font-volkhov font-bold text-lg leading-snug text-black">
+                <h3 className="mt-6 font-playfair font-bold text-lg leading-snug text-black">
                   {feature.title}
                 </h3>
 

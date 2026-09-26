@@ -72,7 +72,7 @@ export default function NewProducts() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-10"
         >
-          <h2 className="font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
+          <h2 className="font-playfair font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
             New Arrivals
           </h2>
           <p className="mt-3 text-gray-500 text-sm sm:text-base leading-relaxed">
@@ -159,7 +159,7 @@ export default function NewProducts() {
                         </div>
                       </div>
 
-                      <h3 className="font-volkhov font-bold text-lg text-black group-hover:text-gray-700 transition-colors line-clamp-1">
+                      <h3 className="font-playfair font-bold text-lg text-black group-hover:text-gray-700 transition-colors line-clamp-1">
                         {product.name}
                       </h3>
 

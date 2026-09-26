@@ -46,7 +46,7 @@ export default function StatsSection() {
                   <Icon className="w-6 h-6" strokeWidth={1.75} />
                 </div>
                 <div>
-                  <h4 className="font-volkhov font-bold text-base text-black">
+                  <h4 className="font-playfair font-bold text-base text-black">
                     {item.title}
                   </h4>
                   <p className="text-xs text-gray-500 mt-0.5 leading-normal">

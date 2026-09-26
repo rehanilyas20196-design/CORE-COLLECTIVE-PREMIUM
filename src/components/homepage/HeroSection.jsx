@@ -91,7 +91,7 @@ export default function HeroSection() {
                 <span className="text-[10px] uppercase tracking-[0.25em] font-medium bg-black/60 backdrop-blur px-2.5 py-1 rounded-full text-gray-200">
                   {heroCards[0].tag}
                 </span>
-                <h3 className="font-volkhov text-xl font-bold mt-2">{heroCards[0].title}</h3>
+                <h3 className="font-playfair text-xl font-bold mt-2">{heroCards[0].title}</h3>
                 <p className="text-xs text-gray-300 mt-1">{heroCards[0].category}</p>
               </div>
             </div>
@@ -112,9 +112,9 @@ export default function HeroSection() {
             </div>
 
             {/* FASCO Style Big Editorial Headline */}
-            <h1 className="font-volkhov font-bold text-4xl sm:text-6xl lg:text-7xl leading-[1.05] tracking-tight text-black">
+            <h1 className="font-playfair font-bold text-4xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-[0.015em] text-black">
               ULTIMATE
-              <span className="block font-serif font-light italic text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-900 stroke-text">
+              <span className="block font-cormorant font-normal italic tracking-[0.1em] text-transparent bg-clip-text bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-900 stroke-text">
                 SALE
               </span>
             </h1>
@@ -188,7 +188,7 @@ export default function HeroSection() {
                 <span className="text-[10px] uppercase tracking-[0.25em] font-medium bg-black/60 backdrop-blur px-2.5 py-1 rounded-full text-gray-200">
                   {heroCards[2].tag}
                 </span>
-                <h3 className="font-volkhov text-xl font-bold mt-2">{heroCards[2].title}</h3>
+                <h3 className="font-playfair text-xl font-bold mt-2">{heroCards[2].title}</h3>
                 <p className="text-xs text-gray-300 mt-1">{heroCards[2].category}</p>
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function HeroSection() {
             {[...brandLogos, ...brandLogos].map((brand, idx) => (
               <span
                 key={idx}
-                className="font-volkhov font-bold text-lg sm:text-xl md:text-2xl tracking-[0.18em] text-gray-900 whitespace-nowrap mx-8 sm:mx-12 md:mx-16 cursor-default"
+                className="font-playfair font-bold text-lg sm:text-xl md:text-2xl tracking-[0.18em] text-gray-900 whitespace-nowrap mx-8 sm:mx-12 md:mx-16 cursor-default"
               >
                 {brand.name}
               </span>

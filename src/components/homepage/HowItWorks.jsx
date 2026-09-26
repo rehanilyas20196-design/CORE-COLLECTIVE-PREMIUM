@@ -66,7 +66,7 @@ export default function HowItWorks() {
           <span className="text-xs uppercase tracking-[0.25em] font-semibold text-gray-500">
             How It Works
           </span>
-          <h2 className="mt-3 font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl leading-tight text-black">
+          <h2 className="mt-3 font-playfair font-bold text-3xl sm:text-4xl lg:text-5xl leading-tight text-black">
             How Core Collective Works
           </h2>
           <p className="text-gray-500 text-sm sm:text-base mt-5">Three simple steps to source wholesale products</p>
@@ -134,7 +134,7 @@ export default function HowItWorks() {
                     Step {step.number}
                   </span>
 
-                  <h3 className="mt-4 font-volkhov font-bold text-xl sm:text-2xl text-black">
+                  <h3 className="mt-4 font-playfair font-bold text-xl sm:text-2xl text-black">
                     {step.title}
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-gray-500 max-w-[300px]">{step.description}</p>

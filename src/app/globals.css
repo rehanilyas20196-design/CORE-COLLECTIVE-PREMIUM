@@ -33,6 +33,12 @@
     overflow-x: hidden;
   }
 
+  /* Every heading uses the same high-contrast editorial serif as the
+     ULTIMATE SALE hero headline (Playfair Display). */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair;
+  }
+
   img {
     max-width: 100%;
     height: auto;

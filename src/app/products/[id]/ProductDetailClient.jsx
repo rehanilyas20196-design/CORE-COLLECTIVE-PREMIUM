@@ -156,7 +156,7 @@ export default function ProductDetailPage({ params }) {
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: creamBg }}>
         <div className="text-center">
           <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <h2 className="text-xl font-volkhov font-bold mb-2 text-black">Product not found</h2>
+          <h2 className="text-xl font-playfair font-bold mb-2 text-black">Product not found</h2>
           <button onClick={() => router.push('/products')} className="text-black underline underline-offset-4 hover:opacity-70">Browse all products</button>
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function ProductDetailPage({ params }) {
       {/* Editorial hero: gallery + info on #FAF9F6 band with ghost watermark */}
       <section className="relative overflow-hidden border-b border-gray-100" style={{ backgroundColor: panelBg }}>
         <div className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 hidden lg:block select-none max-w-[60%] overflow-hidden">
-          <span className="block font-volkhov italic font-bold text-[9rem] leading-none text-black/[0.04] whitespace-nowrap uppercase pl-4">
+          <span className="block font-playfair italic font-bold text-[9rem] leading-none text-black/[0.04] whitespace-nowrap uppercase pl-4">
             {watermarkText || 'Core Collective'}
           </span>
         </div>
@@ -334,7 +334,7 @@ export default function ProductDetailPage({ params }) {
               )}
             </div>
 
-            <h1 className="font-volkhov font-bold text-3xl sm:text-5xl leading-tight text-black">
+            <h1 className="font-playfair font-bold text-3xl sm:text-5xl leading-tight text-black">
               {product.name}
             </h1>
 
@@ -365,7 +365,7 @@ export default function ProductDetailPage({ params }) {
                 <div className="flex flex-col">
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-500 mb-1">Price</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="font-volkhov italic font-bold text-4xl text-black">
+                    <span className="font-playfair italic font-bold text-4xl text-black">
                       {'$'}{current.toFixed(2)}
                     </span>
                     <span className="text-sm text-gray-500">/ unit</span>
@@ -436,7 +436,7 @@ export default function ProductDetailPage({ params }) {
                               <span className="ml-2 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-[#F4F4F6] text-gray-700">Best Value</span>
                             )}
                           </td>
-                          <td className="py-2.5 font-volkhov italic font-semibold text-black">
+                          <td className="py-2.5 font-playfair italic font-semibold text-black">
                             {'$'}{Number(tier.price_per_unit || tier.price).toFixed(2)}
                           </td>
                         </tr>
@@ -528,7 +528,7 @@ export default function ProductDetailPage({ params }) {
             {activeTab === 'shipping' && (
               <div className="max-w-2xl space-y-4">
                 <div className="border border-gray-200 rounded-2xl p-6" style={{ backgroundColor: cardBg }}>
-                  <h4 className="font-volkhov font-semibold mb-3 text-black">Delivery & Shipping</h4>
+                  <h4 className="font-playfair font-semibold mb-3 text-black">Delivery & Shipping</h4>
                   <ul className="space-y-2.5 text-sm" style={{ color: tan }}>
                     <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-black" /> Delivery across all major cities in Pakistan</li>
                     <li className="flex items-start gap-2.5"><Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-black" /> Estimated delivery: 3â€“7 business days</li>
@@ -536,7 +536,7 @@ export default function ProductDetailPage({ params }) {
                   </ul>
                 </div>
                 <div className="border border-gray-200 rounded-2xl p-6" style={{ backgroundColor: cardBg }}>
-                  <h4 className="font-volkhov font-semibold mb-2 text-black">Payment Methods</h4>
+                  <h4 className="font-playfair font-semibold mb-2 text-black">Payment Methods</h4>
                   <p className="text-sm text-gray-500">Secure international payments via Paddle â€” Visa, Mastercard, PayPal, Apple Pay, Google Pay and more.</p>
                 </div>
               </div>
@@ -602,7 +602,7 @@ export default function ProductDetailPage({ params }) {
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-16 h-16 mx-auto mb-4 border border-gray-200 rounded-full flex items-center justify-center" style={{ backgroundColor: panelBg }}>
                   <CheckCircle className="w-8 h-8 text-black" />
                 </motion.div>
-                <h3 className="font-volkhov text-lg font-bold mb-2 text-black">Quote Request Sent!</h3>
+                <h3 className="font-playfair text-lg font-bold mb-2 text-black">Quote Request Sent!</h3>
                 <p className="text-sm mb-4 text-gray-500">The supplier will respond within 24 hours.</p>
                 <button onClick={() => { setQuoteSent(false); setQuoteForm({ name: '', business: '', phone: '', email: '', quantity: '', message: '' }); }} className="text-sm text-black underline underline-offset-4 hover:opacity-70">
                   Send another request
@@ -610,7 +610,7 @@ export default function ProductDetailPage({ params }) {
               </div>
             ) : (
               <>
-                <h3 className="font-volkhov text-lg font-bold mb-1 text-black">Request a Quote</h3>
+                <h3 className="font-playfair text-lg font-bold mb-1 text-black">Request a Quote</h3>
                 <p className="text-sm mb-6 text-gray-500">Get a custom quote for bulk orders</p>
                 <form onSubmit={handleQuoteSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
@@ -667,7 +667,7 @@ export default function ProductDetailPage({ params }) {
         {/* Similar products */}
         <div className="desktop:col-span-7">
           <div className="flex items-end justify-between mb-5">
-            <h3 className="font-volkhov text-xl font-bold text-black">Similar Products</h3>
+            <h3 className="font-playfair text-xl font-bold text-black">Similar Products</h3>
             <Link href={`/products?category=${encodeURIComponent(product.category || '')}`} className="text-xs font-semibold uppercase tracking-wider text-gray-500 hover:text-black transition-colors shrink-0">
               View All â†’
             </Link>
@@ -680,7 +680,7 @@ export default function ProductDetailPage({ params }) {
       <div className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-3 flex items-center gap-3">
         <div className="shrink-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500">Price</p>
-          <p className="font-volkhov italic font-bold text-lg text-black leading-tight">{'$'}{current.toFixed(2)}</p>
+          <p className="font-playfair italic font-bold text-lg text-black leading-tight">{'$'}{current.toFixed(2)}</p>
         </div>
         <button
           onClick={scrollToQuote}
@@ -715,7 +715,7 @@ function BuyerBenefitCard({ icon: Icon, eyebrow, title, lines }) {
         <Icon className="w-5 h-5 text-white" />
       </div>
       <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400 mb-1">{eyebrow}</p>
-      <h4 className="font-volkhov font-bold text-lg text-black mb-3">{title}</h4>
+      <h4 className="font-playfair font-bold text-lg text-black mb-3">{title}</h4>
       <ul className="space-y-2 text-sm text-gray-500">
         {lines.map((line, i) => (
           <li key={i} className="flex items-start gap-2">
@@ -786,7 +786,7 @@ function ReviewSection({ productId, rating, reviewsCount }) {
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
         <div className="flex items-center gap-2">
-          <span className="font-volkhov text-4xl font-bold text-black">{rating || 'â€”'}</span>
+          <span className="font-playfair text-4xl font-bold text-black">{rating || 'â€”'}</span>
           <div>
             <div className="flex items-center gap-0.5">{[1, 2, 3, 4, 5].map(star)}</div>
             <p className="text-xs mt-1 text-gray-500">{reviewsCount || 0} reviews</p>
@@ -796,7 +796,7 @@ function ReviewSection({ productId, rating, reviewsCount }) {
 
       {/* Write a review */}
       <div className="border border-gray-200 rounded-2xl p-6 mb-6 bg-white">
-        <h4 className="font-volkhov font-semibold text-black mb-4">Write a Review</h4>
+        <h4 className="font-playfair font-semibold text-black mb-4">Write a Review</h4>
         {submitted ? (
           <div className="flex items-center gap-2 p-3 text-sm rounded-lg border border-green-200 bg-green-50 text-green-700">
             <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -969,7 +969,7 @@ function RelatedCard({ product, index }) {
         </div>
 
         <div className="mt-3 px-1 flex flex-col flex-1">
-          <h3 className="font-volkhov font-bold text-[15px] leading-snug text-black line-clamp-1 transition-colors group-hover:text-gray-700">
+          <h3 className="font-playfair font-bold text-[15px] leading-snug text-black line-clamp-1 transition-colors group-hover:text-gray-700">
             {p.name}
           </h3>
 
@@ -983,7 +983,7 @@ function RelatedCard({ product, index }) {
           </div>
 
           <div className="mt-2.5 flex-1">
-            <span className="font-volkhov italic font-bold text-lg text-black">
+            <span className="font-playfair italic font-bold text-lg text-black">
               {'$'}{current.toFixed(2)}
             </span>
           </div>

@@ -95,10 +95,10 @@ export default function Navbar() {
           <div className="h-[64px] sm:h-[72px] max-w-[1400px] w-full mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between gap-x-6">
             {/* Brand name */}
             <Link href="/" onClick={() => setActiveLink('/')} className="flex flex-col leading-tight shrink-0 group">
-              <span className="font-volkhov font-bold text-black text-xl sm:text-2xl tracking-[0.15em] uppercase transition-colors duration-300">
+              <span className="font-inter font-medium text-black text-xl sm:text-2xl tracking-[0.22em] uppercase transition-colors duration-300">
                 Core Collective
               </span>
-              <span className="text-[8.5px] sm:text-[9px] uppercase tracking-[0.35em] font-semibold text-gray-400">
+              <span className="font-inter text-[8.5px] sm:text-[9px] uppercase tracking-[0.35em] font-medium text-gray-400">
                 B2B Wholesale Marketplace
               </span>
             </Link>
@@ -110,7 +110,7 @@ export default function Navbar() {
                 {link.dropdown ? (
                   <button
                     onClick={() => setCategoriesOpen((prev) => !prev)}
-                    className={`group relative text-sm font-medium tracking-wide whitespace-nowrap transition-colors duration-200 py-2 px-3 flex items-center gap-1.5 ${
+                    className={`group relative font-inter text-sm font-medium tracking-[0.09em] whitespace-nowrap transition-colors duration-200 py-2 px-3 flex items-center gap-1.5 ${
                       activeLink === '/products' ? 'text-black font-semibold' : 'text-gray-600 hover:text-black'
                     }`}
                   >
@@ -124,7 +124,7 @@ export default function Navbar() {
                   <Link
                     href={link.href}
                     onClick={() => setActiveLink(link.href)}
-                    className={`group relative text-sm font-medium tracking-wide whitespace-nowrap transition-colors duration-200 py-2 px-3 ${
+                    className={`group relative font-inter text-sm font-medium tracking-[0.09em] whitespace-nowrap transition-colors duration-200 py-2 px-3 ${
                       activeLink === link.href ? 'text-black font-semibold' : 'text-gray-600 hover:text-black'
                     }`}
                   >
@@ -140,7 +140,7 @@ export default function Navbar() {
                 {/* Categories dropdown */}
                 {link.dropdown && categoriesOpen && (
                   <div className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-72 bg-white border border-gray-200 rounded-2xl shadow-[0_24px_50px_-16px_rgba(0,0,0,0.3)] p-3 animate-scale-in">
-                    <span className="block px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">
+                    <span className="block font-inter px-3 pt-1 pb-2 text-[10px] font-medium uppercase tracking-[0.25em] text-gray-400">
                       Shop by Category
                     </span>
                     <div className="space-y-1">
@@ -149,7 +149,7 @@ export default function Navbar() {
                           key={cat.label}
                           href={cat.href}
                           onClick={() => { setCategoriesOpen(false); setActiveLink('/products'); }}
-                          className="group flex items-center justify-between px-3 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 hover:text-black transition-all"
+                          className="group flex items-center justify-between px-3 py-2.5 rounded-xl font-inter text-sm font-normal tracking-[0.01em] text-gray-700 hover:bg-gray-100 hover:text-black transition-all"
                         >
                           {cat.label}
                           <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
@@ -159,7 +159,7 @@ export default function Navbar() {
                     <Link
                       href="/products"
                       onClick={() => setCategoriesOpen(false)}
-                      className="mt-2 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white text-xs font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-neutral-800 transition-all group"
+                      className="mt-2 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white font-inter text-xs font-medium uppercase tracking-[0.2em] rounded-xl hover:bg-neutral-800 transition-all group"
                     >
                       View All Products
                       <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -189,10 +189,10 @@ export default function Navbar() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search products..."
-                      className="flex-1 bg-transparent text-black text-sm outline-none placeholder:text-gray-400"
+                      className="flex-1 bg-transparent font-inter text-black text-sm font-normal tracking-[0.01em] outline-none placeholder:text-gray-400"
                       autoFocus
                     />
-                    <button type="submit" className="px-4 py-1.5 bg-black text-white text-xs font-semibold rounded-md hover:bg-neutral-800 transition-all duration-200">
+                    <button type="submit" className="px-4 py-1.5 bg-black text-white font-inter text-xs font-medium tracking-[0.08em] rounded-md hover:bg-neutral-800 transition-all duration-200">
                       Search
                     </button>
                   </div>
@@ -205,7 +205,7 @@ export default function Navbar() {
                 <Link href="/notifications" className="relative w-10 h-10 rounded-full bg-gray-50 border border-gray-200 text-gray-800 hover:text-white hover:bg-black hover:border-black flex items-center justify-center transition-all duration-200" aria-label="Notifications">
                   <Bell className="w-4 h-4" />
                   {notifCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-black border-2 border-white rounded-full flex items-center justify-center text-[9px] font-bold text-white">
+                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-black border-2 border-white rounded-full flex items-center justify-center font-inter text-[9px] font-medium text-white">
                       {notifCount > 9 ? '9+' : notifCount}
                     </span>
                   )}
@@ -223,13 +223,13 @@ export default function Navbar() {
                   )}
                 </Link>
                 {isAdmin && (
-                  <Link href="/admin" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-black text-white text-xs font-semibold rounded-md hover:bg-neutral-800 transition-all duration-200">
+                  <Link href="/admin" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-black text-white font-inter text-xs font-medium tracking-[0.08em] rounded-md hover:bg-neutral-800 transition-all duration-200">
                     <LayoutDashboard className="w-3.5 h-3.5" />
                     Admin
                   </Link>
                 )}
                 {isSupplier && (
-                  <Link href="/supplier/dashboard" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 text-black text-xs font-semibold rounded-md hover:bg-gray-200 transition-all duration-200">
+                  <Link href="/supplier/dashboard" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-100 text-black font-inter text-xs font-medium tracking-[0.08em] rounded-md hover:bg-gray-200 transition-all duration-200">
                     <Store className="w-3.5 h-3.5" />
                     Supplier
                   </Link>
@@ -239,13 +239,13 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-black transition-colors py-2 px-3"
+                  className="hidden sm:flex items-center gap-1.5 font-inter text-sm font-medium tracking-[0.05em] text-gray-700 hover:text-black transition-colors py-2 px-3"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/supplier/signup"
-                  className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-black text-white text-xs sm:text-sm font-semibold rounded-md hover:bg-neutral-800 transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
+                  className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-black text-white font-inter text-xs sm:text-sm font-medium tracking-[0.05em] rounded-md hover:bg-neutral-800 transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
                 >
                   <Store className="w-4 h-4" />
                   Become a Supplier
@@ -274,11 +274,11 @@ export default function Navbar() {
             <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
               <div className="flex items-center gap-2.5">
                 <span className="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center">
-                  <span className="font-volkhov italic font-bold text-sm">Cc</span>
+                  <span className="font-playfair italic font-bold text-sm">Cc</span>
                 </span>
                 <div className="flex flex-col leading-tight">
-                  <span className="font-volkhov font-bold text-black text-lg tracking-[0.12em] uppercase">Core Collective</span>
-                  <span className="text-[8px] uppercase tracking-[0.3em] font-semibold text-gray-400">B2B Wholesale</span>
+                  <span className="font-inter font-medium text-black text-lg tracking-[0.2em] uppercase">Core Collective</span>
+                  <span className="font-inter text-[8px] uppercase tracking-[0.3em] font-medium text-gray-400">B2B Wholesale</span>
                 </div>
               </div>
               <button onClick={() => setMobileOpen(false)} className="w-9 h-9 rounded-full bg-gray-100 text-gray-700 hover:text-black flex items-center justify-center transition-colors" aria-label="Close menu">
@@ -287,7 +287,7 @@ export default function Navbar() {
             </div>
 
             <div className="p-4 space-y-1">
-              <span className="block px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">
+              <span className="block font-inter px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-[0.25em] text-gray-400">
                 Navigation
               </span>
               {navLinks.filter((l) => !l.dropdown).map((link) => (
@@ -295,7 +295,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => { setActiveLink(link.href); setMobileOpen(false); }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-inter text-sm font-medium tracking-[0.09em] transition-all duration-300 ${
                     activeLink === link.href
                       ? 'bg-black text-white shadow-md'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-black'
@@ -305,7 +305,7 @@ export default function Navbar() {
                 </Link>
               ))}
 
-              <span className="block px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">
+              <span className="block font-inter px-4 pt-3 pb-1 text-[10px] font-medium uppercase tracking-[0.25em] text-gray-400">
                 Categories
               </span>
               {quickCategories.map((cat) => (
@@ -313,7 +313,7 @@ export default function Navbar() {
                   key={cat.label}
                   href={cat.href}
                   onClick={() => { setActiveLink('/products'); setMobileOpen(false); }}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-gray-700 hover:bg-gray-100 hover:text-black transition-all duration-300"
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-inter text-sm font-normal tracking-[0.01em] text-gray-700 hover:bg-gray-100 hover:text-black transition-all duration-300"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-black" />
                   {cat.label}
@@ -326,7 +326,7 @@ export default function Navbar() {
                   <Link
                     href="/notifications"
                     onClick={() => setMobileOpen(false)}
-                    className="block w-full text-center px-4 py-3 bg-gray-100 text-black font-semibold rounded-xl hover:bg-gray-200 transition-all duration-300"
+                    className="block w-full text-center px-4 py-3 bg-gray-100 text-black font-inter text-sm font-medium tracking-[0.05em] rounded-xl hover:bg-gray-200 transition-all duration-300"
                   >
                     Notifications {notifCount > 0 ? `(${notifCount})` : ''}
                   </Link>
@@ -341,7 +341,7 @@ export default function Navbar() {
                     <Link
                       href="/admin"
                       onClick={() => setMobileOpen(false)}
-                      className="block w-full text-center px-4 py-3 bg-black text-white font-semibold rounded-xl hover:bg-neutral-800 transition-all duration-300 mt-2 shadow-md"
+                      className="block w-full text-center px-4 py-3 bg-black text-white font-inter text-sm font-medium tracking-[0.05em] rounded-xl hover:bg-neutral-800 transition-all duration-300 mt-2 shadow-md"
                     >
                       Admin Dashboard
                     </Link>
@@ -357,7 +357,7 @@ export default function Navbar() {
                   )}
                   <button
                     onClick={() => { handleLogout(); setMobileOpen(false); }}
-                    className="block w-full text-center px-4 py-3 border border-gray-300 text-gray-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 mt-2"
+                    className="block w-full text-center px-4 py-3 border border-gray-300 text-gray-600 font-inter text-sm font-medium tracking-[0.05em] rounded-xl hover:bg-gray-100 transition-all duration-300 mt-2"
                   >
                     Logout
                   </button>
@@ -367,7 +367,7 @@ export default function Navbar() {
                   <Link
                     href="/supplier/signup"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full text-center px-4 py-3 bg-black text-white font-semibold rounded-xl hover:bg-neutral-800 transition-all duration-300 shadow-md"
+                    className="flex items-center justify-center gap-2 w-full text-center px-4 py-3 bg-black text-white font-inter text-sm font-medium tracking-[0.05em] rounded-xl hover:bg-neutral-800 transition-all duration-300 shadow-md"
                   >
                     <Store className="w-4 h-4" />
                     Become a Supplier
@@ -376,7 +376,7 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full text-center px-4 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 mt-2"
+                    className="flex items-center justify-center gap-2 w-full text-center px-4 py-3 border border-gray-300 text-gray-700 font-inter text-sm font-medium tracking-[0.05em] rounded-xl hover:bg-gray-100 transition-all duration-300 mt-2"
                   >
                     <User className="w-4 h-4" />
                     Login / Dashboard

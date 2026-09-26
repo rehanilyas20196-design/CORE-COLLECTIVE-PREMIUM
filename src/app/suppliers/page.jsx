@@ -89,7 +89,7 @@ export default function SuppliersPage() {
         <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-black via-neutral-300 to-black" />
         <span
           aria-hidden
-          className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 font-volkhov italic font-bold text-[11rem] sm:text-[20rem] leading-none text-black/[0.04] select-none whitespace-nowrap"
+          className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 font-playfair italic font-bold text-[11rem] sm:text-[20rem] leading-none text-black/[0.04] select-none whitespace-nowrap"
         >
           Suppliers
         </span>
@@ -110,7 +110,7 @@ export default function SuppliersPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: EASE }}
-            className="font-volkhov font-bold text-4xl sm:text-6xl lg:text-7xl text-black leading-[1.05] tracking-tight"
+            className="font-playfair font-bold text-4xl sm:text-6xl lg:text-7xl text-black leading-[1.05] tracking-tight"
           >
             Grow Your Wholesale
             <span className="block italic font-bold text-neutral-500">Business, Globally</span>
@@ -175,7 +175,7 @@ export default function SuppliersPage() {
               >
                 <StatValue
                   value={s.value}
-                  className="font-volkhov italic font-bold text-4xl sm:text-5xl text-white leading-none"
+                  className="font-playfair italic font-bold text-4xl sm:text-5xl text-white leading-none"
                 />
                 <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">
                   {s.label}
@@ -188,13 +188,13 @@ export default function SuppliersPage() {
 
       {/* ============ BENEFITS ============ */}
       <section className="py-20 sm:py-28 bg-white relative overflow-hidden">
-        <span aria-hidden className="pointer-events-none absolute -right-24 top-16 font-volkhov italic font-bold text-[14rem] leading-none text-black/[0.03] select-none">CC</span>
+        <span aria-hidden className="pointer-events-none absolute -right-24 top-16 font-playfair italic font-bold text-[14rem] leading-none text-black/[0.03] select-none">CC</span>
         <div className="relative max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8">
           <div className="max-w-2xl mx-auto text-center mb-16">
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">
               Why Partner With Us
             </span>
-            <h2 className="mt-4 font-volkhov font-bold text-3xl sm:text-5xl text-black tracking-tight">
+            <h2 className="mt-4 font-playfair font-bold text-3xl sm:text-5xl text-black tracking-tight">
               Everything you need
               <span className="italic text-neutral-500"> to win</span>
             </h2>
@@ -217,13 +217,13 @@ export default function SuppliersPage() {
                   transition={{ delay: idx * 0.06, duration: 0.6, ease: EASE }}
                   className="group flex items-start gap-6 sm:gap-10 py-8 border-b border-gray-200 first:pt-0 last:border-b-0"
                 >
-                  <span className="font-volkhov italic font-bold text-4xl sm:text-5xl text-gray-200 group-hover:text-black/20 transition-colors duration-300 w-12 shrink-0">
+                  <span className="font-playfair italic font-bold text-4xl sm:text-5xl text-gray-200 group-hover:text-black/20 transition-colors duration-300 w-12 shrink-0">
                     0{idx + 1}
                   </span>
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
                       <Icon className="w-5 h-5 text-black shrink-0" />
-                      <h3 className="font-volkhov font-bold text-xl sm:text-2xl text-black group-hover:text-neutral-600 transition-colors duration-300">
+                      <h3 className="font-playfair font-bold text-xl sm:text-2xl text-black group-hover:text-neutral-600 transition-colors duration-300">
                         {b.title}
                       </h3>
                     </div>
@@ -238,13 +238,13 @@ export default function SuppliersPage() {
 
       {/* ============ STEPS ============ */}
       <section className="py-20 sm:py-28 bg-[#FAF9F6] border-t border-b border-gray-100 relative overflow-hidden">
-        <span aria-hidden className="pointer-events-none absolute -left-20 bottom-0 font-volkhov italic font-bold text-[13rem] leading-none text-black/[0.03] select-none">04</span>
+        <span aria-hidden className="pointer-events-none absolute -left-20 bottom-0 font-playfair italic font-bold text-[13rem] leading-none text-black/[0.03] select-none">04</span>
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8">
           <div className="max-w-2xl mx-auto text-center mb-16">
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">
               How It Works
             </span>
-            <h2 className="mt-4 font-volkhov font-bold text-3xl sm:text-5xl text-black tracking-tight">
+            <h2 className="mt-4 font-playfair font-bold text-3xl sm:text-5xl text-black tracking-tight">
               From signup to sales
               <span className="italic text-neutral-500"> in four steps</span>
             </h2>
@@ -262,10 +262,10 @@ export default function SuppliersPage() {
                 transition={{ delay: idx * 0.1, duration: 0.6, ease: EASE }}
                 className="relative bg-white rounded-3xl border border-gray-200 p-7 text-center hover:shadow-[0_24px_48px_-24px_rgba(0,0,0,0.25)] hover:-translate-y-1.5 transition-all duration-300"
               >
-                <span className="relative mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-black text-white font-volkhov italic font-bold text-sm ring-4 ring-white">
+                <span className="relative mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-black text-white font-playfair italic font-bold text-sm ring-4 ring-white">
                   {step.num}
                 </span>
-                <h3 className="mt-5 font-volkhov font-bold text-lg text-black">{step.title}</h3>
+                <h3 className="mt-5 font-playfair font-bold text-lg text-black">{step.title}</h3>
                 <p className="mt-2.5 text-xs text-gray-600 leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
@@ -283,15 +283,15 @@ export default function SuppliersPage() {
             transition={{ duration: 0.7, ease: EASE }}
             className="relative text-center"
           >
-            <span aria-hidden className="pointer-events-none select-none font-volkhov italic font-bold text-[7rem] sm:text-[9rem] leading-none text-black/[0.06]">
+            <span aria-hidden className="pointer-events-none select-none font-playfair italic font-bold text-[7rem] sm:text-[9rem] leading-none text-black/[0.06]">
               &ldquo;
             </span>
-            <blockquote className="relative -mt-10 font-volkhov italic text-2xl sm:text-3xl text-neutral-700 leading-snug">
+            <blockquote className="relative -mt-10 font-playfair italic text-2xl sm:text-3xl text-neutral-700 leading-snug">
               Core Collective opened our catalog to buyers we could never reach on our own.
               Within three months our B2B orders doubled.
             </blockquote>
             <figcaption className="mt-8 flex flex-col items-center gap-3">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black text-white font-volkhov italic font-bold text-lg">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black text-white font-playfair italic font-bold text-lg">
                 A
               </span>
               <div>
@@ -315,14 +315,14 @@ export default function SuppliersPage() {
             transition={{ duration: 0.7, ease: EASE }}
             className="relative overflow-hidden rounded-[2rem] bg-black px-8 py-16 sm:px-16 sm:py-20 text-center text-white"
           >
-            <span aria-hidden className="pointer-events-none absolute -top-24 -right-16 text-[16rem] font-volkhov italic font-bold leading-none text-white/[0.05] select-none">
+            <span aria-hidden className="pointer-events-none absolute -top-24 -right-16 text-[16rem] font-playfair italic font-bold leading-none text-white/[0.05] select-none">
               CC
             </span>
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-[0.25em] text-white/70">
               <Quote className="w-3.5 h-3.5" />
               Join the network
             </span>
-            <h2 className="relative z-10 mt-6 font-volkhov font-bold text-3xl sm:text-5xl leading-tight tracking-tight">
+            <h2 className="relative z-10 mt-6 font-playfair font-bold text-3xl sm:text-5xl leading-tight tracking-tight">
               Ready to grow<br />
               <span className="italic text-neutral-400">your wholesale business?</span>
             </h2>

@@ -121,7 +121,7 @@ function ProductsPage() {
   const FilterSidebar = () => (
     <div className="space-y-6 font-jost">
       <div className="flex items-center justify-between">
-        <h3 className="font-volkhov font-bold text-lg text-black">Filters</h3>
+        <h3 className="font-playfair font-bold text-lg text-black">Filters</h3>
         {activeFilterCount > 0 && <button onClick={clearFilters} className="text-xs font-semibold text-gray-500 hover:text-black transition-colors">Clear All</button>}
       </div>
       <div>
@@ -213,7 +213,7 @@ function ProductsPage() {
             </nav>
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
               <div>
-                <h1 className="font-volkhov font-bold text-4xl sm:text-5xl text-black">
+                <h1 className="font-playfair font-bold text-4xl sm:text-5xl text-black">
                   Wholesale Products
                 </h1>
                 <p className="text-gray-500 text-sm mt-2 flex items-center gap-2">
@@ -298,7 +298,7 @@ function ProductsPage() {
             ) : products.length === 0 ? (
               <div className="text-center py-20 bg-gray-50 rounded-2xl border border-gray-200">
                 <Search className="w-10 h-10 mx-auto text-gray-400 mb-3" />
-                <h3 className="font-volkhov font-bold text-lg text-black mb-1">No products found</h3>
+                <h3 className="font-playfair font-bold text-lg text-black mb-1">No products found</h3>
                 <p className="text-xs text-gray-500 mb-4">Try clearing filters or searching for another item</p>
                 <button onClick={clearFilters} className="px-6 py-2.5 bg-black text-white text-xs uppercase tracking-wider font-semibold rounded-md hover:bg-neutral-800">
                   Clear All Filters

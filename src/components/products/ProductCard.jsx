@@ -81,7 +81,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
             <span className="text-[11px] text-gray-400">({reviews})</span>
           </div>
 
-          <h3 className="font-volkhov text-base font-bold text-black line-clamp-1 group-hover:text-gray-700 transition-colors">
+          <h3 className="font-playfair text-base font-bold text-black line-clamp-1 group-hover:text-gray-700 transition-colors">
             {p.name}
           </h3>
 
@@ -146,7 +146,7 @@ export default function ProductCard({ product, index = 0, variant = 'grid' }) {
           </div>
 
           <Link href={url}>
-            <h3 className="font-volkhov text-xl font-bold text-black group-hover:text-gray-700 transition-colors">
+            <h3 className="font-playfair text-xl font-bold text-black group-hover:text-gray-700 transition-colors">
               {p.name}
             </h3>
           </Link>

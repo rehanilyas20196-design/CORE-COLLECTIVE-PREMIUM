@@ -45,7 +45,7 @@ export default function NewsletterSection() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-6 flex flex-col items-center text-center px-4"
           >
-            <h2 className="font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
+            <h2 className="font-playfair font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
               Subscribe To Our Newsletter
             </h2>
 

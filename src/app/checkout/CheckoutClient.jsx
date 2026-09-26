@@ -135,7 +135,7 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
           <div>
-            <h1 className="font-volkhov font-bold text-3xl text-black">Core Collective Checkout</h1>
+            <h1 className="font-playfair font-bold text-3xl text-black">Core Collective Checkout</h1>
             <p className="text-xs text-gray-500 mt-1">
               Review your order items, enter delivery information, and complete payment securely.
             </p>
@@ -183,7 +183,7 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-volkhov font-bold text-sm text-black truncate">{line.name}</p>
+                      <p className="font-playfair font-bold text-sm text-black truncate">{line.name}</p>
                       <p className="text-xs text-gray-500 mt-0.5">${Number(line.price).toFixed(2)} / unit</p>
                     </div>
 
@@ -236,7 +236,7 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
           {/* FASCO Right Column Summary & Payment Box */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-[#FAF9F6] border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="font-volkhov font-bold text-lg text-black">Order Summary</h3>
+              <h3 className="font-playfair font-bold text-lg text-black">Order Summary</h3>
 
               <div className="space-y-2 text-xs text-gray-600 pt-2 border-t border-gray-200">
                 <div className="flex justify-between">
@@ -249,7 +249,7 @@ export default function CheckoutClient({ initialProductId, initialQty, initialCa
                 </div>
               </div>
 
-              <div className="flex justify-between pt-3 border-t border-gray-200 text-base font-bold text-black font-volkhov">
+              <div className="flex justify-between pt-3 border-t border-gray-200 text-base font-bold text-black font-playfair">
                 <span>Total Amount</span>
                 <span>${amount.toFixed(2)}</span>
               </div>

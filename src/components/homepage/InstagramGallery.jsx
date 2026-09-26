@@ -24,7 +24,7 @@ export default function InstagramGallery() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-10"
         >
-          <h2 className="font-volkhov font-bold text-3xl sm:text-4xl text-black">
+          <h2 className="font-playfair font-bold text-3xl sm:text-4xl text-black">
             Follow Us On Instagram
           </h2>
           <p className="mt-2 text-gray-500 text-xs sm:text-sm leading-relaxed">

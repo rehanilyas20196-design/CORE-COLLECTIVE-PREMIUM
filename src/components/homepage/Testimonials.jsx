@@ -44,7 +44,7 @@ export default function Testimonials() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-14"
         >
-          <h2 className="font-volkhov font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
+          <h2 className="font-playfair font-bold text-3xl sm:text-4xl lg:text-5xl text-black">
             This Is What Our Customers Say
           </h2>
           <p className="mt-3 text-gray-500 text-sm sm:text-base leading-relaxed">
@@ -79,7 +79,7 @@ export default function Testimonials() {
               </p>
 
               <div>
-                <h4 className="font-volkhov font-bold text-lg text-black">{t.name}</h4>
+                <h4 className="font-playfair font-bold text-lg text-black">{t.name}</h4>
                 <p className="text-xs text-gray-400 mt-0.5">{t.role}</p>
               </div>
             </div>

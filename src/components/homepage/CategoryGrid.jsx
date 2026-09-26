@@ -138,7 +138,7 @@ function CategoryCard({ category, index, featured = false }) {
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
                   {formatCount(category.count)} products
                 </p>
-                <h3 className="mt-2 font-volkhov text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
+                <h3 className="mt-2 font-playfair text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
                   {category.name}
                 </h3>
                 <p className="mt-3 hidden max-w-lg text-sm leading-relaxed text-white/70 sm:block">
@@ -159,7 +159,7 @@ function CategoryCard({ category, index, featured = false }) {
             </span>
             <div className="absolute inset-x-0 bottom-0 z-30 flex min-h-[38%] items-end justify-between gap-3 border-t border-gray-100 bg-white p-5 sm:p-6">
               <div className="min-w-0">
-                <h3 className="font-volkhov text-xl font-bold leading-snug text-black">
+                <h3 className="font-playfair text-xl font-bold leading-snug text-black">
                   {category.name}
                 </h3>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-500">
@@ -254,7 +254,7 @@ export default function CategoryGrid() {
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">
             Browse by Category
           </span>
-          <h2 className="mt-3 font-volkhov text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">
+          <h2 className="mt-3 font-playfair text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">
             Explore Our Product Categories
           </h2>
           <p className="mt-5 text-sm font-normal leading-relaxed text-gray-500 sm:text-base">

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Shield, LogOut, ChevronDown, Store, LayoutDashboard, ShoppingBag, ArrowUpRight, BadgeCheck, Pencil, X, Check, Loader2, MapPin, Briefcase, Calendar, Globe, User, Camera, Trash2 } from 'lucide-react';
+import { Mail, Phone, Shield, LogOut, ChevronDown, Store, LayoutDashboard, ShoppingBag, ArrowUpRight, BadgeCheck, Pencil, X, Check, Loader2, MapPin, Briefcase, Calendar, Globe, User, Camera } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
@@ -75,7 +75,7 @@ function QuickAction({ href, icon: Icon, title, desc, onClick, danger, delay = 0
           <Icon className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <p className={`font-volkhov text-lg font-bold ${danger ? 'text-red-600' : 'text-gray-900'}`}>{title}</p>
+          <p className={`font-playfair text-lg font-bold ${danger ? 'text-red-600' : 'text-gray-900'}`}>{title}</p>
           <p className="mt-0.5 text-xs text-gray-500">{desc}</p>
         </div>
       </div>
@@ -213,24 +213,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleAvatarRemove = async () => {
-    setSaveMsg('');
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && avatarUrl) {
-        const path = avatarUrl.split('/avatars/')[1];
-        if (path) await supabase.storage.from('avatars').remove([decodeURIComponent(path)]);
-      }
-      setAvatarUrl('');
-      await supabase.auth.updateUser({ data: { avatar_url: '' } });
-      if (user) {
-        await supabase.from('profiles').upsert({ id: user.id, avatar_url: '' }, { onConflict: 'id' });
-      }
-    } catch (err) {
-      setSaveMsg(err.message || 'Could not remove the picture.');
-    }
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.dispatchEvent(new CustomEvent('authExpired'));
@@ -321,7 +303,7 @@ export default function ProfilePage() {
       {/* ============ HERO ============ */}
       <section className="relative overflow-hidden bg-[#FAF9F6] border-b border-gray-100">
         <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-black via-neutral-300 to-black" />
-        <span aria-hidden className="pointer-events-none absolute -top-14 right-4 sm:right-16 font-volkhov italic font-bold text-[12rem] sm:text-[18rem] leading-none text-black/[0.04] select-none">
+        <span aria-hidden className="pointer-events-none absolute -top-14 right-4 sm:right-16 font-playfair italic font-bold text-[12rem] sm:text-[18rem] leading-none text-black/[0.04] select-none">
           {initialsOf(account?.full_name)}
         </span>
 
@@ -344,7 +326,7 @@ export default function ProfilePage() {
                   <img src={avatarUrl} alt={account?.full_name || 'Profile'}
                     className="w-full h-full rounded-full object-cover" />
                 ) : (
-                  <span className="font-volkhov italic font-bold text-4xl sm:text-5xl">{initialsOf(account?.full_name)}</span>
+                  <span className="font-playfair italic font-bold text-4xl sm:text-5xl">{initialsOf(account?.full_name)}</span>
                 )}
                 <span aria-hidden className="absolute -inset-1.5 rounded-full border border-dashed border-black/30" />
 
@@ -367,7 +349,7 @@ export default function ProfilePage() {
                   <BadgeCheck className="w-3.5 h-3.5 text-black" />
                   Member Account
                 </span>
-                <h1 className="mt-4 font-volkhov font-bold text-4xl sm:text-5xl lg:text-6xl text-black leading-[1.05] tracking-tight">
+                <h1 className="mt-4 font-playfair font-bold text-4xl sm:text-5xl lg:text-6xl text-black leading-[1.05] tracking-tight">
                   {firstLine}
                   <span className="block italic text-neutral-500">{lastWord}</span>
                 </h1>
@@ -457,7 +439,7 @@ export default function ProfilePage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Personal Information</span>
-                <h2 className="mt-3 font-volkhov font-bold text-3xl sm:text-4xl text-black tracking-tight">
+                <h2 className="mt-3 font-playfair font-bold text-3xl sm:text-4xl text-black tracking-tight">
                   Your <span className="italic text-neutral-500">details</span>
                 </h2>
                 <div className="mt-4 h-[2px] w-16 bg-black" />
@@ -467,33 +449,6 @@ export default function ProfilePage() {
             {!editing ? (
               <>
                 <div className="mt-8 max-w-2xl bg-[#FAF9F6] border border-gray-200 rounded-3xl px-7 py-3 sm:px-9">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-5 border-b border-gray-100">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 border border-gray-200 text-gray-700 shrink-0">
-                        <Camera className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">Profile Picture</p>
-                        <p className="mt-1 text-[0.95rem] font-medium text-gray-900 break-all">
-                          {avatarUrl ? avatarUrl : 'No picture uploaded'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 text-[10px] font-bold uppercase tracking-[0.15em] hover:border-black hover:text-black transition-all disabled:opacity-50">
-                        {uploadingAvatar ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
-                        {uploadingAvatar ? 'Uploading' : avatarUrl ? 'Replace' : 'Upload'}
-                      </button>
-                      {avatarUrl && (
-                        <button type="button" onClick={handleAvatarRemove}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-700 text-[10px] font-bold uppercase tracking-[0.15em] hover:border-red-400 hover:text-red-600 transition-all">
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
                     <FieldInfo icon={Mail} label="Email Address" value={account?.email} />
                     <FieldInfo icon={Phone} label="Phone Number" value={account?.phone} />
@@ -547,7 +502,7 @@ export default function ProfilePage() {
           {/* Quick actions */}
           <section className="lg:pt-16">
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Quick Actions</span>
-            <h2 className="mt-3 font-volkhov font-bold text-2xl sm:text-3xl text-black tracking-tight">
+            <h2 className="mt-3 font-playfair font-bold text-2xl sm:text-3xl text-black tracking-tight">
               Jump <span className="italic text-neutral-500">back in</span>
             </h2>
             <div className="mt-4 h-[2px] w-16 bg-black" />

@@ -62,7 +62,7 @@ export default function SupplierSpotlight() {
               </span>
             </div>
 
-            <h2 className="font-volkhov font-bold text-3xl sm:text-5xl text-black leading-tight">
+            <h2 className="font-playfair font-bold text-3xl sm:text-5xl text-black leading-tight">
               Peaky Blinders
             </h2>
 
@@ -92,7 +92,7 @@ export default function SupplierSpotlight() {
             </div>
 
             <div className="pt-2">
-              <span className="text-3xl font-bold text-black font-volkhov">
+              <span className="text-3xl font-bold text-black font-playfair">
                 $100.00
               </span>
               <span className="text-xs text-gray-500 block mt-1">

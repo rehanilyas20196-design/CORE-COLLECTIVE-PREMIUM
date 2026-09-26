@@ -120,7 +120,7 @@ export default function TrendingProducts() {
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
                       Get 25% Special Discount
                     </p>
-                    <h3 className="mt-2 font-volkhov text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
+                    <h3 className="mt-2 font-playfair text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
                       {featuredProduct.name || 'Featured Product'}
                     </h3>
                   </div>
@@ -151,7 +151,7 @@ export default function TrendingProducts() {
                       className="absolute inset-x-0 bottom-[27%] top-0 z-10 bg-[#F4F4F6]"
                     />
                     <div className="absolute inset-x-0 bottom-0 z-20 flex min-h-[27%] items-end justify-between gap-3 border-t border-gray-100 bg-white p-5 sm:p-6">
-                      <h3 className="min-w-0 font-volkhov text-xl font-bold leading-snug text-black">
+                      <h3 className="min-w-0 font-playfair text-xl font-bold leading-snug text-black">
                         {product.name || 'Featured Product'}
                       </h3>
                       <ArrowControl />

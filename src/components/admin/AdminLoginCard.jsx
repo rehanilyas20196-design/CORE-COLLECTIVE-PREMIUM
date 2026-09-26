@@ -113,7 +113,7 @@ function AdminAuthPanel({ mode }) {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:56px_56px]" />
 
       <div className="relative z-10">
-        <span className="font-volkhov text-[22px] font-bold uppercase leading-[1.15] tracking-[0.13em] text-white">
+        <span className="font-playfair text-[22px] font-bold uppercase leading-[1.15] tracking-[0.13em] text-white">
           Core Collective
         </span>
       </div>

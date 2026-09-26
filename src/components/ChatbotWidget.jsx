@@ -258,9 +258,9 @@ export default function ChatbotWidget() {
                 <div className="flex-1 text-center">
                   <div className="flex items-center justify-center gap-2.5">
                     <span className="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center">
-                      <span className="font-volkhov italic font-bold text-sm leading-none">Cc</span>
+                      <span className="font-playfair italic font-bold text-sm leading-none">Cc</span>
                     </span>
-                    <h3 className="font-volkhov font-bold text-lg sm:text-xl text-black tracking-tight">
+                    <h3 className="font-playfair font-bold text-lg sm:text-xl text-black tracking-tight">
                       Core Collective AI
                     </h3>
                   </div>
@@ -305,7 +305,7 @@ export default function ChatbotWidget() {
                 >
                   {msg.sender === 'bot' && (
                     <div className="w-7 h-7 rounded-full shrink-0 mb-1 bg-black text-white flex items-center justify-center shadow-sm">
-                      <span className="font-volkhov italic font-bold text-[10px] leading-none">Cc</span>
+                      <span className="font-playfair italic font-bold text-[10px] leading-none">Cc</span>
                     </div>
                   )}
                   <div
@@ -328,7 +328,7 @@ export default function ChatbotWidget() {
               {isTyping && (
                 <div className="flex items-end gap-2.5 transition-all duration-300">
                   <div className="w-7 h-7 rounded-full shrink-0 mb-1 bg-black text-white flex items-center justify-center shadow-sm">
-                    <span className="font-volkhov italic font-bold text-[10px] leading-none">Cc</span>
+                    <span className="font-playfair italic font-bold text-[10px] leading-none">Cc</span>
                   </div>
                   <div className="bg-white rounded-2xl rounded-tl-sm border border-gray-200 shadow-[0_6px_16px_-6px_rgba(0,0,0,0.08)] px-4 py-3.5">
                     <TypingDots />

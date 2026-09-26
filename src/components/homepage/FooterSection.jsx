@@ -81,7 +81,7 @@ export default function FooterSection() {
       <div className="border-b border-white/10">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 py-10 flex flex-col lg:flex-row items-center justify-between gap-6">
           <div>
-            <h3 className="font-volkhov font-bold text-xl sm:text-2xl text-white">
+            <h3 className="font-playfair font-bold text-xl sm:text-2xl text-white">
               Stay Updated With Wholesale Deals
             </h3>
             <p className="text-sm text-white/50 mt-1">
@@ -119,7 +119,7 @@ export default function FooterSection() {
           {/* Brand */}
           <div className="lg:col-span-4">
             <Link href="/" className="inline-flex flex-col leading-tight group">
-              <span className="font-volkhov font-bold text-white text-3xl tracking-[0.12em] uppercase">
+              <span className="font-playfair font-bold text-white text-3xl tracking-[0.12em] uppercase">
                 Core Collective
               </span>
               <span className="text-[9px] uppercase tracking-[0.3em] font-semibold text-white/40 mt-1">

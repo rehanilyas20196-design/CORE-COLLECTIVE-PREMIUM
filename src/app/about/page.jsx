@@ -31,7 +31,7 @@ function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-[#FAF9F6] border-b border-gray-100 pb-16 pt-24 sm:pb-24 sm:pt-[9rem]">
       <span className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-black via-neutral-300 to-black" />
-      <span aria-hidden className="pointer-events-none absolute -top-10 right-0 sm:right-10 font-volkhov italic font-bold text-[10rem] sm:text-[20rem] leading-none text-black/[0.04] select-none">
+      <span aria-hidden className="pointer-events-none absolute -top-10 right-0 sm:right-10 font-playfair italic font-bold text-[10rem] sm:text-[20rem] leading-none text-black/[0.04] select-none">
         Est. 2019
       </span>
 
@@ -52,7 +52,7 @@ function HeroSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.8, ease: EASE }}
-          className="mt-6 max-w-4xl font-volkhov font-bold text-4xl leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-7xl"
+          className="mt-6 max-w-4xl font-playfair font-bold text-4xl leading-[1.05] tracking-tight text-black sm:text-6xl lg:text-7xl"
         >
           The marketplace built
           <span className="block italic text-neutral-500">for serious business</span>
@@ -85,7 +85,7 @@ function MissionSection() {
           transition={{ duration: 0.7, ease: EASE }}
         >
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Our Mission</span>
-          <h2 className="mt-4 font-volkhov text-3xl font-bold leading-tight text-black sm:text-4xl">
+          <h2 className="mt-4 font-playfair text-3xl font-bold leading-tight text-black sm:text-4xl">
             Empowering businesses with
             <span className="italic text-neutral-500"> seamless wholesale sourcing</span>
           </h2>
@@ -100,7 +100,7 @@ function MissionSection() {
             Whether you&rsquo;re a small retailer or a large distributor, our platform gives you access to
             vetted suppliers, competitive wholesale pricing, and the tools you need to grow your business.
           </p>
-          <blockquote className="mt-8 border-l-2 border-black pl-6 font-volkhov italic text-xl text-neutral-700">
+          <blockquote className="mt-8 border-l-2 border-black pl-6 font-playfair italic text-xl text-neutral-700">
             &ldquo;Trust is our product. Every verification, every order, every payout is built on it.&rdquo;
           </blockquote>
         </motion.div>
@@ -112,7 +112,7 @@ function MissionSection() {
           transition={{ delay: 0.15, duration: 0.7, ease: EASE }}
           className="relative w-full"
         >
-          <span aria-hidden className="pointer-events-none absolute -right-2 -top-8 font-volkhov italic font-bold text-[8rem] leading-none text-black/[0.05] select-none sm:-right-4 sm:text-[10rem]">
+          <span aria-hidden className="pointer-events-none absolute -right-2 -top-8 font-playfair italic font-bold text-[8rem] leading-none text-black/[0.05] select-none sm:-right-4 sm:text-[10rem]">
             3D
           </span>
           <div className="relative rounded-[2rem] border border-gray-200 bg-[#FAF9F6] p-3 shadow-[0_30px_70px_-35px_rgba(0,0,0,0.45)] sm:p-4">
@@ -137,13 +137,13 @@ function JourneySection() {
   const reduced = useReducedMotion();
   return (
     <section className="bg-[#FAF9F6] border-t border-b border-gray-100 py-16 sm:py-24 relative overflow-hidden">
-      <span aria-hidden className="pointer-events-none absolute -bottom-10 left-0 font-volkhov italic font-bold text-[12rem] leading-none text-black/[0.03] select-none">
+      <span aria-hidden className="pointer-events-none absolute -bottom-10 left-0 font-playfair italic font-bold text-[12rem] leading-none text-black/[0.03] select-none">
         2019
       </span>
       <div className="mx-auto max-w-[1400px] px-4 py-2 sm:px-6 md:px-8">
         <div className="mb-14 text-center">
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Our Journey</span>
-          <h2 className="mt-4 font-volkhov text-3xl font-bold text-black sm:text-4xl">
+          <h2 className="mt-4 font-playfair text-3xl font-bold text-black sm:text-4xl">
             The road <span className="italic text-neutral-500">so far</span>
           </h2>
           <div className="mx-auto mt-6 h-[2px] w-16 bg-black" />
@@ -159,9 +159,9 @@ function JourneySection() {
               transition={{ delay: idx * 0.1, duration: 0.6, ease: EASE }}
               className="relative"
             >
-              <span className="font-volkhov italic font-bold text-4xl text-black">{item.year}</span>
+              <span className="font-playfair italic font-bold text-4xl text-black">{item.year}</span>
               <span className="mt-3 mb-4 block h-[2px] w-10 bg-black" />
-              <h3 className="font-volkhov text-lg font-bold text-black">{item.title}</h3>
+              <h3 className="font-playfair text-lg font-bold text-black">{item.title}</h3>
               <p className="mt-2 text-xs leading-relaxed text-gray-600">{item.desc}</p>
             </motion.div>
           ))}
@@ -182,13 +182,13 @@ function ValuePoint({ value, index }) {
       transition={{ delay: index * 0.06, duration: 0.6, ease: EASE }}
       className="group flex items-start gap-6 sm:gap-10 py-8 border-b border-gray-200 last:border-b-0"
     >
-      <span className="font-volkhov italic font-bold text-4xl sm:text-5xl text-gray-200 group-hover:text-black/20 transition-colors duration-300 w-12 shrink-0">
+      <span className="font-playfair italic font-bold text-4xl sm:text-5xl text-gray-200 group-hover:text-black/20 transition-colors duration-300 w-12 shrink-0">
         0{index + 1}
       </span>
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <Icon className="h-5 w-5 text-black shrink-0" />
-          <h3 className="font-volkhov text-xl font-bold text-black sm:text-2xl group-hover:text-neutral-600 transition-colors duration-300">
+          <h3 className="font-playfair text-xl font-bold text-black sm:text-2xl group-hover:text-neutral-600 transition-colors duration-300">
             {value.title}
           </h3>
         </div>
@@ -210,7 +210,7 @@ function ValuesSection() {
         className="mb-14 text-center"
       >
         <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">Our Values</span>
-        <h2 className="mt-4 font-volkhov text-3xl font-bold text-black sm:text-4xl">
+        <h2 className="mt-4 font-playfair text-3xl font-bold text-black sm:text-4xl">
           What we <span className="italic text-neutral-500">stand for</span>
         </h2>
         <div className="mx-auto mt-6 h-[2px] w-16 bg-black" />
@@ -233,7 +233,7 @@ function CtaSection() {
         transition={{ duration: 0.7, ease: EASE }}
         className="relative overflow-hidden rounded-[2rem] bg-black px-8 py-14 text-white sm:px-16 sm:py-20"
       >
-        <span aria-hidden className="pointer-events-none absolute -right-10 -top-16 text-[15rem] font-volkhov italic font-bold leading-none text-white/[0.05] select-none">
+        <span aria-hidden className="pointer-events-none absolute -right-10 -top-16 text-[15rem] font-playfair italic font-bold leading-none text-white/[0.05] select-none">
           CC
         </span>
         <span className="pointer-events-none absolute left-1/4 bottom-0 h-px w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -241,7 +241,7 @@ function CtaSection() {
         <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl">
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">Core Collective</span>
-            <h2 className="mt-4 font-volkhov text-3xl font-bold leading-tight text-white sm:text-4xl">
+            <h2 className="mt-4 font-playfair text-3xl font-bold leading-tight text-white sm:text-4xl">
               Ready to grow
               <span className="italic text-neutral-400"> your business?</span>
             </h2>
