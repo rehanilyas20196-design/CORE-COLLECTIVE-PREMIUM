@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
+import { validateImageUrl, ALLOWED_EXTENSIONS, PROPER_HOST, PROPER_LINK_EXAMPLE } from '../../lib/imageUrl';
+import ImageFormatHelp from '../../components/products/ImageFormatHelp';
 import { useAuth } from '../../context/AuthContext';
 import AdminLoginCard from '../../components/admin/AdminLoginCard';
 import {
@@ -1349,11 +1351,12 @@ function AddProductModal({ onClose, onConfirm, loading }) {
     image2: '', image3: '',
     whatsapp: '', supplier_name: 'Admin',
   });
+  const [imgError, setImgError] = useState(null);
 
   const imageFields = [
-    { key: 'image_url', label: 'Main Image URL', placeholder: 'https://... (shows first & as thumbnail)' },
-    { key: 'image2', label: 'Image 2 URL', placeholder: 'https://... (optional)' },
-    { key: 'image3', label: 'Image 3 URL', placeholder: 'https://... (optional)' },
+    { key: 'image_url', label: 'Main Image URL', placeholder: `${PROPER_HOST}/storage/v1/object/public/Products/...` },
+    { key: 'image2', label: 'Image 2 URL', placeholder: `${PROPER_HOST}/storage/v1/object/public/Products/...` },
+    { key: 'image3', label: 'Image 3 URL', placeholder: `${PROPER_HOST}/storage/v1/object/public/Products/...` },
   ];
 
   const fields = [
@@ -1372,6 +1375,14 @@ function AddProductModal({ onClose, onConfirm, loading }) {
   const handleSubmit = () => {
     if (!form.name.trim() || !form.category.trim()) return;
     const images = [form.image_url, form.image2, form.image3].map(s => (s || '').trim()).filter(Boolean);
+    for (const img of images) {
+      const check = validateImageUrl(img);
+      if (!check.ok) {
+        setImgError({ ...check, value: img });
+        return;
+      }
+    }
+    setImgError(null);
     onConfirm({
       name: form.name.trim(),
       category: form.category.trim(),
@@ -1423,7 +1434,7 @@ function AddProductModal({ onClose, onConfirm, loading }) {
                   <input
                     type="text"
                     value={form[f.key]}
-                    onChange={e => setForm({ ...form, [f.key]: e.target.value })}
+                    onChange={e => { setImgError(null); setForm({ ...form, [f.key]: e.target.value }); }}
                     placeholder={f.placeholder}
                     className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400"
                   />
@@ -1434,24 +1445,29 @@ function AddProductModal({ onClose, onConfirm, loading }) {
                 </div>
               ))}
             </div>
-            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2.5">
-              <p className="text-[11px] leading-relaxed text-amber-900">
-                Paste a <span className="font-semibold">public image link</span> that starts with
-                <span className="font-semibold"> https://</span> and ends in
-                <span className="font-semibold"> .jpg .jpeg .jfif .png .webp .gif .avif</span> or
-                <span className="font-semibold"> .svg</span>.
-              </p>
-              <p className="mt-1 text-[11px] leading-relaxed text-amber-800/80">
-                Not allowed: <span className="font-semibold">.heic / .heif</span> (iPhone Photos),
-                <span className="font-semibold"> .bmp</span>, <span className="font-semibold">.tif</span>, or any
-                link that asks for a login. Spaces must be written as
-                <span className="font-semibold"> %20</span>. Upload to the
-                <span className="font-semibold"> Products</span> Supabase bucket for the fastest load.
-              </p>
-              <p className="mt-1 text-[11px] text-gray-500 leading-relaxed">
-                First image is the main thumbnail. All images appear in the product page gallery.
-              </p>
-            </div>
+            {imgError && (
+              <div className="mt-3 rounded-lg border border-red-200 bg-red-50/70 px-3 py-2.5">
+                <p className="text-[11px] leading-relaxed text-red-700">
+                  <span className="font-semibold">Cannot use this link:</span> {imgError.message}
+                </p>
+                {imgError.hint && (
+                  <p className="mt-1 text-[11px] leading-relaxed text-red-700/80">{imgError.hint}</p>
+                )}
+                {imgError.suggestion && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <code className="text-[10px] bg-white px-1.5 py-1 rounded border border-red-200 text-red-700 break-all">{imgError.suggestion}</code>
+                    <button type="button" onClick={() => {
+                      const key = ['image_url', 'image2', 'image3'].find(k => (form[k] || '').trim() === imgError.value) || 'image_url';
+                      setForm({ ...form, [key]: imgError.suggestion });
+                      setImgError(null);
+                    }} className="px-2 py-1 text-[10px] font-semibold bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                      Use this link
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            <ImageFormatHelp note="First image is the main thumbnail. All images appear in the product page gallery." />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Description</label>

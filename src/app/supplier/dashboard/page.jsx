@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../../lib/api';
 import { supabase } from '../../../lib/supabase';
+import { validateImageUrl, ALLOWED_EXTENSIONS, PROPER_HOST, PROPER_LINK_EXAMPLE } from '../../../lib/imageUrl';
+import ImageFormatHelp from '../../../components/products/ImageFormatHelp';
+import { DAILY_PRODUCT_LIMIT, startOfTodayIso } from '../../../lib/limits';
 import { useAuth } from '../../../context/AuthContext';
 import {
   Plus, Package, Clock, CheckCircle, XCircle, Loader2, Send,
@@ -135,12 +138,32 @@ function AddProductTab({ showToast, userProfile }) {
   const [tiers, setTiers] = useState([{ min_qty: '', price: '' }]);
   const [submitting, setSubmitting] = useState(false);
   const [brokenImgs, setBrokenImgs] = useState({});
+  const [imgError, setImgError] = useState(null);
 
   const imageFields = [
     { key: 'image_url', label: 'Main Image', required: true },
     { key: 'image2', label: 'Image 2', required: false },
     { key: 'image3', label: 'Image 3', required: false },
   ];
+
+  const [dailyCount, setDailyCount] = useState(null);
+
+  const loadDailyCount = useCallback(async () => {
+    if (!supabase) return;
+    const { data: userData } = await supabase.auth.getUser();
+    const user = userData?.user;
+    if (!user) return;
+    const { count, error } = await supabase
+      .from('supplier_products')
+      .select('id', { count: 'exact', head: true })
+      .eq('supplier_id', user.id)
+      .gte('created_at', startOfTodayIso());
+    if (!error) setDailyCount(count || 0);
+  }, []);
+
+  useEffect(() => { loadDailyCount(); }, [loadDailyCount]);
+
+  const limitReached = dailyCount !== null && dailyCount >= DAILY_PRODUCT_LIMIT;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -156,6 +179,17 @@ function AddProductTab({ showToast, userProfile }) {
           return /^https?:\/\//i.test(v) ? v : `https://${v}`;
         })
         .filter(Boolean);
+
+      for (const img of images) {
+        const check = validateImageUrl(img);
+        if (!check.ok) {
+          setImgError({ ...check, value: img });
+          showToast('Fix the image link before submitting', 'error');
+          setSubmitting(false);
+          return;
+        }
+      }
+      setImgError(null);
       const specifications = {};
       specs.forEach(s => { if (s.key.trim()) specifications[s.key.trim()] = s.value.trim(); });
       const pricing_tiers = tiers
@@ -188,6 +222,18 @@ function AddProductTab({ showToast, userProfile }) {
         const { data: userData } = await supabase.auth.getUser();
         const user = userData?.user;
         if (user) {
+          // Re-check the daily quota at submit time, not just on page load.
+          const { count: usedToday, error: countError } = await supabase
+            .from('supplier_products')
+            .select('id', { count: 'exact', head: true })
+            .eq('supplier_id', user.id)
+            .gte('created_at', startOfTodayIso());
+          if (!countError && (usedToday || 0) >= DAILY_PRODUCT_LIMIT) {
+            setDailyCount(usedToday || 0);
+            showToast(`You can add only ${DAILY_PRODUCT_LIMIT} products a day. Try again tomorrow.`, 'error');
+            setSubmitting(false);
+            return;
+          }
           const { error } = await supabase.from('supplier_products').insert([{
             supplier_id: user.id,
             supplier_email: user.email,
@@ -225,6 +271,7 @@ function AddProductTab({ showToast, userProfile }) {
       });
       setSpecs([{ key: '', value: '' }]);
       setTiers([{ min_qty: '', price: '' }]);
+      loadDailyCount();
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -245,7 +292,23 @@ function AddProductTab({ showToast, userProfile }) {
             <h3 className="text-lg font-semibold text-gray-900">New Product</h3>
             <p className="text-xs text-gray-500">Submit a product for admin approval</p>
           </div>
+          <div className="ml-auto text-right">
+            <p className="text-xs font-semibold text-gray-700">
+              {DAILY_PRODUCT_LIMIT - (dailyCount ?? 0)} of {DAILY_PRODUCT_LIMIT} left today
+            </p>
+            <p className="text-[11px] text-gray-400">Resets at midnight</p>
+          </div>
         </div>
+
+        {limitReached && (
+          <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50/70 px-3.5 py-3">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-xs leading-relaxed text-amber-900">
+              You have added {dailyCount} products today. The limit is {DAILY_PRODUCT_LIMIT} products per day —
+              you can add more after midnight.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid sm:grid-cols-2 gap-4">
@@ -349,30 +412,35 @@ function AddProductTab({ showToast, userProfile }) {
                     )}
                   </div>
                   <input type="text" value={form[key]}
-                    onChange={e => { setBrokenImgs(p => ({ ...p, [key]: false })); update(key)(e.target.value); }}
-                    placeholder="https://image-link..." required={required}
+                    onChange={e => { setImgError(null); setBrokenImgs(p => ({ ...p, [key]: false })); update(key)(e.target.value); }}
+                    placeholder={`${PROPER_HOST}/storage/v1/object/public/Products/...`} required={required}
                     className="mt-2 w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 outline-none focus:border-primary/50 placeholder:text-gray-400 transition-colors" />
                 </div>
               ))}
             </div>
-            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2.5">
-              <p className="text-[11px] leading-relaxed text-amber-900">
-                Paste a <span className="font-semibold">public image link</span> that starts with
-                <span className="font-semibold"> https://</span> and ends in
-                <span className="font-semibold"> .jpg .jpeg .jfif .png .webp .gif .avif</span> or
-                <span className="font-semibold"> .svg</span>.
-              </p>
-              <p className="mt-1 text-[11px] leading-relaxed text-amber-800/80">
-                Not allowed: <span className="font-semibold">.heic / .heif</span> (iPhone Photos),
-                <span className="font-semibold"> .bmp</span>, <span className="font-semibold">.tif</span>, or any
-                link that asks for a login. Spaces must be written as
-                <span className="font-semibold"> %20</span>. Upload to the
-                <span className="font-semibold"> Products</span> Supabase bucket for the fastest load.
-              </p>
-              <p className="mt-1 text-[11px] text-gray-500 leading-relaxed">
-                First image is the main thumbnail. All images appear on the product page and cards.
-              </p>
-            </div>
+            {imgError && (
+              <div className="mt-3 rounded-lg border border-red-200 bg-red-50/70 px-3 py-2.5">
+                <p className="text-[11px] leading-relaxed text-red-700">
+                  <span className="font-semibold">This link will not work:</span> {imgError.message}
+                </p>
+                {imgError.hint && (
+                  <p className="mt-1 text-[11px] leading-relaxed text-red-700/80">{imgError.hint}</p>
+                )}
+                {imgError.suggestion && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <code className="text-[10px] bg-white px-1.5 py-1 rounded border border-red-200 text-red-700 break-all">{imgError.suggestion}</code>
+                    <button type="button" onClick={() => {
+                      const key = ['image_url', 'image2', 'image3'].find(k => (form[k] || '').trim() === imgError.value) || 'image_url';
+                      update(key)(imgError.suggestion);
+                      setImgError(null);
+                    }} className="px-2 py-1 text-[10px] font-semibold bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all">
+                      Use this link
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            <ImageFormatHelp note="First image is the main thumbnail. All images appear on the product page and cards." />
           </div>
 
           {/* Specifications */}
@@ -440,10 +508,10 @@ function AddProductTab({ showToast, userProfile }) {
           </div>
 
           <div className="flex items-center gap-3 pt-2">
-            <button type="submit" disabled={submitting}
+            <button type="submit" disabled={submitting || limitReached}
               className="flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-semibold rounded-xl hover:bg-neutral-800 transition-all disabled:opacity-50">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              {submitting ? 'Submitting...' : 'Submit for Approval'}
+              {submitting ? 'Submitting...' : limitReached ? 'Daily limit reached' : 'Submit for Approval'}
             </button>
             <button type="button" onClick={() => {
               setForm({

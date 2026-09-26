@@ -4,10 +4,28 @@ import { SupabaseService } from '../supabase/supabase.service';
 @Injectable()
 export class SupplierProductsService {
   private readonly adminEmail = 'hinata4020196@gmail.com';
+  private readonly dailyProductLimit = 2;
 
   constructor(private supabase: SupabaseService) {}
 
+  private startOfTodayIso(): string {
+    const now = new Date();
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString();
+  }
+
   async create(dto: any, userId: string, userEmail: string, userName: string) {
+    const { count, error: countError } = await this.supabase
+      .from('supplier_products')
+      .select('id', { count: 'exact', head: true })
+      .eq('supplier_id', userId)
+      .gte('created_at', this.startOfTodayIso());
+    if (countError) throw new InternalServerErrorException(countError.message);
+    if ((count || 0) >= this.dailyProductLimit) {
+      throw new ForbiddenException(
+        `You can add only ${this.dailyProductLimit} products a day. Try again tomorrow.`,
+      );
+    }
+
     const payload = {
       supplier_id: userId,
       supplier_email: userEmail,
