@@ -107,13 +107,6 @@ export default function ContactPage() {
         <div className="wrap">
           <div className="hero-inner">
             <div className="hero-copy">
-              <button
-                className="back-btn reveal"
-                style={{ animationDelay: '.05s' }}
-                onClick={() => window.history.back()}
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-              </button>
               <h1 className="display gold-shimmer reveal" style={{ animationDelay: '.15s' }}>Get in Touch</h1>
               <p className="reveal" style={{ animationDelay: '.3s' }}>Have a question about bulk orders, partnerships, or need help? Our team is here to help.</p>
             </div>
