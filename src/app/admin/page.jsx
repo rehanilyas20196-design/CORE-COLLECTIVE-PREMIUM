@@ -1434,7 +1434,24 @@ function AddProductModal({ onClose, onConfirm, loading }) {
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-gray-400">First image is the main thumbnail. All images appear in the product page gallery.</p>
+            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2.5">
+              <p className="text-[11px] leading-relaxed text-amber-900">
+                Paste a <span className="font-semibold">public image link</span> that starts with
+                <span className="font-semibold"> https://</span> and ends in
+                <span className="font-semibold"> .jpg .jpeg .jfif .png .webp .gif .avif</span> or
+                <span className="font-semibold"> .svg</span>.
+              </p>
+              <p className="mt-1 text-[11px] leading-relaxed text-amber-800/80">
+                Not allowed: <span className="font-semibold">.heic / .heif</span> (iPhone Photos),
+                <span className="font-semibold"> .bmp</span>, <span className="font-semibold">.tif</span>, or any
+                link that asks for a login. Spaces must be written as
+                <span className="font-semibold"> %20</span>. Upload to the
+                <span className="font-semibold"> Products</span> Supabase bucket for the fastest load.
+              </p>
+              <p className="mt-1 text-[11px] text-gray-500 leading-relaxed">
+                First image is the main thumbnail. All images appear in the product page gallery.
+              </p>
+            </div>
           </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Description</label>
