@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, SlidersHorizontal, X, ChevronDown, LayoutGrid, List, Star, Loader, Sparkles, Shield } from 'lucide-react';
 import ProductCard from '../../components/products/ProductCard';
@@ -207,7 +208,7 @@ function ProductsPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <nav className="flex items-center gap-2 text-xs text-gray-500 mb-4">
-              <a href="/" className="hover:text-black transition-colors">Home</a>
+              <Link href="/" className="hover:text-black transition-colors">Home</Link>
               <ChevronDown className="w-3 h-3 -rotate-90" />
               <span className="text-black font-semibold">Products</span>
             </nav>

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 
 const sections = [
   {
@@ -42,7 +43,7 @@ export default function CookiesPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <a href="/" className="hover:text-primary transition-colors">Home</a>
+              <Link href="/" className="hover:text-primary transition-colors">Home</Link>
               <ChevronDown className="w-3 h-3 -rotate-90" />
               <span className="text-primary">Cookie Policy</span>
             </nav>

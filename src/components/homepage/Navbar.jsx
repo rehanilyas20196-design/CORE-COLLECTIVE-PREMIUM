@@ -28,7 +28,7 @@ export default function Navbar() {
   const { notifCount } = useNotif();
   const router = useRouter();
   const pathname = usePathname();
-  if (pathname?.startsWith('/admin')) return null;
+  const hideNav = pathname?.startsWith('/admin');
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('/');
@@ -76,6 +76,8 @@ export default function Navbar() {
     window.dispatchEvent(new CustomEvent('authExpired'));
     router.push('/');
   };
+
+  if (hideNav) return null;
 
   return (
     <>

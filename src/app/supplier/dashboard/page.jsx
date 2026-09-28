@@ -583,7 +583,7 @@ function MyProductsTab({ showToast }) {
               <tr><td colSpan={6} className="px-5 py-16 text-center text-gray-600">
                 <Package className="w-10 h-10 mx-auto mb-3 text-gray-700" />
                 <p>No products submitted yet</p>
-                <p className="text-xs mt-1">Go to "Add Product" tab to submit your first product</p>
+                <p className="text-xs mt-1">Go to &quot;Add Product&quot; tab to submit your first product</p>
               </td></tr>
             ) : (
               products.map((p, i) => (

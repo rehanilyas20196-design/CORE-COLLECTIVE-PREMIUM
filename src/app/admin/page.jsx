@@ -1099,7 +1099,7 @@ function NotificationsTab({ notifications, loadNotifications, showToast }) {
         {/* Send to ONE user by email */}
         <div className="bg-white border-2 border-black rounded-2xl p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-1">Send to Specific User</h3>
-          <p className="text-xs text-gray-500 mb-5">Type a user's email (see Users tab) or @suppliers / @buyers</p>
+          <p className="text-xs text-gray-500 mb-5">Type a user&apos;s email (see Users tab) or @suppliers / @buyers</p>
           <form onSubmit={handleSendDirect} className="space-y-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1.5 font-medium">User Email</label>
