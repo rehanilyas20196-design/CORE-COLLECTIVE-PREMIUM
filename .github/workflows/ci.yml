@@ -56,14 +56,50 @@ jobs:
         run: npm test
 
   docker:
-    name: Docker images
+    name: Build & push Docker images (Docker Hub)
     runs-on: ubuntu-latest
+    # Don't ship images unless the app builds and tests pass.
+    needs: [web, backend]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build backend image
-        run: docker build -t core-collective-backend -f backend/Dockerfile backend
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build web image
-        run: docker build -t core-collective-web .
+      # Login only when we actually push (main branch), not on pull requests.
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: backend/Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/core-collective-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/core-collective-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          # NEXT_PUBLIC_* get inlined into the client bundle at build time.
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_BACKEND_URL=http://backend:3001
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/core-collective-web:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/core-collective-web:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
