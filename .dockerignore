@@ -1,0 +1,46 @@
+# Build context for the `web` image (Next.js at repo root).
+# Keeping this tight speeds up `docker build` a lot on Windows, where the
+# context is read through a VM filesystem.
+
+# deps / build output
+node_modules
+.next
+.next/cache
+
+# secrets — NEXT_PUBLIC_* values are injected as build args instead
+.env
+.env.*
+!.env.example
+
+# VCS
+.git
+.gitignore
+
+# editor / agent tooling — not needed to build or run
+.agents
+.freebuff
+.kilo
+.kilocode
+.qodo
+.vscode
+.idea
+
+# backend builds from its own context (./backend), so it is dead weight here
+backend
+
+# docs, dev scripts and stray SQL dumps are not part of the runtime
+docs
+scripts
+*.md
+*.sql
+*.log
+dev.log
+dev-err.log
+*.txt
+
+# standalone HTML mockups at repo root
+*.html
+
+# hosting configs
+.vercel
+.vercelignore

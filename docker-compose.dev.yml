@@ -1,0 +1,63 @@
+# Development override — hot reload on the host filesystem.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Do NOT rename this to `docker-compose.override.yml`: that name is picked up
+# automatically by every `docker compose` command, which would silently replace
+# the production images with bind mounts.
+#
+# Performance note (Windows/macOS): bind mounts are served through the Docker
+# Desktop VM, so file watching is unreliable. Both services below fall back to
+# polling (`WATCHPACK_POLLING` / `CHOKIDAR_USEPOLLING`). Editing is a little
+# slower but changes are always picked up. On native Linux, delete those two
+# variables for inotify-based watching.
+
+name: core-collective-dev
+
+services:
+  backend:
+    build:
+      target: builder
+    command: npm run start:dev
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      WATCHPACK_POLLING: "true"
+      WATCHPACK_POLLING_INTERVAL: "1000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/package.json:/app/package.json
+      # node_modules stays inside the image: a host bind mount would shadow it
+      # with the Windows install and break native/musl binary resolution.
+      - /app/node_modules
+    healthcheck:
+      # `nest start --watch` needs far longer to compile on first boot than the
+      # production image does to start.
+      start_period: 180s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+      # Runtime values still apply in dev; next dev re-reads these on restart.
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      NEXT_PUBLIC_BACKEND_URL: http://backend:3001
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./next.config.js:/app/next.config.js
+      - ./package.json:/app/package.json
+      - /app/node_modules
+      # Keep the production build output out of the host .next directory.
+      - /app/.next
+    healthcheck:
+      start_period: 180s
+      interval: 10s
+      timeout: 5s
+      retries: 10

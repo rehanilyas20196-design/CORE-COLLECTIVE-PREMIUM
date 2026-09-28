@@ -1,0 +1,106 @@
+# Core Collective — full local/production stack.
+# Usage:  docker compose up -d --build      (reads .env automatically)
+# Docs:   see DOCKER.md
+
+name: core-collective
+
+services:
+  # ------------------------------------------------------------------ #
+  # NestJS API                                                           #
+  # ------------------------------------------------------------------ #
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: core-collective-backend
+    container_name: core-backend
+    restart: unless-stopped
+    # PID 1 signal handling + zombie reaping for the Node process.
+    init: true
+    environment:
+      PORT: 3001
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      # REQUIRED. backend/src/supabase/supabase.service.ts reads this to build
+      # the admin client. Without it SupabaseService silently falls back to the
+      # anon key, and every privileged call (signup auto-confirm, admin
+      # bootstrap) fails or is rejected by RLS.
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Comma-separated CORS allowlist.
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      PASSWORD_PEPPER: ${PASSWORD_PEPPER}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      # No default on purpose: the backend fails closed if this is unset.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    ports:
+      - "3001:3001"
+    networks:
+      - core
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ------------------------------------------------------------------ #
+  # Next.js frontend                                                     #
+  # ------------------------------------------------------------------ #
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* values are inlined into the client bundle at BUILD
+        # time, so they must arrive as build args, not runtime env.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        # NOTE: this is consumed server-side only, by the proxy at
+        # src/app/api/[...catchall]/route.js. The browser never resolves it, so
+        # the Docker-internal hostname `backend` is correct here and
+        # localhost would be wrong.
+        NEXT_PUBLIC_BACKEND_URL: http://backend:3001
+        NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${NEXT_PUBLIC_PADDLE_CLIENT_TOKEN:-}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_GEMINI_API_KEY: ${NEXT_PUBLIC_GEMINI_API_KEY:-}
+    image: core-collective-web
+    container_name: core-web
+    restart: unless-stopped
+    init: true
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      PADDLE_API_KEY: ${PADDLE_API_KEY:-}
+      PADDLE_ENV: ${PADDLE_ENV:-sandbox}
+      PADDLE_WEBHOOK_SECRET: ${PADDLE_WEBHOOK_SECRET:-}
+    ports:
+      - "3000:3000"
+    networks:
+      - core
+    healthcheck:
+      # Served by src/app/api/health/route.js — a static route, so it wins over
+      # the [...catchall] proxy and never touches the backend.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  core:
+    name: core-collective
+    driver: bridge

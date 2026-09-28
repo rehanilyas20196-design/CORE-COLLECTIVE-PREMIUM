@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CustomThrottlerGuard } from './common/custom-throttler.guard';
@@ -50,7 +52,11 @@ import { QuotesModule } from './quotes/quotes.module';
     ContactMessagesModule,
     QuotesModule,
   ],
+  controllers: [
+    AppController,
+  ],
   providers: [
+    AppService,
     { provide: APP_GUARD, useClass: CustomThrottlerGuard },
   ],
 })
