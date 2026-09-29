@@ -107,13 +107,16 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
 
-                stage('Lint') {
-                    when { expression { params.RUN_LINT } }
-                    steps {
-                        bat 'npm run lint'
-                    }
-                }
+        // Sequential, not inside the parallel block above: `npm run lint` needs
+        // the devDependencies that `npm ci` installs. Running it in parallel
+        // races the install and dies with "eslint is not recognized".
+        stage('Lint') {
+            when { expression { params.RUN_LINT } }
+            steps {
+                bat 'npm run lint'
             }
         }
 
