@@ -1,24 +1,23 @@
-// Core Collective — CI pipeline (Jenkins Declarative)
+// Core Collective - CI pipeline (Jenkins Declarative, Windows agent)
 //
 // Mirrors .github/workflows/ci.yml minus the registry push:
-//   web     → Next.js 14  : npm ci → test → build
-//   backend → NestJS 11   : npm ci → build → test
-//   docker  → validates both Dockerfiles compile (no push)
+//   web     -> Next.js 14 : npm ci -> test -> build
+//   backend -> NestJS 11  : npm ci -> build -> test
+//   docker  -> optional, validates both Dockerfiles compile (no push)
 //
-// Assumptions:
-//   * Linux agent with Node.js >= 22, npm and Docker (Buildx) installed
-//   * The .env files are git-ignored, so no secrets are needed to build:
-//     NEXT_PUBLIC_* are inlined at build time and every consumer tolerates
-//     them being unset (src/lib/supabase.js returns null server-side).
+// Agent requirements (Windows):
+//   * Node.js >= 22 and npm on the agent PATH
+//   * git on the agent PATH (Jenkins also resolves it via Global Tool Config)
+//   * docker CLI on the agent PATH, and RUN_DOCKER=true, to run the Docker stage
 //
-// NOTE ON ESCAPING: sh '''...''' is a Groovy GString, so Groovy interpolates
-// `$name` before the shell ever sees it. Shell-local variables must be written
-// as \$name; only ${env.BUILD_NUMBER} (below) is meant to be interpolated.
+// No secrets are needed: the .env files are git-ignored, and the web build was
+// verified to succeed with no NEXT_PUBLIC_* set (src/lib/supabase.js returns
+// null server-side instead of throwing).
 //
-// First run checklist:
-//   1. Create a Pipeline job pointing at this repo (multibranch or Pipeline
-//      script from SCM).
-//   2. Make sure the agent label used below actually has node + docker.
+// ESCAPING: `bat '''...'''` and `powershell '''...'''` are Groovy GStrings, so
+// Groovy interpolates $name before the shell/PowerShell ever sees it. Every
+// PowerShell variable below is written \$name; only ${env.BUILD_NUMBER} is meant
+// to be interpolated.
 
 pipeline {
     agent any
@@ -28,6 +27,11 @@ pipeline {
             name: 'RUN_LINT',
             defaultValue: false,
             description: 'Run eslint on the Next.js app. Off by default: lint is not part of the GitHub Actions gate, and `npm run lint` in backend/ rewrites files (eslint --fix).'
+        )
+        booleanParam(
+            name: 'RUN_DOCKER',
+            defaultValue: false,
+            description: 'Also build both Docker images. Off by default: Docker Desktop here is a per-user install, so the Jenkins service (LocalSystem) cannot reach the docker CLI or the daemon until that is sorted out.'
         )
     }
 
@@ -44,8 +48,6 @@ pipeline {
         NPM_CONFIG_AUDIT = 'false'
         NPM_CONFIG_FUND = 'false'
         NEXT_TELEMETRY_DISABLED = '1'
-        // Both Dockerfiles use `RUN --mount=type=cache`, which only works with
-        // BuildKit. Docker >= 23 has it on by default; this is belt and braces.
         DOCKER_BUILDKIT = '1'
     }
 
@@ -58,35 +60,34 @@ pipeline {
 
         stage('Verify toolchain') {
             steps {
-                sh '''
-                    set -eu
+                powershell '''
+                    \$ErrorActionPreference = 'Stop'
 
-                    for bin in git node npm docker; do
-                        if ! command -v "\$bin" >/dev/null 2>&1; then
-                            echo "::error::\$bin is not installed on $(hostname) - fix the agent or use a different label"
+                    foreach (\$bin in @('git', 'node', 'npm')) {
+                        if (-not (Get-Command \$bin -ErrorAction SilentlyContinue)) {
+                            Write-Host "::error::\$bin is not on this agent's PATH"
                             exit 1
-                        fi
-                    done
+                        }
+                    }
 
-                    # NestJS 11 + @supabase/realtime-js need native WebSocket, i.e. Node 22+.
-                    node_major=$(node -p process.versions.node | cut -d. -f1)
-                    if [ "\$node_major" -lt 22 ]; then
-                        echo "::error::Node $(node -v) found, Node 22+ required"
+                    if (\$env:RUN_DOCKER -eq 'true' -and -not (Get-Command docker -ErrorAction SilentlyContinue)) {
+                        Write-Host '::error::RUN_DOCKER is enabled but the docker CLI is not on this agent PATH'
                         exit 1
-                    fi
-                    echo "node $(node -v) / npm $(npm -v)"
+                    }
 
-                    if docker buildx version >/dev/null 2>&1; then
-                        echo "buildx: $(docker buildx version)"
-                    else
-                        echo "::warning::docker buildx not found - falling back to legacy docker build"
-                    fi
+                    \$major = [int] (node -p process.versions.node).Split('.')[0]
+                    if (\$major -lt 22) {
+                        Write-Host "::error::Node \$(node -v) found, Node 22+ required"
+                        exit 1
+                    }
+                    Write-Host "node \$(node -v) / npm \$(npm -v)"
 
-                    # `npm ci` needs the lockfiles, and fails with a confusing
-                    # error if they were never committed.
-                    for lock in package-lock.json backend/package-lock.json; do
-                        [ -f "\$lock" ] || { echo "::error::\$lock is missing"; exit 1; }
-                    done
+                    foreach (\$lock in @('package-lock.json', 'backend/package-lock.json')) {
+                        if (-not (Test-Path \$lock)) {
+                            Write-Host "::error::\$lock is missing"
+                            exit 1
+                        }
+                    }
                 '''
             }
         }
@@ -95,24 +96,14 @@ pipeline {
             parallel {
                 stage('Web (Next.js)') {
                     steps {
-                        sh '''
-                            set -eu
-                            npm ci
-                            npm test
-                            npm run build
-                        '''
+                        bat 'npm ci && npm test && npm run build'
                     }
                 }
 
                 stage('Backend (NestJS)') {
                     steps {
                         dir('backend') {
-                            sh '''
-                                set -eu
-                                npm ci
-                                npm run build
-                                npm test
-                            '''
+                            bat 'npm ci && npm run build && npm test'
                         }
                     }
                 }
@@ -120,39 +111,27 @@ pipeline {
                 stage('Lint') {
                     when { expression { params.RUN_LINT } }
                     steps {
-                        sh 'set -eu; npm run lint'
+                        bat 'npm run lint'
                     }
                 }
             }
         }
 
         stage('Docker build') {
+            when { expression { params.RUN_DOCKER } }
             steps {
-                sh '''
-                    set -eu
-
-                    # Label both images with the build number so the post{}
-                    # cleanup can prune exactly what this run produced and
-                    # never touch images from other jobs.
-                    LABEL="jenkins.core-collective.build=${env.BUILD_NUMBER}"
-
-                    if docker buildx version >/dev/null 2>&1; then
-                        docker buildx build --load --label "\$LABEL" \\
-                            -t "core-collective-backend:build-${env.BUILD_NUMBER}" \\
-                            -f backend/Dockerfile ./backend
-                        docker buildx build --load --label "\$LABEL" \\
-                            -t "core-collective-web:build-${env.BUILD_NUMBER}" \\
-                            -f Dockerfile .
-                    else
-                        docker build --label "\$LABEL" \\
-                            -t "core-collective-backend:build-${env.BUILD_NUMBER}" \\
-                            -f backend/Dockerfile ./backend
-                        docker build --label "\$LABEL" \\
-                            -t "core-collective-web:build-${env.BUILD_NUMBER}" \\
-                            -f Dockerfile .
-                    fi
-
-                    docker image ls --filter "label=\$LABEL"
+                bat '''
+                    @echo off
+                    docker info >nul 2>&1
+                    if errorlevel 1 (
+                        echo ::error::Docker daemon not reachable from the Jenkins service. Docker Desktop is a per-user install; the service runs as LocalSystem.
+                        exit /b 1
+                    )
+                    set "TAG=build-%BUILD_NUMBER%"
+                    set "LABEL=jenkins.core-collective.build=%BUILD_NUMBER%"
+                    docker build --label "%LABEL%" -t "core-collective-backend:%TAG%" -f backend/Dockerfile backend || exit /b 1
+                    docker build --label "%LABEL%" -t "core-collective-web:%TAG%" -f Dockerfile . || exit /b 1
+                    docker image ls --filter "label=%LABEL%"
                 '''
             }
         }
@@ -160,8 +139,11 @@ pipeline {
 
     post {
         always {
-            // Single-quoted Groovy string, so ${BUILD_NUMBER} reaches the shell as-is.
-            sh 'docker image prune -f --filter "label=jenkins.core-collective.build=${BUILD_NUMBER}" || true'
+            bat '''
+                @echo off
+                if "%RUN_DOCKER%"=="true" docker image prune -f --filter "label=jenkins.core-collective.build=%BUILD_NUMBER%" >nul 2>&1
+                exit /b 0
+            '''
         }
         success {
             echo "Build #${env.BUILD_NUMBER} passed."
