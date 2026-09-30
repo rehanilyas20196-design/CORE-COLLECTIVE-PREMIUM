@@ -4,6 +4,12 @@
 //   web     -> Next.js 14 : npm ci -> test -> build
 //   backend -> NestJS 11  : npm ci -> build -> test
 //   docker  -> optional, validates both Dockerfiles compile (no push)
+//   vercel  -> optional, links + deploys the Next.js app to Vercel production
+//
+// Vercel requirements:
+//   * Jenkins secret text credential `vercel-token` (Vercel access token)
+//   * `VERCEL_PROJECT` below must match the Vercel project name, and the token
+//     must belong to the scope that owns it (set VERCEL_SCOPE for team projects)
 //
 // Agent requirements (Windows):
 //   * Node.js >= 22 and npm on the agent PATH
@@ -32,6 +38,21 @@ pipeline {
             name: 'RUN_DOCKER',
             defaultValue: false,
             description: 'Also build both Docker images. Off by default: Docker Desktop here is a per-user install, so the Jenkins service (LocalSystem) cannot reach the docker CLI or the daemon until that is sorted out.'
+        )
+        booleanParam(
+            name: 'DEPLOY_VERCEL',
+            defaultValue: false,
+            description: 'Deploy the Next.js app to Vercel production. Requires the `vercel-token` Jenkins credential.'
+        )
+        string(
+            name: 'VERCEL_PROJECT',
+            defaultValue: 'buy-allproduts-corecollective',
+            description: 'Vercel project to deploy to. Must match the project name in the Vercel dashboard; the production domain is <project>.vercel.app.'
+        )
+        string(
+            name: 'VERCEL_SCOPE',
+            defaultValue: '',
+            description: 'Vercel team slug to deploy under. Leave blank for a personal account project.'
         )
     }
 
@@ -148,6 +169,42 @@ pipeline {
                     docker build --label "%LABEL%" -t "core-collective-web:%TAG%" -f Dockerfile . || exit /b 1
                     docker image ls --filter "label=%LABEL%"
                 '''
+            }
+        }
+
+        stage('Deploy Frontend to Vercel') {
+            when {
+                allOf {
+                    expression { params.DEPLOY_VERCEL }
+                    // This is a --prod deploy, so refuse to run it off a feature
+                    // branch or a tag build. Detached HEAD fails `branch` too.
+                    branch 'main'
+                }
+            }
+            steps {
+                withCredentials([
+                    string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')
+                ]) {
+                    bat '''
+                        @echo off
+
+                        set "SCOPE="
+                        if not "%VERCEL_SCOPE%"=="" set "SCOPE=--scope %VERCEL_SCOPE%"
+
+                        rem `--name` is deprecated upstream. Link the checkout to the
+                        rem existing project instead: this writes .vercel/project.json,
+                        rem which is what `vercel deploy` needs to resolve the target,
+                        rem and it fails loudly if the project does not exist rather
+                        rem than silently creating a second one.
+                        npx --yes vercel@latest link --project "%VERCEL_PROJECT%" --yes --token "%VERCEL_TOKEN%" %SCOPE% || exit /b 1
+
+                        rem No --prebuilt: let Vercel run the Next.js build so the
+                        rem build uses the project env vars and build cache already
+                        rem configured on Vercel. --logs pipes the remote build output
+                        rem into the Jenkins console. Exits non-zero if the build fails.
+                        npx --yes vercel@latest deploy --prod --yes --logs --token "%VERCEL_TOKEN%" %SCOPE%
+                    '''
+                }
             }
         }
     }
