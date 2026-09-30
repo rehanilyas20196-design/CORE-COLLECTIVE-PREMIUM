@@ -79,6 +79,20 @@ pipeline {
             }
         }
 
+        // "skipped due to when conditional" does not say WHICH condition was
+        // false. Echo every resolved gate so the console answers it, instead of
+        // making people guess whether a checkbox was missed or `branch 'main'`
+        // failed because BRANCH_NAME came back empty.
+        stage('Build config') {
+            steps {
+                script {
+                    echo "RUN_LINT=${params.RUN_LINT} RUN_DOCKER=${params.RUN_DOCKER} RUN_VERCEL=${params.RUN_VERCEL}"
+                    echo "VERCEL_PROJECT=${params.VERCEL_PROJECT} VERCEL_SCOPE=${params.VERCEL_SCOPE}"
+                    echo "BRANCH_NAME=${env.BRANCH_NAME} GIT_COMMIT=${env.GIT_COMMIT}"
+                }
+            }
+        }
+
         stage('Verify toolchain') {
             steps {
                 powershell '''
@@ -184,10 +198,8 @@ pipeline {
         stage('Deploy Frontend to Vercel') {
             when {
                 allOf {
-                    expression { params.RUN_VERCEL }
-                    // This is a --prod deploy, so refuse to run it off a feature
-                    // branch or a tag build. Detached HEAD fails `branch` too.
-                    branch 'main'
+                    expression { params.RUN_VERCEL.toString() == 'true' }
+                    expression { env.BRANCH_NAME == 'main' }
                 }
             }
             steps {
