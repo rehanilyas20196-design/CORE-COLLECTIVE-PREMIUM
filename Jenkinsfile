@@ -75,20 +75,33 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    // Take the values from what `checkout` RETURNS. env.BRANCH_NAME
+                    // and env.GIT_COMMIT are contributed by the Branch Source plugins
+                    // (GitHub/GitLab Branch Source) and are null in a plain "Pipeline
+                    // script from SCM" job - which is why the deploy gate below was
+                    // silently never satisfiable.
+                    def scmVars = checkout scm
+                    env.SCM_COMMIT = scmVars.GIT_COMMIT
+                    // GitSCM reports a remote-tracking checkout as "origin/main".
+                    env.SCM_BRANCH = (scmVars.GIT_BRANCH ?: '').replaceAll('^origin/', '')
+                }
             }
         }
 
         // "skipped due to when conditional" does not say WHICH condition was
         // false. Echo every resolved gate so the console answers it, instead of
-        // making people guess whether a checkbox was missed or `branch 'main'`
+        // making people guess whether a checkbox was missed or the branch guard
         // failed because BRANCH_NAME came back empty.
         stage('Build config') {
             steps {
                 script {
                     echo "RUN_LINT=${params.RUN_LINT} RUN_DOCKER=${params.RUN_DOCKER} RUN_VERCEL=${params.RUN_VERCEL}"
                     echo "VERCEL_PROJECT=${params.VERCEL_PROJECT} VERCEL_SCOPE=${params.VERCEL_SCOPE}"
-                    echo "BRANCH_NAME=${env.BRANCH_NAME} GIT_COMMIT=${env.GIT_COMMIT}"
+                    echo "SCM_BRANCH=${env.SCM_BRANCH} SCM_COMMIT=${env.SCM_COMMIT}"
+                    if (!env.SCM_BRANCH) {
+                        echo "::warning::SCM_BRANCH could not be resolved; the main-branch deploy guard will not apply."
+                    }
                 }
             }
         }
@@ -199,7 +212,10 @@ pipeline {
             when {
                 allOf {
                     expression { params.RUN_VERCEL.toString() == 'true' }
-                    expression { env.BRANCH_NAME == 'main' }
+                    // Fail closed when we know the branch, fail open when we do not.
+                    // A branch guard that can never be satisfied would silently block
+                    // every deploy, and RUN_VERCEL is already an explicit manual opt-in.
+                    expression { !env.SCM_BRANCH || env.SCM_BRANCH == 'main' }
                 }
             }
             steps {
