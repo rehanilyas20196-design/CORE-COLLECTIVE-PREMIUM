@@ -144,31 +144,40 @@ pipeline {
         stage('Docker build') {
             when { expression { params.RUN_DOCKER } }
             steps {
-                bat '''
-                    @echo off
+                // Marks the stage AND the build as FAILURE but keeps executing.
+                // Docker Desktop is a per-user install, so this stage fails for the
+                // Jenkins service account on this agent no matter what the code looks
+                // like. Without catchError, that failure sets the build result to
+                // FAILURE, Declarative's default skipStagesAfterUnstableOrFailure
+                // fires, and the Vercel deploy below never runs - which is exactly
+                // how a Docker problem silently became a "deploy is broken" report.
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    bat '''
+                        @echo off
 
-                    docker info >nul 2>&1
-                    if errorlevel 1 (
-                        echo ::error::Docker daemon not reachable from the Jenkins service. Docker Desktop is a per-user install; the service runs as LocalSystem.
-                        exit /b 1
-                    )
+                        docker info >nul 2>&1
+                        if errorlevel 1 (
+                            echo ::error::Docker daemon not reachable from the Jenkins service. Docker Desktop is a per-user install; the service runs as LocalSystem.
+                            exit /b 1
+                        )
 
-                    docker buildx version >nul 2>&1
-                    if errorlevel 1 (
-                        echo ::error::docker buildx is not visible to the Jenkins service account.
-                        echo ::error::Both Dockerfiles use RUN --mount=type=cache, so BuildKit is required and there is no legacy fallback.
-                        echo ::error::The service runs as LocalSystem, whose DOCKER_CONFIG is C:\\Windows\\System32\\config\\systemprofile\\.docker
-                        echo ::error::Fix from an ELEVATED prompt: copy docker-buildx.exe into the cli-plugins folder there
-                        echo ::error::Avoid C:\\ProgramData\\Docker\\cli-plugins - Docker CLI 29.2.0 removed that search path in CVE-2025-15558
-                        exit /b 1
-                    )
+                        docker buildx version >nul 2>&1
+                        if errorlevel 1 (
+                            echo ::error::docker buildx is not visible to the Jenkins service account.
+                            echo ::error::Both Dockerfiles use RUN --mount=type=cache, so BuildKit is required and there is no legacy fallback.
+                            echo ::error::The service runs as LocalSystem, whose DOCKER_CONFIG is C:\\Windows\\System32\\config\\systemprofile\\.docker
+                            echo ::error::Fix from an ELEVATED prompt: copy docker-buildx.exe into the cli-plugins folder there
+                            echo ::error::Avoid C:\\ProgramData\\Docker\\cli-plugins - Docker CLI 29.2.0 removed that search path in CVE-2025-15558
+                            exit /b 1
+                        )
 
-                    set "TAG=build-%BUILD_NUMBER%"
-                    set "LABEL=jenkins.core-collective.build=%BUILD_NUMBER%"
-                    docker build --label "%LABEL%" -t "core-collective-backend:%TAG%" -f backend/Dockerfile backend || exit /b 1
-                    docker build --label "%LABEL%" -t "core-collective-web:%TAG%" -f Dockerfile . || exit /b 1
-                    docker image ls --filter "label=%LABEL%"
-                '''
+                        set "TAG=build-%BUILD_NUMBER%"
+                        set "LABEL=jenkins.core-collective.build=%BUILD_NUMBER%"
+                        docker build --label "%LABEL%" -t "core-collective-backend:%TAG%" -f backend/Dockerfile backend || exit /b 1
+                        docker build --label "%LABEL%" -t "core-collective-web:%TAG%" -f Dockerfile . || exit /b 1
+                        docker image ls --filter "label=%LABEL%"
+                    '''
+                }
             }
         }
 
