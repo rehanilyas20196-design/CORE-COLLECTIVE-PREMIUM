@@ -40,7 +40,7 @@ pipeline {
             description: 'Also build both Docker images. Off by default: Docker Desktop here is a per-user install, so the Jenkins service (LocalSystem) cannot reach the docker CLI or the daemon until that is sorted out.'
         )
         booleanParam(
-            name: 'DEPLOY_VERCEL',
+            name: 'RUN_VERCEL',
             defaultValue: false,
             description: 'Deploy the Next.js app to Vercel production. Requires the `vercel-token` Jenkins credential.'
         )
@@ -175,7 +175,7 @@ pipeline {
         stage('Deploy Frontend to Vercel') {
             when {
                 allOf {
-                    expression { params.DEPLOY_VERCEL }
+                    expression { params.RUN_VERCEL }
                     // This is a --prod deploy, so refuse to run it off a feature
                     // branch or a tag build. Detached HEAD fails `branch` too.
                     branch 'main'
